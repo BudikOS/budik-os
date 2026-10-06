@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Keycap: face on a hard 3 dp shadow (no blur). Pressed: shadow gone, the view
+     itself drops 3 dp (animator/keycap_press), so the face lands on the shadow. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <layer-list>
+            <item android:bottom="@dimen/budik_shadow_offset">
+                <shape><solid android:color="@color/budik_accent" /><corners android:radius="@dimen/budik_radius_m" /></shape>
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <layer-list>
+            <item android:top="@dimen/budik_shadow_offset">
+                <shape><solid android:color="@color/budik_accent_ink" /><corners android:radius="@dimen/budik_radius_m" /></shape>
+            </item>
+            <item android:bottom="@dimen/budik_shadow_offset">
+                <shape><solid android:color="@color/budik_accent" /><corners android:radius="@dimen/budik_radius_m" /></shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>

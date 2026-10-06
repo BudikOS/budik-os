@@ -1,0 +1,120 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Budik OS static overlays (product partition, enabled automatically)
+runtime_resource_overlay {
+    name: "BudikFrameworkOverlay",
+    product_specific: true,
+    manifest: "overlay/BudikFrameworkOverlay/AndroidManifest.xml",
+    resource_dirs: ["overlay/BudikFrameworkOverlay/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikSettingsProviderOverlay",
+    product_specific: true,
+    manifest: "overlay/BudikSettingsProviderOverlay/AndroidManifest.xml",
+    resource_dirs: ["overlay/BudikSettingsProviderOverlay/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikSystemUIOverlay",
+    product_specific: true,
+    manifest: "overlay/BudikSystemUIOverlay/AndroidManifest.xml",
+    resource_dirs: ["overlay/BudikSystemUIOverlay/res"],
+}
+runtime_resource_overlay {
+    name: "BudikIslandOceanOverlay",
+    product_specific: true,
+    manifest: "overlay/BudikIslandOceanOverlay/AndroidManifest.xml",
+    resource_dirs: ["overlay/BudikIslandOceanOverlay/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikSystemIconsOverlay",
+    product_specific: true,
+    manifest: "overlay/BudikSystemIconsOverlay/AndroidManifest.xml",
+    resource_dirs: ["overlay/BudikSystemIconsOverlay/res"],
+}
+// --- generated icon overlays (tools/gen-icon-overlays.sh), do not edit below
+
+runtime_resource_overlay {
+    name: "BudikIcon_telefon",
+    product_specific: true,
+    manifest: "overlay/icons/telefon/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/telefon/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_kontakty",
+    product_specific: true,
+    manifest: "overlay/icons/kontakty/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/kontakty/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_zpravy",
+    product_specific: true,
+    manifest: "overlay/icons/zpravy/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/zpravy/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_nastaveni",
+    product_specific: true,
+    manifest: "overlay/icons/nastaveni/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/nastaveni/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_soubory",
+    product_specific: true,
+    manifest: "overlay/icons/soubory/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/soubory/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_obchod",
+    product_specific: true,
+    manifest: "overlay/icons/obchod/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/obchod/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_prohlizec",
+    product_specific: true,
+    manifest: "overlay/icons/prohlizec/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/prohlizec/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_fotoaparat",
+    product_specific: true,
+    manifest: "overlay/icons/fotoaparat/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/fotoaparat/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_galerie",
+    product_specific: true,
+    manifest: "overlay/icons/galerie/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/galerie/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_hodiny",
+    product_specific: true,
+    manifest: "overlay/icons/hodiny/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/hodiny/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_kalkulacka",
+    product_specific: true,
+    manifest: "overlay/icons/kalkulacka/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/kalkulacka/res"],
+}
+
+runtime_resource_overlay {
+    name: "BudikIcon_kalendar",
+    product_specific: true,
+    manifest: "overlay/icons/kalendar/AndroidManifest.xml",
+    resource_dirs: ["overlay/icons/kalendar/res"],
+}

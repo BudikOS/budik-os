@@ -1,0 +1,40 @@
+From 76383bf4bf6b2493c45f37e6de1738233184b07c Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 05:38:02 +0000
+Subject: [PATCH] SystemUI: use Budik.meta in the volume dialog and power menu
+
+Budik.mono was removed with JetBrains Mono (0008); meta is the Instrument Sans tabular style.
+---
+ .../src/com/android/systemui/globalactions/BudikPowerMenu.kt    | 2 +-
+ .../volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/globalactions/BudikPowerMenu.kt b/packages/SystemUI/src/com/android/systemui/globalactions/BudikPowerMenu.kt
+index e668b1043c82..c77ec7ef7a0a 100644
+--- a/packages/SystemUI/src/com/android/systemui/globalactions/BudikPowerMenu.kt
++++ b/packages/SystemUI/src/com/android/systemui/globalactions/BudikPowerMenu.kt
+@@ -274,7 +274,7 @@ object BudikPowerMenu {
+                 if (battery != null) {
+                     BasicText(
+                         text = cs("baterie $battery %", "battery $battery %"),
+-                        style = Budik.mono(12.sp, colors.fg3),
++                        style = Budik.meta(12.sp, colors.fg3),
+                     )
+                 }
+             }
+diff --git a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt
+index 0f9cfdd1b763..ec27d7c8c601 100644
+--- a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt
++++ b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt
+@@ -488,7 +488,7 @@ private fun VolumeSlider(
+             modifier = Modifier.overflowCentered(),
+         )
+         Spacer(Modifier.height(4.dp))
+-        BasicText(text = "$percent %", style = Budik.mono(13.sp, colors.fg3), maxLines = 1)
++        BasicText(text = "$percent %", style = Budik.meta(13.sp, colors.fg3), maxLines = 1)
+     }
+ }
+ 
+-- 
+2.53.0
+

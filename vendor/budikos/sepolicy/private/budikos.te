@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Restored from AOSP <= 15 domain.te: old QTI vendors (QSEECom gatekeeper,
+# camera) open /dev/ion from many domains; without it system_server crashes.
+allow domain ion_device:chr_file r_file_perms;

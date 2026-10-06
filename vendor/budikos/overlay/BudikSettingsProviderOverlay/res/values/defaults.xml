@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- performance first: faster animations (0.5x) -->
+    <fraction name="def_window_animation_scale">50%</fraction>
+    <fraction name="def_transition_animation_scale">50%</fraction>
+</resources>

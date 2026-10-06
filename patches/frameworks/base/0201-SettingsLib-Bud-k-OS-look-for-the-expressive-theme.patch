@@ -1,0 +1,2529 @@
+From 94759abf37c7d388587c354fe7638c7b154551e8 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 08:37:10 +0000
+Subject: [PATCH] =?UTF-8?q?SettingsLib:=20Bud=C3=ADk=20OS=20look=20for=20t?=
+ =?UTF-8?q?he=20expressive=20theme?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fixed Budík palette instead of wallpaper colours, one card per preference
+group with 1dp dividers, Instrument Sans / Schibsted Grotesk, letter-spaced
+section labels, keycap switch and slider thumb, navy keycap dialog button,
+dialog card with a hard shadow, plain back arrow and bold toolbar title.
+---
+ .../res/values-night/colors.xml               |  12 +-
+ .../res/values-v36/styles_expressive.xml      |   2 +-
+ .../res/values/colors.xml                     |  12 +-
+ ...settingslib_card_preference_background.xml |  11 +-
+ .../settingslib_expressive_icon_back.xml      |  29 ++-
+ .../res/values-v36/styles_expressive.xml      |   7 +-
+ ...ib_expressive_color_main_switch_bar_bg.xml |   3 +-
+ ...slib_expressive_color_main_switch_text.xml |   2 +-
+ .../settingslib_expressive_switch_bar_bg.xml  |   7 +-
+ ...settingslib_expressive_main_switch_bar.xml |  13 +-
+ ...tingslib_expressive_main_switch_layout.xml |   4 +-
+ .../settingslib_budik_button_filled_bg.xml    |   6 +
+ .../settingslib_budik_button_filled_text.xml  |   6 +
+ .../settingslib_round_background.xml          |  39 +++-
+ .../settingslib_round_background_bottom.xml   |  42 ++--
+ .../settingslib_round_background_center.xml   |  39 +++-
+ .../settingslib_round_background_top.xml      |  42 ++--
+ .../settingslib_budik_button_primary.xml      |  45 +++++
+ .../settingslib_budik_button_text.xml         |  11 +
+ .../settingslib_budik_dialog_background.xml   |  23 +++
+ .../settingslib_budik_switch_thumb.xml        |  44 ++++
+ .../settingslib_budik_switch_track.xml        |  31 +++
+ .../settingslib_budik_level_colors.xml        |  10 +
+ .../res/values-night-v36/colors.xml           |   2 +-
+ .../settingslib_budik_material_colors.xml     |  34 ++++
+ .../values-night/settingslib_budik_colors.xml |  30 +++
+ .../settingslib_budik_level_colors.xml        |  10 +
+ .../settingslib_budik_m3_colors.xml           |  66 ++++++
+ .../res/values-v31/styles_expressive.xml      |  35 +++-
+ .../SettingsTheme/res/values-v36/colors.xml   |   2 +-
+ .../settingslib_budik_material_colors.xml     |  34 ++++
+ .../res/values-v36/styles_expressive.xml      | 190 +++++++++++++-----
+ .../styles_preference_expressive.xml          |   8 +-
+ .../res/values-v36/themes_expressive.xml      |   4 +
+ .../themes_preference_expressive.xml          |   4 +-
+ .../res/values/settingslib_budik_colors.xml   |  34 ++++
+ .../res/values/settingslib_budik_dimens.xml   |  18 ++
+ .../widget/BudikSegmentProgressBar.java       |  56 ++++++
+ .../settingslib/widget/BudikSegments.java     |  67 ++++++
+ .../widget/SettingsBasePreferenceFragment.kt  |   5 +-
+ .../widget/SettingsPreferenceGroupAdapter.kt  |   8 +-
+ .../settingslib_expressive_layout_slider.xml  |  12 +-
+ .../widget/BudikSegmentSlider.java            |  53 +++++
+ .../settingslib/widget/SliderPreference.java  |  23 ++-
+ .../spa/res/values-night/spa_budik_colors.xml |   5 +
+ .../Spa/spa/res/values/spa_budik_colors.xml   |   5 +
+ .../SettingsLib/Spa/spa/res/values/themes.xml |   3 +
+ .../spa/framework/theme/MaterialColors.kt     |  89 ++++++--
+ .../spa/framework/theme/SettingsDimension.kt  |   4 +-
+ .../spa/framework/theme/SettingsFontFamily.kt |  69 +++----
+ .../spa/widget/preference/BaseLayout.kt       |   5 +-
+ .../settingslib/spa/widget/ui/Category.kt     |   4 +-
+ .../settingslib/spa/widget/ui/LazyCategory.kt |   8 +-
+ ...gslib_expressive_background_level_high.xml |   2 +-
+ ...ngslib_expressive_background_level_low.xml |   2 +-
+ ...lib_expressive_background_level_medium.xml |   2 +-
+ ...gslib_expressive_background_level_high.xml |   2 +-
+ ...ngslib_expressive_background_level_low.xml |   2 +-
+ ...lib_expressive_background_level_medium.xml |   2 +-
+ ...slib_expressive_icon_status_level_high.xml |   4 +-
+ ...gslib_expressive_icon_status_level_low.xml |   4 +-
+ ...ib_expressive_icon_status_level_medium.xml |   4 +-
+ ...lib_expressive_preference_statusbanner.xml |   2 +-
+ .../res/values/colors.xml                     |   6 +-
+ ...eference_usage_progress_bar_expressive.xml |  11 +-
+ 65 files changed, 1122 insertions(+), 248 deletions(-)
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/color/settingslib_budik_button_filled_bg.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/color/settingslib_budik_button_filled_text.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_button_primary.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_button_text.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_dialog_background.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_switch_thumb.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_switch_track.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/values-night-v31/settingslib_budik_level_colors.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/values-night-v36/settingslib_budik_material_colors.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/values-night/settingslib_budik_colors.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/values-v31/settingslib_budik_level_colors.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/values-v31/settingslib_budik_m3_colors.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/values-v36/settingslib_budik_material_colors.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/values/settingslib_budik_colors.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/res/values/settingslib_budik_dimens.xml
+ create mode 100644 packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/BudikSegmentProgressBar.java
+ create mode 100644 packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/BudikSegments.java
+ create mode 100644 packages/SettingsLib/SliderPreference/src/com/android/settingslib/widget/BudikSegmentSlider.java
+ create mode 100644 packages/SettingsLib/Spa/spa/res/values-night/spa_budik_colors.xml
+ create mode 100644 packages/SettingsLib/Spa/spa/res/values/spa_budik_colors.xml
+
+diff --git a/packages/SettingsLib/BannerMessagePreference/res/values-night/colors.xml b/packages/SettingsLib/BannerMessagePreference/res/values-night/colors.xml
+index 50141a8b63bd..2cda814dea91 100644
+--- a/packages/SettingsLib/BannerMessagePreference/res/values-night/colors.xml
++++ b/packages/SettingsLib/BannerMessagePreference/res/values-night/colors.xml
+@@ -16,10 +16,10 @@
+   -->
+ 
+ <resources>
+-    <color name="banner_background_attention_high">#3B2D2C</color> <!-- red card background -->
+-    <color name="banner_background_attention_medium">#333121</color> <!-- yellow card background -->
+-    <color name="banner_background_attention_low">#2B3328</color> <!-- green card background -->
+-    <color name="banner_accent_attention_high">#F28B82</color> <!-- red accent color -->
+-    <color name="banner_accent_attention_medium">#FDD663</color> <!-- yellow accent color -->
+-    <color name="banner_accent_attention_low">#81C995</color> <!-- green accent color -->
++    <color name="banner_background_attention_high">#17191C</color> <!-- Budík OS: surface card -->
++    <color name="banner_background_attention_medium">#17191C</color> <!-- Budík OS: surface card -->
++    <color name="banner_background_attention_low">#17191C</color> <!-- Budík OS: surface card -->
++    <color name="banner_accent_attention_high">#21D4BE</color> <!-- Budík OS: mint -->
++    <color name="banner_accent_attention_medium">#21D4BE</color> <!-- Budík OS: mint -->
++    <color name="banner_accent_attention_low">#21D4BE</color> <!-- Budík OS: mint -->
+ </resources>
+diff --git a/packages/SettingsLib/BannerMessagePreference/res/values-v36/styles_expressive.xml b/packages/SettingsLib/BannerMessagePreference/res/values-v36/styles_expressive.xml
+index 3a43764c3088..af7805c1f284 100644
+--- a/packages/SettingsLib/BannerMessagePreference/res/values-v36/styles_expressive.xml
++++ b/packages/SettingsLib/BannerMessagePreference/res/values-v36/styles_expressive.xml
+@@ -35,7 +35,7 @@
+         parent="">
+         <item name="android:layout_gravity">start</item>
+         <item name="android:textAlignment">viewStart</item>
+-        <item name="android:textAppearance">@style/TextAppearance.SettingsLib.TitleLarge.Emphasized</item>
++        <item name="android:textAppearance">@style/TextAppearance.SettingsLib.TitleMedium.Emphasized</item>
+         <item name="android:textColor">?android:attr/textColorPrimary</item>
+     </style>
+ 
+diff --git a/packages/SettingsLib/BannerMessagePreference/res/values/colors.xml b/packages/SettingsLib/BannerMessagePreference/res/values/colors.xml
+index 891def1c610a..fffb15f1dd76 100644
+--- a/packages/SettingsLib/BannerMessagePreference/res/values/colors.xml
++++ b/packages/SettingsLib/BannerMessagePreference/res/values/colors.xml
+@@ -16,12 +16,12 @@
+   -->
+ 
+ <resources>
+-    <color name="banner_background_attention_high">#FFDAD5</color> <!-- red card background -->
+-    <color name="banner_background_attention_medium">#F0E3A8</color> <!-- yellow card background -->
+-    <color name="banner_background_attention_low">#CFEBC0</color> <!-- green card background -->
++    <color name="banner_background_attention_high">#FFFFFF</color> <!-- Budík OS: surface card -->
++    <color name="banner_background_attention_medium">#FFFFFF</color> <!-- Budík OS: surface card -->
++    <color name="banner_background_attention_low">#FFFFFF</color> <!-- Budík OS: surface card -->
+     <color name="banner_background_attention_normal">@color/settingslib_materialColorSurfaceBright</color> <!-- normal card background -->
+-    <color name="banner_accent_attention_high">#BB3322</color> <!-- red accent color -->
+-    <color name="banner_accent_attention_medium">#895900</color> <!-- yellow accent color -->
+-    <color name="banner_accent_attention_low">#1D7233</color> <!-- green accent color -->
++    <color name="banner_accent_attention_high">#0B1E52</color> <!-- Budík OS: navy -->
++    <color name="banner_accent_attention_medium">#0B1E52</color> <!-- Budík OS: navy -->
++    <color name="banner_accent_attention_low">#0B1E52</color> <!-- Budík OS: navy -->
+     <color name="banner_accent_attention_normal">@color/settingslib_materialColorPrimary</color> <!-- normal accent color -->
+ </resources>
+diff --git a/packages/SettingsLib/CardPreference/res/drawable/settingslib_card_preference_background.xml b/packages/SettingsLib/CardPreference/res/drawable/settingslib_card_preference_background.xml
+index 1d57c1617495..69afc86b7b70 100644
+--- a/packages/SettingsLib/CardPreference/res/drawable/settingslib_card_preference_background.xml
++++ b/packages/SettingsLib/CardPreference/res/drawable/settingslib_card_preference_background.xml
+@@ -14,15 +14,14 @@
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+-
++<!-- Budík OS: cards like the preference groups (surface, 1dp line, radius 20). -->
+ <ripple xmlns:android="http://schemas.android.com/apk/res/android"
+     android:color="?android:colorControlHighlight">
+     <item>
+         <shape android:shape="rectangle">
+-            <solid
+-                android:color="@color/settingslib_materialColorSecondaryContainer" />
+-            <corners
+-                android:radius="@dimen/settingslib_expressive_radius_extralarge3" />
++            <solid android:color="@color/settingslib_budik_surface" />
++            <stroke android:width="1dp" android:color="@color/settingslib_budik_line" />
++            <corners android:radius="@dimen/settingslib_budik_radius_l" />
+         </shape>
+     </item>
+-</ripple>
+\ No newline at end of file
++</ripple>
+diff --git a/packages/SettingsLib/CollapsingToolbarBaseActivity/res/drawable-v36/settingslib_expressive_icon_back.xml b/packages/SettingsLib/CollapsingToolbarBaseActivity/res/drawable-v36/settingslib_expressive_icon_back.xml
+index 8f0bccadc8c7..4f2f97875f3b 100644
+--- a/packages/SettingsLib/CollapsingToolbarBaseActivity/res/drawable-v36/settingslib_expressive_icon_back.xml
++++ b/packages/SettingsLib/CollapsingToolbarBaseActivity/res/drawable-v36/settingslib_expressive_icon_back.xml
+@@ -14,32 +14,31 @@
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ -->
+-
++<!-- Budík OS: plain back arrow from export/icons/ui/ic_arrow_back (no tonal circle). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+     <item>
+         <shape>
+             <size android:width="40dp" android:height="40dp" />
+-            <solid android:color="@color/settingslib_materialColorSurfaceContainerHighest" />
+-            <corners
+-                android:radius="100dp" />
++            <solid android:color="@android:color/transparent" />
+         </shape>
+     </item>
+-
+     <item
+-        android:width="16dp"
+-        android:height="16dp"
++        android:width="24dp"
++        android:height="24dp"
+         android:gravity="center">
+         <vector
+-            android:width="16dp"
+-            android:height="16dp"
+-            android:viewportWidth="16"
+-            android:viewportHeight="16"
+-            android:tint="@color/settingslib_materialColorOnSurfaceVariant"
++            android:width="24dp"
++            android:height="24dp"
++            android:viewportWidth="24"
++            android:viewportHeight="24"
+             android:autoMirrored="true">
+             <path
+-                android:fillColor="@android:color/white"
+-                android:pathData="M3.626,9L8.526,13.9C8.726,14.1 8.817,14.333 8.801,14.6C8.801,14.867 8.701,15.1 8.501,15.3C8.301,15.483 8.067,15.583 7.801,15.6C7.534,15.6 7.301,15.5 7.101,15.3L0.501,8.7C0.401,8.6 0.326,8.492 0.276,8.375C0.242,8.258 0.226,8.133 0.226,8C0.226,7.867 0.242,7.742 0.276,7.625C0.326,7.508 0.401,7.4 0.501,7.3L7.101,0.7C7.284,0.517 7.509,0.425 7.776,0.425C8.059,0.425 8.301,0.517 8.501,0.7C8.701,0.9 8.801,1.142 8.801,1.425C8.801,1.692 8.701,1.925 8.501,2.125L3.626,7H14.801C15.084,7 15.317,7.1 15.501,7.3C15.701,7.483 15.801,7.717 15.801,8C15.801,8.283 15.701,8.525 15.501,8.725C15.317,8.908 15.084,9 14.801,9H3.626Z"/>
++                android:pathData="M19 12H5M11 6l-6 6 6 6"
++                android:strokeColor="@color/settingslib_budik_fg"
++                android:strokeWidth="2"
++                android:strokeLineCap="round"
++                android:strokeLineJoin="round" />
+         </vector>
+     </item>
+     <item android:drawable="?android:attr/actionBarItemBackground" />
+-</layer-list>
+\ No newline at end of file
++</layer-list>
+diff --git a/packages/SettingsLib/CollapsingToolbarBaseActivity/res/values-v36/styles_expressive.xml b/packages/SettingsLib/CollapsingToolbarBaseActivity/res/values-v36/styles_expressive.xml
+index 344b336dc675..ee9a05d33b5f 100644
+--- a/packages/SettingsLib/CollapsingToolbarBaseActivity/res/values-v36/styles_expressive.xml
++++ b/packages/SettingsLib/CollapsingToolbarBaseActivity/res/values-v36/styles_expressive.xml
+@@ -37,11 +37,16 @@
+ 
+     <style name="SettingsLibCollapsingToolbarTitle.Collapsed" parent="@style/TextAppearance.SettingsLib.TitleLarge.Emphasized">
+         <!--set dp because we don't want size adjust when font size change-->
+-        <item name="android:textSize">22dp</item>
++        <item name="android:textSize">20dp</item>
++        <!-- Budík OS: CollapsingTextHelper ignores textFontWeight, bold picks Schibsted 700 -->
++        <item name="android:textStyle">bold</item>
++        <item name="android:letterSpacing">-0.035</item>
+     </style>
+ 
+     <style name="SettingsLibCollapsingToolbarTitle.Expanded" parent="@style/TextAppearance.SettingsLib.DisplaySmall.Emphasized">
+         <item name="android:textSize">36dp</item>
++        <item name="android:textStyle">bold</item>
++        <item name="android:letterSpacing">-0.035</item>
+     </style>
+ 
+     <style name="Widget.SettingsLib.Material3Expressive.FloatingToolbar" parent="Base.Widget.Material3.FloatingToolbar">
+diff --git a/packages/SettingsLib/MainSwitchPreference/res/color-v36/settingslib_expressive_color_main_switch_bar_bg.xml b/packages/SettingsLib/MainSwitchPreference/res/color-v36/settingslib_expressive_color_main_switch_bar_bg.xml
+index 5d0e5ab93983..8916b16ea526 100644
+--- a/packages/SettingsLib/MainSwitchPreference/res/color-v36/settingslib_expressive_color_main_switch_bar_bg.xml
++++ b/packages/SettingsLib/MainSwitchPreference/res/color-v36/settingslib_expressive_color_main_switch_bar_bg.xml
+@@ -15,6 +15,7 @@
+   limitations under the License.
+   -->
+ 
++<!-- Budík OS: the main switch is a card row (surface), not a mint slab -->
+ <selector xmlns:android="http://schemas.android.com/apk/res/android">
+     <!-- State Disabled -->
+     <item
+@@ -23,5 +24,5 @@
+         android:state_enabled="false"/>
+     <!-- State Enabled -->
+     <item
+-        android:color="@color/settingslib_materialColorPrimaryContainer"/>
++        android:color="@color/settingslib_budik_surface"/>
+ </selector>
+\ No newline at end of file
+diff --git a/packages/SettingsLib/MainSwitchPreference/res/color-v36/settingslib_expressive_color_main_switch_text.xml b/packages/SettingsLib/MainSwitchPreference/res/color-v36/settingslib_expressive_color_main_switch_text.xml
+index c71e1b19553f..bde762c18647 100644
+--- a/packages/SettingsLib/MainSwitchPreference/res/color-v36/settingslib_expressive_color_main_switch_text.xml
++++ b/packages/SettingsLib/MainSwitchPreference/res/color-v36/settingslib_expressive_color_main_switch_text.xml
+@@ -19,5 +19,5 @@
+     <item android:state_enabled="false"
+         android:color="@color/settingslib_materialColorOnSurface"
+         android:alpha="0.38" />
+-    <item android:color="@color/settingslib_materialColorOnPrimaryContainer"/>
++    <item android:color="@color/settingslib_budik_fg"/>
+ </selector>
+\ No newline at end of file
+diff --git a/packages/SettingsLib/MainSwitchPreference/res/drawable-v36/settingslib_expressive_switch_bar_bg.xml b/packages/SettingsLib/MainSwitchPreference/res/drawable-v36/settingslib_expressive_switch_bar_bg.xml
+index bef623bb5d06..173fb36705ca 100644
+--- a/packages/SettingsLib/MainSwitchPreference/res/drawable-v36/settingslib_expressive_switch_bar_bg.xml
++++ b/packages/SettingsLib/MainSwitchPreference/res/drawable-v36/settingslib_expressive_switch_bar_bg.xml
+@@ -14,13 +14,14 @@
+   See the License for the specific language governing permissions and
+   limitations under the License.
+   -->
+-
++<!-- Budík OS: main switch as a card (surface, 1dp line, radius 20) like the preference groups. -->
+ <ripple xmlns:android="http://schemas.android.com/apk/res/android"
+     android:color="?android:attr/colorControlHighlight">
+     <item>
+         <shape android:shape="rectangle">
+             <solid android:color="@color/settingslib_expressive_color_main_switch_bar_bg"/>
+-            <corners android:radius="@dimen/settingslib_expressive_radius_extralarge3"/>
++            <stroke android:width="1dp" android:color="@color/settingslib_budik_line"/>
++            <corners android:radius="@dimen/settingslib_budik_radius_l"/>
+         </shape>
+     </item>
+-</ripple>
+\ No newline at end of file
++</ripple>
+diff --git a/packages/SettingsLib/MainSwitchPreference/res/layout-v36/settingslib_expressive_main_switch_bar.xml b/packages/SettingsLib/MainSwitchPreference/res/layout-v36/settingslib_expressive_main_switch_bar.xml
+index 0d00fc318208..3fe12968a68e 100644
+--- a/packages/SettingsLib/MainSwitchPreference/res/layout-v36/settingslib_expressive_main_switch_bar.xml
++++ b/packages/SettingsLib/MainSwitchPreference/res/layout-v36/settingslib_expressive_main_switch_bar.xml
+@@ -15,21 +15,22 @@
+   limitations under the License.
+   -->
+ 
++<!-- Budík OS: compact card row like the preference groups (margins, height, regular weight) -->
+ <LinearLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="wrap_content"
+     android:layout_width="match_parent"
+     android:minHeight="?android:attr/listPreferredItemHeight"
+-    android:paddingVertical="@dimen/settingslib_expressive_space_small1"
++    android:paddingVertical="@dimen/settingslib_budik_row_padding"
+     android:orientation="vertical">
+ 
+     <LinearLayout
+         android:id="@+id/frame"
+-        android:minHeight="@dimen/settingslib_expressive_space_large3"
++        android:minHeight="@dimen/settingslib_budik_row_min_height"
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+-        android:paddingStart="@dimen/settingslib_expressive_space_medium1"
+-        android:paddingEnd="@dimen/settingslib_expressive_space_small3"
++        android:paddingStart="@dimen/settingslib_budik_card_inner"
++        android:paddingEnd="@dimen/settingslib_budik_card_inner"
+         android:background="@drawable/settingslib_expressive_switch_bar_bg">
+ 
+         <RelativeLayout
+@@ -37,7 +38,7 @@
+             android:layout_height="wrap_content"
+             android:layout_gravity="center_vertical"
+             android:layout_marginEnd="@dimen/settingslib_expressive_space_extrasmall4"
+-            android:layout_marginVertical="@dimen/settingslib_expressive_space_small1"
++            android:layout_marginVertical="@dimen/settingslib_budik_row_padding"
+             android:layout_weight="1">
+ 
+             <TextView
+@@ -47,7 +48,7 @@
+                 android:layout_gravity="start"
+                 android:ellipsize="end"
+                 android:textAlignment="viewStart"
+-                android:textAppearance="@style/TextAppearance.SettingsLib.TitleMedium.Emphasized"
++                android:textAppearance="@style/TextAppearance.SettingsLib.TitleMedium"
+                 android:textColor="@color/settingslib_expressive_color_main_switch_text" />
+ 
+             <TextView
+diff --git a/packages/SettingsLib/MainSwitchPreference/res/layout-v36/settingslib_expressive_main_switch_layout.xml b/packages/SettingsLib/MainSwitchPreference/res/layout-v36/settingslib_expressive_main_switch_layout.xml
+index 7adbfbfb1ffd..f08b6d5cd866 100644
+--- a/packages/SettingsLib/MainSwitchPreference/res/layout-v36/settingslib_expressive_main_switch_layout.xml
++++ b/packages/SettingsLib/MainSwitchPreference/res/layout-v36/settingslib_expressive_main_switch_layout.xml
+@@ -18,8 +18,8 @@
+ <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="wrap_content"
+     android:layout_width="match_parent"
+-    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+-    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd">
++    android:paddingStart="@dimen/settingslib_budik_card_margin"
++    android:paddingEnd="@dimen/settingslib_budik_card_margin">
+ 
+     <com.android.settingslib.widget.MainSwitchBar
+         android:id="@+id/settingslib_main_switch_bar"
+diff --git a/packages/SettingsLib/SettingsTheme/res/color/settingslib_budik_button_filled_bg.xml b/packages/SettingsLib/SettingsTheme/res/color/settingslib_budik_button_filled_bg.xml
+new file mode 100644
+index 000000000000..893cf0cf9bd7
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/color/settingslib_budik_button_filled_bg.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS primary button fill: navy, line colour when disabled. -->
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_enabled="false" android:color="@color/settingslib_budik_line" />
++    <item android:color="@color/settingslib_budik_primary" />
++</selector>
+diff --git a/packages/SettingsLib/SettingsTheme/res/color/settingslib_budik_button_filled_text.xml b/packages/SettingsLib/SettingsTheme/res/color/settingslib_budik_button_filled_text.xml
+new file mode 100644
+index 000000000000..237886f955c0
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/color/settingslib_budik_button_filled_text.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS primary button label: white on navy, secondary text when disabled. -->
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_enabled="false" android:color="@color/settingslib_budik_fg3" />
++    <item android:color="@color/settingslib_budik_on_primary" />
++</selector>
+diff --git a/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background.xml b/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background.xml
+index 552f809c9466..5f71446bafdf 100644
+--- a/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background.xml
++++ b/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background.xml
+@@ -14,19 +14,40 @@
+   See the License for the specific language governing permissions and
+   limitations under the License.
+   -->
+-
++<!-- Budík OS: one card per group. The 1dp line colour under the face draws the card border and,
++     on rows that are not last, the divider to the next row (the next row has no top border). -->
+ <ripple xmlns:android="http://schemas.android.com/apk/res/android"
+     android:color="?android:colorControlHighlight"
+     android:paddingStart="32dp"
+     android:paddingEnd="32dp">
+     <item
+-        android:start="?android:attr/listPreferredItemPaddingStart"
+-        android:end="?android:attr/listPreferredItemPaddingEnd">
+-        <shape android:shape="rectangle">
+-            <solid
+-                android:color="@color/settingslib_materialColorSurfaceBright" />
+-            <corners
+-                android:radius="@dimen/settingslib_preference_corner_radius" />
+-        </shape>
++        android:start="@dimen/settingslib_budik_card_margin"
++        android:end="@dimen/settingslib_budik_card_margin">
++        <layer-list>
++            <item>
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_budik_line" />
++                    <corners
++                        android:topLeftRadius="@dimen/settingslib_preference_corner_radius"
++                        android:topRightRadius="@dimen/settingslib_preference_corner_radius"
++                        android:bottomLeftRadius="@dimen/settingslib_preference_corner_radius"
++                        android:bottomRightRadius="@dimen/settingslib_preference_corner_radius" />
++                </shape>
++            </item>
++            <item
++                android:left="1dp"
++                android:right="1dp"
++                android:top="1dp"
++                android:bottom="1dp">
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_materialColorSurfaceBright" />
++                    <corners
++                        android:topLeftRadius="@dimen/settingslib_budik_preference_inner_radius"
++                        android:topRightRadius="@dimen/settingslib_budik_preference_inner_radius"
++                        android:bottomLeftRadius="@dimen/settingslib_budik_preference_inner_radius"
++                        android:bottomRightRadius="@dimen/settingslib_budik_preference_inner_radius" />
++                </shape>
++            </item>
++        </layer-list>
+     </item>
+ </ripple>
+diff --git a/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_bottom.xml b/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_bottom.xml
+index dfde8fbea284..484a7a77050b 100644
+--- a/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_bottom.xml
++++ b/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_bottom.xml
+@@ -14,22 +14,40 @@
+   See the License for the specific language governing permissions and
+   limitations under the License.
+   -->
+-
++<!-- Budík OS: one card per group. The 1dp line colour under the face draws the card border and,
++     on rows that are not last, the divider to the next row (the next row has no top border). -->
+ <ripple xmlns:android="http://schemas.android.com/apk/res/android"
+     android:color="?android:colorControlHighlight"
+     android:paddingStart="32dp"
+     android:paddingEnd="32dp">
+     <item
+-        android:start="?android:attr/listPreferredItemPaddingStart"
+-        android:end="?android:attr/listPreferredItemPaddingEnd">
+-        <shape android:shape="rectangle">
+-            <solid
+-                android:color="@color/settingslib_materialColorSurfaceBright" />
+-            <corners
+-                android:topLeftRadius="4dp"
+-                android:bottomLeftRadius="@dimen/settingslib_preference_corner_radius"
+-                android:topRightRadius="4dp"
+-                android:bottomRightRadius="@dimen/settingslib_preference_corner_radius" />
+-        </shape>
++        android:start="@dimen/settingslib_budik_card_margin"
++        android:end="@dimen/settingslib_budik_card_margin">
++        <layer-list>
++            <item>
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_budik_line" />
++                    <corners
++                        android:topLeftRadius="0dp"
++                        android:topRightRadius="0dp"
++                        android:bottomLeftRadius="@dimen/settingslib_preference_corner_radius"
++                        android:bottomRightRadius="@dimen/settingslib_preference_corner_radius" />
++                </shape>
++            </item>
++            <item
++                android:left="1dp"
++                android:right="1dp"
++                android:top="0dp"
++                android:bottom="1dp">
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_materialColorSurfaceBright" />
++                    <corners
++                        android:topLeftRadius="0dp"
++                        android:topRightRadius="0dp"
++                        android:bottomLeftRadius="@dimen/settingslib_budik_preference_inner_radius"
++                        android:bottomRightRadius="@dimen/settingslib_budik_preference_inner_radius" />
++                </shape>
++            </item>
++        </layer-list>
+     </item>
+ </ripple>
+diff --git a/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_center.xml b/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_center.xml
+index 2fb6ad3c2369..a8432fba862c 100644
+--- a/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_center.xml
++++ b/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_center.xml
+@@ -14,19 +14,40 @@
+   See the License for the specific language governing permissions and
+   limitations under the License.
+   -->
+-
++<!-- Budík OS: one card per group. The 1dp line colour under the face draws the card border and,
++     on rows that are not last, the divider to the next row (the next row has no top border). -->
+ <ripple xmlns:android="http://schemas.android.com/apk/res/android"
+     android:color="?android:colorControlHighlight"
+     android:paddingStart="32dp"
+     android:paddingEnd="32dp">
+     <item
+-        android:start="?android:attr/listPreferredItemPaddingStart"
+-        android:end="?android:attr/listPreferredItemPaddingEnd">
+-        <shape android:shape="rectangle">
+-            <solid
+-                android:color="@color/settingslib_materialColorSurfaceBright" />
+-            <corners
+-                android:radius="4dp" />
+-        </shape>
++        android:start="@dimen/settingslib_budik_card_margin"
++        android:end="@dimen/settingslib_budik_card_margin">
++        <layer-list>
++            <item>
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_budik_line" />
++                    <corners
++                        android:topLeftRadius="0dp"
++                        android:topRightRadius="0dp"
++                        android:bottomLeftRadius="0dp"
++                        android:bottomRightRadius="0dp" />
++                </shape>
++            </item>
++            <item
++                android:left="1dp"
++                android:right="1dp"
++                android:top="0dp"
++                android:bottom="1dp">
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_materialColorSurfaceBright" />
++                    <corners
++                        android:topLeftRadius="0dp"
++                        android:topRightRadius="0dp"
++                        android:bottomLeftRadius="0dp"
++                        android:bottomRightRadius="0dp" />
++                </shape>
++            </item>
++        </layer-list>
+     </item>
+ </ripple>
+diff --git a/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_top.xml b/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_top.xml
+index d3a9d3e88f4a..236efb9ddd3e 100644
+--- a/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_top.xml
++++ b/packages/SettingsLib/SettingsTheme/res/drawable-v36/settingslib_round_background_top.xml
+@@ -14,22 +14,40 @@
+   See the License for the specific language governing permissions and
+   limitations under the License.
+   -->
+-
++<!-- Budík OS: one card per group. The 1dp line colour under the face draws the card border and,
++     on rows that are not last, the divider to the next row (the next row has no top border). -->
+ <ripple xmlns:android="http://schemas.android.com/apk/res/android"
+     android:color="?android:colorControlHighlight"
+     android:paddingStart="32dp"
+     android:paddingEnd="32dp">
+     <item
+-        android:start="?android:attr/listPreferredItemPaddingStart"
+-        android:end="?android:attr/listPreferredItemPaddingEnd">
+-        <shape android:shape="rectangle">
+-            <solid
+-                android:color="@color/settingslib_materialColorSurfaceBright" />
+-            <corners
+-                android:topLeftRadius="@dimen/settingslib_preference_corner_radius"
+-                android:bottomLeftRadius="4dp"
+-                android:topRightRadius="@dimen/settingslib_preference_corner_radius"
+-                android:bottomRightRadius="4dp" />
+-        </shape>
++        android:start="@dimen/settingslib_budik_card_margin"
++        android:end="@dimen/settingslib_budik_card_margin">
++        <layer-list>
++            <item>
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_budik_line" />
++                    <corners
++                        android:topLeftRadius="@dimen/settingslib_preference_corner_radius"
++                        android:topRightRadius="@dimen/settingslib_preference_corner_radius"
++                        android:bottomLeftRadius="0dp"
++                        android:bottomRightRadius="0dp" />
++                </shape>
++            </item>
++            <item
++                android:left="1dp"
++                android:right="1dp"
++                android:top="1dp"
++                android:bottom="1dp">
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_materialColorSurfaceBright" />
++                    <corners
++                        android:topLeftRadius="@dimen/settingslib_budik_preference_inner_radius"
++                        android:topRightRadius="@dimen/settingslib_budik_preference_inner_radius"
++                        android:bottomLeftRadius="0dp"
++                        android:bottomRightRadius="0dp" />
++                </shape>
++            </item>
++        </layer-list>
+     </item>
+ </ripple>
+diff --git a/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_button_primary.xml b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_button_primary.xml
+new file mode 100644
+index 000000000000..05b79dff8678
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_button_primary.xml
+@@ -0,0 +1,45 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS primary button: navy keycap, radius 12, hard 3dp shadow; pressed = key sinks in. -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    android:color="#33FFFFFF">
++    <item>
++        <selector>
++            <item android:state_enabled="false">
++                <layer-list>
++                    <item android:top="3dp">
++                        <shape android:shape="rectangle">
++                            <solid android:color="@color/settingslib_budik_line" />
++                            <corners android:radius="@dimen/settingslib_budik_radius_m" />
++                        </shape>
++                    </item>
++                </layer-list>
++            </item>
++            <item android:state_pressed="true">
++                <layer-list>
++                    <item android:top="3dp">
++                        <shape android:shape="rectangle">
++                            <solid android:color="@color/settingslib_budik_primary" />
++                            <corners android:radius="@dimen/settingslib_budik_radius_m" />
++                        </shape>
++                    </item>
++                </layer-list>
++            </item>
++            <item>
++                <layer-list>
++                    <item android:top="3dp">
++                        <shape android:shape="rectangle">
++                            <solid android:color="@color/settingslib_budik_primary_ink" />
++                            <corners android:radius="@dimen/settingslib_budik_radius_m" />
++                        </shape>
++                    </item>
++                    <item android:bottom="3dp">
++                        <shape android:shape="rectangle">
++                            <solid android:color="@color/settingslib_budik_primary" />
++                            <corners android:radius="@dimen/settingslib_budik_radius_m" />
++                        </shape>
++                    </item>
++                </layer-list>
++            </item>
++        </selector>
++    </item>
++</ripple>
+diff --git a/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_button_text.xml b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_button_text.xml
+new file mode 100644
+index 000000000000..18acbe4cbbfe
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_button_text.xml
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS text button: no frame, radius 12 press highlight. -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    android:color="?android:attr/colorControlHighlight">
++    <item android:id="@android:id/mask">
++        <shape android:shape="rectangle">
++            <solid android:color="@android:color/white" />
++            <corners android:radius="@dimen/settingslib_budik_radius_m" />
++        </shape>
++    </item>
++</ripple>
+diff --git a/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_dialog_background.xml b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_dialog_background.xml
+new file mode 100644
+index 000000000000..b30341748f25
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_dialog_background.xml
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS dialog card: surface, radius 20, 1dp line, hard 4dp shadow (no blur, no elevation). -->
++<inset xmlns:android="http://schemas.android.com/apk/res/android"
++    android:insetLeft="24dp"
++    android:insetRight="24dp"
++    android:insetTop="16dp"
++    android:insetBottom="16dp">
++    <layer-list>
++        <item android:top="4dp">
++            <shape android:shape="rectangle">
++                <solid android:color="@color/settingslib_budik_dialog_shadow" />
++                <corners android:radius="@dimen/settingslib_budik_radius_l" />
++            </shape>
++        </item>
++        <item android:bottom="4dp">
++            <shape android:shape="rectangle">
++                <solid android:color="@color/settingslib_budik_surface" />
++                <stroke android:width="1dp" android:color="@color/settingslib_budik_line" />
++                <corners android:radius="@dimen/settingslib_budik_radius_l" />
++            </shape>
++        </item>
++    </layer-list>
++</inset>
+diff --git a/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_switch_thumb.xml b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_switch_thumb.xml
+new file mode 100644
+index 000000000000..bc62bffe1dee
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_switch_thumb.xml
+@@ -0,0 +1,44 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS keycap switch thumb: 18dp square, concentric with the track (radius 3). -->
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_enabled="false">
++        <layer-list>
++            <item android:width="18dp" android:height="26dp">
++                <shape android:shape="rectangle"><solid android:color="@android:color/transparent" /></shape>
++            </item>
++            <item android:width="18dp" android:height="18dp" android:gravity="center">
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_budik_switch_thumb_disabled" />
++                    <corners android:radius="3dp" />
++                </shape>
++            </item>
++        </layer-list>
++    </item>
++    <item android:state_checked="true">
++        <layer-list>
++            <item android:width="18dp" android:height="26dp">
++                <shape android:shape="rectangle"><solid android:color="@android:color/transparent" /></shape>
++            </item>
++            <item android:width="18dp" android:height="18dp" android:gravity="center">
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_budik_switch_thumb_on" />
++                    <corners android:radius="3dp" />
++                </shape>
++            </item>
++        </layer-list>
++    </item>
++    <item>
++        <layer-list>
++            <item android:width="18dp" android:height="26dp">
++                <shape android:shape="rectangle"><solid android:color="@android:color/transparent" /></shape>
++            </item>
++            <item android:width="18dp" android:height="18dp" android:gravity="center">
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_budik_switch_thumb_off" />
++                    <stroke android:width="2dp" android:color="@color/settingslib_budik_switch_stroke_off" />
++                    <corners android:radius="3dp" />
++                </shape>
++            </item>
++        </layer-list>
++    </item>
++</selector>
+diff --git a/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_switch_track.xml b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_switch_track.xml
+new file mode 100644
+index 000000000000..b0330b444707
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/drawable/settingslib_budik_switch_track.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS keycap switch track, 44 x 26 dp, radius 6. The 4dp side padding keeps the
++     thumb inside the 2dp stroke (SwitchCompat reads the track padding). -->
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_enabled="false">
++        <shape android:shape="rectangle">
++            <size android:width="44dp" android:height="26dp" />
++            <solid android:color="@color/settingslib_budik_switch_disabled" />
++            <corners android:radius="@dimen/settingslib_budik_radius_s" />
++            <padding android:left="4dp" android:right="4dp" />
++        </shape>
++    </item>
++    <item android:state_checked="true">
++        <shape android:shape="rectangle">
++            <size android:width="44dp" android:height="26dp" />
++            <solid android:color="@color/settingslib_budik_mint" />
++            <stroke android:width="2dp" android:color="@color/settingslib_budik_switch_stroke_on" />
++            <corners android:radius="@dimen/settingslib_budik_radius_s" />
++            <padding android:left="4dp" android:right="4dp" />
++        </shape>
++    </item>
++    <item>
++        <shape android:shape="rectangle">
++            <size android:width="44dp" android:height="26dp" />
++            <solid android:color="@color/settingslib_budik_switch_track_off" />
++            <stroke android:width="2dp" android:color="@color/settingslib_budik_switch_stroke_off" />
++            <corners android:radius="@dimen/settingslib_budik_radius_s" />
++            <padding android:left="4dp" android:right="4dp" />
++        </shape>
++    </item>
++</selector>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-night-v31/settingslib_budik_level_colors.xml b/packages/SettingsLib/SettingsTheme/res/values-night-v31/settingslib_budik_level_colors.xml
+new file mode 100644
+index 000000000000..98e26f41ee88
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/values-night-v31/settingslib_budik_level_colors.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: attention levels (banner buttons, status icons) in the Budík palette, dark: mint with ink. -->
++<resources>
++    <color name="settingslib_colorBackgroundLevel_high">#21D4BE</color>
++    <color name="settingslib_colorContentLevel_high">#0E0F11</color>
++    <color name="settingslib_colorBackgroundLevel_medium">#21D4BE</color>
++    <color name="settingslib_colorContentLevel_medium">#0E0F11</color>
++    <color name="settingslib_colorBackgroundLevel_low">#21D4BE</color>
++    <color name="settingslib_colorContentLevel_low">#0E0F11</color>
++</resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-night-v36/colors.xml b/packages/SettingsLib/SettingsTheme/res/values-night-v36/colors.xml
+index e31e80176625..5041fd51ac7d 100644
+--- a/packages/SettingsLib/SettingsTheme/res/values-night-v36/colors.xml
++++ b/packages/SettingsLib/SettingsTheme/res/values-night-v36/colors.xml
+@@ -45,5 +45,5 @@
+ 
+     <color name="settingslib_colorSurfaceHeader">@color/settingslib_materialColorSurfaceVariant</color>
+ 
+-    <color name="settingslib_text_color_preference_category_title">@color/settingslib_materialColorPrimary</color>
++    <color name="settingslib_text_color_preference_category_title">@color/settingslib_budik_fg3</color>
+ </resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-night-v36/settingslib_budik_material_colors.xml b/packages/SettingsLib/SettingsTheme/res/values-night-v36/settingslib_budik_material_colors.xml
+new file mode 100644
+index 000000000000..5239faedd8f9
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/values-night-v36/settingslib_budik_material_colors.xml
+@@ -0,0 +1,34 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: fixed palette instead of wallpaper (monet) colours for the expressive theme. -->
++<resources>
++    <color name="settingslib_materialColorPrimary">#21D4BE</color>
++    <color name="settingslib_materialColorOnPrimary">#0E0F11</color>
++    <color name="settingslib_materialColorPrimaryContainer">#21D4BE</color>
++    <color name="settingslib_materialColorOnPrimaryContainer">#0E0F11</color>
++    <color name="settingslib_materialColorPrimaryInverse">#0B1E52</color>
++    <color name="settingslib_materialColorSecondary">#C4C8CE</color>
++    <color name="settingslib_materialColorOnSecondary">#0E0F11</color>
++    <color name="settingslib_materialColorSecondaryContainer">#262A2F</color>
++    <color name="settingslib_materialColorOnSecondaryContainer">#F5F6F7</color>
++    <color name="settingslib_materialColorTertiary">#21D4BE</color>
++    <color name="settingslib_materialColorOnTertiary">#0E0F11</color>
++    <color name="settingslib_materialColorTertiaryContainer">#05332E</color>
++    <color name="settingslib_materialColorOnTertiaryContainer">#21D4BE</color>
++    <color name="settingslib_materialColorOutline">#3A3F46</color>
++    <color name="settingslib_materialColorOutlineVariant">#262A2F</color>
++    <color name="settingslib_materialColorBackground">#0E0F11</color>
++    <color name="settingslib_materialColorOnBackground">#F5F6F7</color>
++    <color name="settingslib_materialColorSurface">#0E0F11</color>
++    <color name="settingslib_materialColorOnSurface">#F5F6F7</color>
++    <color name="settingslib_materialColorSurfaceVariant">#1A1C20</color>
++    <color name="settingslib_materialColorOnSurfaceVariant">#8D949E</color>
++    <color name="settingslib_materialColorSurfaceInverse">#F5F6F7</color>
++    <color name="settingslib_materialColorOnSurfaceInverse">#0E0F11</color>
++    <color name="settingslib_materialColorSurfaceBright">#17191C</color>
++    <color name="settingslib_materialColorSurfaceDim">#0E0F11</color>
++    <color name="settingslib_materialColorSurfaceContainer">#0E0F11</color>
++    <color name="settingslib_materialColorSurfaceContainerLow">#17191C</color>
++    <color name="settingslib_materialColorSurfaceContainerLowest">#0A0B0D</color>
++    <color name="settingslib_materialColorSurfaceContainerHigh">#17191C</color>
++    <color name="settingslib_materialColorSurfaceContainerHighest">#262A2F</color>
++</resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-night/settingslib_budik_colors.xml b/packages/SettingsLib/SettingsTheme/res/values-night/settingslib_budik_colors.xml
+new file mode 100644
+index 000000000000..84361df50d98
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/values-night/settingslib_budik_colors.xml
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS design tokens (export/res/values-night/colors.xml), dark. -->
++<resources>
++    <color name="settingslib_budik_bg">#0E0F11</color>
++    <color name="settingslib_budik_surface">#17191C</color>
++    <color name="settingslib_budik_line">#262A2F</color>
++    <color name="settingslib_budik_border">#3A3F46</color>
++    <color name="settingslib_budik_fg">#F5F6F7</color>
++    <color name="settingslib_budik_fg2">#C4C8CE</color>
++    <color name="settingslib_budik_fg3">#8D949E</color>
++    <color name="settingslib_budik_pixel">#1A1C20</color>
++    <color name="settingslib_budik_primary">#2A4291</color>
++    <color name="settingslib_budik_primary_ink">#0B1E52</color>
++    <color name="settingslib_budik_on_primary">#FFFFFF</color>
++    <color name="settingslib_budik_mint">#21D4BE</color>
++    <color name="settingslib_budik_mint_ink">#05332E</color>
++    <color name="settingslib_budik_ink">#0E0F11</color>
++    <color name="settingslib_budik_inverse">#F5F6F7</color>
++    <color name="settingslib_budik_on_inverse">#0E0F11</color>
++    <color name="settingslib_budik_key_face">#0E0F11</color>
++    <color name="settingslib_budik_key_shadow">#262A2F</color>
++    <color name="settingslib_budik_dialog_shadow">#3A3F46</color>
++    <color name="settingslib_budik_switch_track_off">#262A2F</color>
++    <color name="settingslib_budik_switch_stroke_off">#3A3F46</color>
++    <color name="settingslib_budik_switch_stroke_on">#0E0F11</color>
++    <color name="settingslib_budik_switch_thumb_off">#F5F6F7</color>
++    <color name="settingslib_budik_switch_thumb_on">#0E0F11</color>
++    <color name="settingslib_budik_switch_disabled">#1A1C20</color>
++    <color name="settingslib_budik_switch_thumb_disabled">#262A2F</color>
++</resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-v31/settingslib_budik_level_colors.xml b/packages/SettingsLib/SettingsTheme/res/values-v31/settingslib_budik_level_colors.xml
+new file mode 100644
+index 000000000000..f704c8f3b4b3
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/values-v31/settingslib_budik_level_colors.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: attention levels (banner buttons, status icons) in the Budík palette, light: navy with white. -->
++<resources>
++    <color name="settingslib_colorBackgroundLevel_high">#0B1E52</color>
++    <color name="settingslib_colorContentLevel_high">#FFFFFF</color>
++    <color name="settingslib_colorBackgroundLevel_medium">#0B1E52</color>
++    <color name="settingslib_colorContentLevel_medium">#FFFFFF</color>
++    <color name="settingslib_colorBackgroundLevel_low">#0B1E52</color>
++    <color name="settingslib_colorContentLevel_low">#FFFFFF</color>
++</resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-v31/settingslib_budik_m3_colors.xml b/packages/SettingsLib/SettingsTheme/res/values-v31/settingslib_budik_m3_colors.xml
+new file mode 100644
+index 000000000000..784225d172b9
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/values-v31/settingslib_budik_m3_colors.xml
+@@ -0,0 +1,66 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: Material3 DynamicColors widgets (switches, progress bars, cards, buttons) use the
++     fixed Budík palette instead of wallpaper colours. Overrides the material library colours,
++     SettingsLib is merged after it. Values match settingslib_budik_material_colors.xml. -->
++<resources>
++    <color name="m3_sys_color_dynamic_light_primary">#0B1E52</color>
++    <color name="m3_sys_color_dynamic_light_on_primary">#FFFFFF</color>
++    <color name="m3_sys_color_dynamic_light_primary_container">#21D4BE</color>
++    <color name="m3_sys_color_dynamic_light_on_primary_container">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_light_inverse_primary">#21D4BE</color>
++    <color name="m3_sys_color_dynamic_light_secondary">#3A3E43</color>
++    <color name="m3_sys_color_dynamic_light_on_secondary">#FFFFFF</color>
++    <color name="m3_sys_color_dynamic_light_secondary_container">#E3E5E8</color>
++    <color name="m3_sys_color_dynamic_light_on_secondary_container">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_light_tertiary">#05332E</color>
++    <color name="m3_sys_color_dynamic_light_on_tertiary">#FFFFFF</color>
++    <color name="m3_sys_color_dynamic_light_tertiary_container">#21D4BE</color>
++    <color name="m3_sys_color_dynamic_light_on_tertiary_container">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_light_outline">#CFD3D8</color>
++    <color name="m3_sys_color_dynamic_light_outline_variant">#E3E5E8</color>
++    <color name="m3_sys_color_dynamic_light_background">#F5F6F7</color>
++    <color name="m3_sys_color_dynamic_light_on_background">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_light_surface">#F5F6F7</color>
++    <color name="m3_sys_color_dynamic_light_on_surface">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_light_surface_variant">#EEF0F2</color>
++    <color name="m3_sys_color_dynamic_light_on_surface_variant">#5A6370</color>
++    <color name="m3_sys_color_dynamic_light_inverse_surface">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_light_inverse_on_surface">#FFFFFF</color>
++    <color name="m3_sys_color_dynamic_light_surface_bright">#FFFFFF</color>
++    <color name="m3_sys_color_dynamic_light_surface_dim">#E3E5E8</color>
++    <color name="m3_sys_color_dynamic_light_surface_container">#F5F6F7</color>
++    <color name="m3_sys_color_dynamic_light_surface_container_low">#FFFFFF</color>
++    <color name="m3_sys_color_dynamic_light_surface_container_lowest">#FFFFFF</color>
++    <color name="m3_sys_color_dynamic_light_surface_container_high">#FFFFFF</color>
++    <color name="m3_sys_color_dynamic_light_surface_container_highest">#E3E5E8</color>
++    <color name="m3_sys_color_dynamic_dark_primary">#21D4BE</color>
++    <color name="m3_sys_color_dynamic_dark_on_primary">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_dark_primary_container">#21D4BE</color>
++    <color name="m3_sys_color_dynamic_dark_on_primary_container">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_dark_inverse_primary">#0B1E52</color>
++    <color name="m3_sys_color_dynamic_dark_secondary">#C4C8CE</color>
++    <color name="m3_sys_color_dynamic_dark_on_secondary">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_dark_secondary_container">#262A2F</color>
++    <color name="m3_sys_color_dynamic_dark_on_secondary_container">#F5F6F7</color>
++    <color name="m3_sys_color_dynamic_dark_tertiary">#21D4BE</color>
++    <color name="m3_sys_color_dynamic_dark_on_tertiary">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_dark_tertiary_container">#05332E</color>
++    <color name="m3_sys_color_dynamic_dark_on_tertiary_container">#21D4BE</color>
++    <color name="m3_sys_color_dynamic_dark_outline">#3A3F46</color>
++    <color name="m3_sys_color_dynamic_dark_outline_variant">#262A2F</color>
++    <color name="m3_sys_color_dynamic_dark_background">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_dark_on_background">#F5F6F7</color>
++    <color name="m3_sys_color_dynamic_dark_surface">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_dark_on_surface">#F5F6F7</color>
++    <color name="m3_sys_color_dynamic_dark_surface_variant">#1A1C20</color>
++    <color name="m3_sys_color_dynamic_dark_on_surface_variant">#8D949E</color>
++    <color name="m3_sys_color_dynamic_dark_inverse_surface">#F5F6F7</color>
++    <color name="m3_sys_color_dynamic_dark_inverse_on_surface">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_dark_surface_bright">#17191C</color>
++    <color name="m3_sys_color_dynamic_dark_surface_dim">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_dark_surface_container">#0E0F11</color>
++    <color name="m3_sys_color_dynamic_dark_surface_container_low">#17191C</color>
++    <color name="m3_sys_color_dynamic_dark_surface_container_lowest">#0A0B0D</color>
++    <color name="m3_sys_color_dynamic_dark_surface_container_high">#17191C</color>
++    <color name="m3_sys_color_dynamic_dark_surface_container_highest">#262A2F</color>
++</resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-v31/styles_expressive.xml b/packages/SettingsLib/SettingsTheme/res/values-v31/styles_expressive.xml
+index 88b61d10a25a..f50191300115 100644
+--- a/packages/SettingsLib/SettingsTheme/res/values-v31/styles_expressive.xml
++++ b/packages/SettingsLib/SettingsTheme/res/values-v31/styles_expressive.xml
+@@ -22,11 +22,14 @@
+         <item name="android:layout_width">wrap_content</item>
+         <item name="android:layout_height">wrap_content</item>
+         <item name="android:gravity">center</item>
+-        <item name="android:textAppearance">@style/TextAppearance.SettingsLib.LabelLarge</item>
+-        <item name="android:textColor">@color/settingslib_expressive_color_button_filled_text_icon</item>
++        <item name="android:textAppearance">@style/TextAppearance.SettingsLib.BudikButton</item>
++        <item name="android:textColor">@color/settingslib_budik_button_filled_text</item>
+         <item name="iconGravity">textStart</item>
+-        <item name="backgroundTint">@color/settingslib_expressive_color_button_filled_container</item>
+-        <item name="iconTint">@color/settingslib_expressive_color_button_filled_text_icon</item>
++        <item name="backgroundTint">@color/settingslib_budik_button_filled_bg</item>
++        <item name="iconTint">@color/settingslib_budik_button_filled_text</item>
++        <!-- Budík OS: radius 12 instead of pills, bold Schibsted label -->
++        <item name="shapeAppearance">@style/ShapeAppearance.SettingsLib.BudikButton</item>
++        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.SettingsLib.BudikButton</item>
+     </style>
+ 
+     <style name="SettingsLibButtonStyle.Expressive.Filled.Large">
+@@ -62,11 +65,14 @@
+         <item name="android:layout_width">wrap_content</item>
+         <item name="android:layout_height">wrap_content</item>
+         <item name="android:gravity">center</item>
+-        <item name="android:textAppearance">@style/TextAppearance.SettingsLib.LabelLarge</item>
++        <item name="android:textAppearance">@style/TextAppearance.SettingsLib.BudikButton</item>
+         <item name="android:textColor">@color/settingslib_expressive_color_button_tonal_text_icon</item>
+         <item name="iconGravity">textStart</item>
+         <item name="backgroundTint">@color/settingslib_expressive_color_button_tonal_container</item>
+         <item name="iconTint">@color/settingslib_expressive_color_button_tonal_text_icon</item>
++        <!-- Budík OS: radius 12 instead of pills, bold Schibsted label -->
++        <item name="shapeAppearance">@style/ShapeAppearance.SettingsLib.BudikButton</item>
++        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.SettingsLib.BudikButton</item>
+     </style>
+ 
+     <style name="SettingsLibButtonStyle.Expressive.Tonal.Large">
+@@ -102,12 +108,15 @@
+         <item name="android:layout_width">wrap_content</item>
+         <item name="android:layout_height">wrap_content</item>
+         <item name="android:gravity">center</item>
+-        <item name="android:textAppearance">@style/TextAppearance.SettingsLib.LabelLarge</item>
++        <item name="android:textAppearance">@style/TextAppearance.SettingsLib.BudikButton</item>
+         <item name="android:textColor">@color/settingslib_expressive_color_button_outlined_text_icon</item>
+         <item name="iconGravity">textStart</item>
+         <item name="backgroundTint">@color/settingslib_expressive_color_button_outlined_container</item>
+         <item name="iconTint">@color/settingslib_expressive_color_button_outlined_text_icon</item>
+-        <item name="strokeColor">@color/settingslib_materialColorOutlineVariant</item>
++        <item name="strokeColor">@color/settingslib_budik_border</item>
++        <!-- Budík OS: radius 12 instead of pills, bold Schibsted label -->
++        <item name="shapeAppearance">@style/ShapeAppearance.SettingsLib.BudikButton</item>
++        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.SettingsLib.BudikButton</item>
+     </style>
+ 
+     <style name="SettingsLibButtonStyle.Expressive.Outline.Large">
+@@ -129,4 +138,16 @@
+         <item name="cardElevation">0dp</item>
+         <item name="rippleColor">?android:attr/colorControlHighlight</item>
+     </style>
++    <style name="ShapeAppearance.SettingsLib.BudikButton" parent="">
++        <item name="cornerFamily">rounded</item>
++        <item name="cornerSize">@dimen/settingslib_budik_radius_m</item>
++    </style>
++
++    <style name="TextAppearance.SettingsLib.BudikButton"
++        parent="@android:style/TextAppearance.DeviceDefault.Medium">
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">700</item>
++        <item name="android:textSize">15sp</item>
++        <item name="android:letterSpacing">0</item>
++    </style>
+ </resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-v36/colors.xml b/packages/SettingsLib/SettingsTheme/res/values-v36/colors.xml
+index b1b37b12c572..9be0a3d30d2f 100644
+--- a/packages/SettingsLib/SettingsTheme/res/values-v36/colors.xml
++++ b/packages/SettingsLib/SettingsTheme/res/values-v36/colors.xml
+@@ -48,7 +48,7 @@
+ 
+     <color name="settingslib_colorSurfaceHeader">@color/settingslib_materialColorSurfaceVariant</color>
+ 
+-    <color name="settingslib_text_color_preference_category_title">@color/settingslib_materialColorPrimary</color>
++    <color name="settingslib_text_color_preference_category_title">@color/settingslib_budik_fg3</color>
+ 
+     <!-- The text color of spinner title -->
+     <color name="settingslib_spinner_title_color">@color/settingslib_materialColorOnPrimaryContainer</color>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-v36/settingslib_budik_material_colors.xml b/packages/SettingsLib/SettingsTheme/res/values-v36/settingslib_budik_material_colors.xml
+new file mode 100644
+index 000000000000..ce622f3b8781
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/values-v36/settingslib_budik_material_colors.xml
+@@ -0,0 +1,34 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: fixed palette instead of wallpaper (monet) colours for the expressive theme. -->
++<resources>
++    <color name="settingslib_materialColorPrimary">#0B1E52</color>
++    <color name="settingslib_materialColorOnPrimary">#FFFFFF</color>
++    <color name="settingslib_materialColorPrimaryContainer">#21D4BE</color>
++    <color name="settingslib_materialColorOnPrimaryContainer">#0E0F11</color>
++    <color name="settingslib_materialColorPrimaryInverse">#21D4BE</color>
++    <color name="settingslib_materialColorSecondary">#3A3E43</color>
++    <color name="settingslib_materialColorOnSecondary">#FFFFFF</color>
++    <color name="settingslib_materialColorSecondaryContainer">#E3E5E8</color>
++    <color name="settingslib_materialColorOnSecondaryContainer">#0E0F11</color>
++    <color name="settingslib_materialColorTertiary">#05332E</color>
++    <color name="settingslib_materialColorOnTertiary">#FFFFFF</color>
++    <color name="settingslib_materialColorTertiaryContainer">#21D4BE</color>
++    <color name="settingslib_materialColorOnTertiaryContainer">#0E0F11</color>
++    <color name="settingslib_materialColorOutline">#CFD3D8</color>
++    <color name="settingslib_materialColorOutlineVariant">#E3E5E8</color>
++    <color name="settingslib_materialColorBackground">#F5F6F7</color>
++    <color name="settingslib_materialColorOnBackground">#0E0F11</color>
++    <color name="settingslib_materialColorSurface">#F5F6F7</color>
++    <color name="settingslib_materialColorOnSurface">#0E0F11</color>
++    <color name="settingslib_materialColorSurfaceVariant">#EEF0F2</color>
++    <color name="settingslib_materialColorOnSurfaceVariant">#5A6370</color>
++    <color name="settingslib_materialColorSurfaceInverse">#0E0F11</color>
++    <color name="settingslib_materialColorOnSurfaceInverse">#FFFFFF</color>
++    <color name="settingslib_materialColorSurfaceBright">#FFFFFF</color>
++    <color name="settingslib_materialColorSurfaceDim">#E3E5E8</color>
++    <color name="settingslib_materialColorSurfaceContainer">#F5F6F7</color>
++    <color name="settingslib_materialColorSurfaceContainerLow">#FFFFFF</color>
++    <color name="settingslib_materialColorSurfaceContainerLowest">#FFFFFF</color>
++    <color name="settingslib_materialColorSurfaceContainerHigh">#FFFFFF</color>
++    <color name="settingslib_materialColorSurfaceContainerHighest">#E3E5E8</color>
++</resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-v36/styles_expressive.xml b/packages/SettingsLib/SettingsTheme/res/values-v36/styles_expressive.xml
+index 620627d67658..3d2233dbf7ad 100644
+--- a/packages/SettingsLib/SettingsTheme/res/values-v36/styles_expressive.xml
++++ b/packages/SettingsLib/SettingsTheme/res/values-v36/styles_expressive.xml
+@@ -18,7 +18,9 @@
+ <resources>
+     <style name="TextAppearance.SettingsLib.DisplayLarge"
+         parent="@android:style/TextAppearance.DeviceDefault.Headline">
+-        <item name="android:fontFamily">variable-display-large</item>
++        <!-- Budík OS: was display-large -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">57sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">64sp</item>
+@@ -28,7 +30,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.DisplayMedium"
+         parent="@android:style/TextAppearance.DeviceDefault.Headline">
+-        <item name="android:fontFamily">variable-display-medium</item>
++        <!-- Budík OS: was display-medium -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">45sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">52sp</item>
+@@ -38,7 +42,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.DisplaySmall"
+         parent="@android:style/TextAppearance.DeviceDefault.Headline">
+-        <item name="android:fontFamily">variable-display-small</item>
++        <!-- Budík OS: was display-small -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">36sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">44sp</item>
+@@ -49,7 +55,9 @@
+ 
+     <style name="TextAppearance.SettingsLib.HeadlineLarge"
+         parent="@android:style/TextAppearance.DeviceDefault.Headline">
+-        <item name="android:fontFamily">variable-headline-large</item>
++        <!-- Budík OS: was headline-large -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">32sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">40sp</item>
+@@ -59,7 +67,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.HeadlineMedium"
+         parent="@android:style/TextAppearance.DeviceDefault.Headline">
+-        <item name="android:fontFamily">variable-headline-medium</item>
++        <!-- Budík OS: was headline-medium -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">28sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">36sp</item>
+@@ -69,7 +79,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.HeadlineSmall"
+         parent="@android:style/TextAppearance.DeviceDefault.Headline">
+-        <item name="android:fontFamily">variable-headline-small</item>
++        <!-- Budík OS: was headline-small -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">24sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">32sp</item>
+@@ -80,7 +92,9 @@
+ 
+     <style name="TextAppearance.SettingsLib.TitleLarge"
+         parent="@android:style/TextAppearance.DeviceDefault.Headline">
+-        <item name="android:fontFamily">variable-title-large</item>
++        <!-- Budík OS: was title-large -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">700</item>
+         <item name="android:textSize">22sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">28sp</item>
+@@ -90,7 +104,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.TitleMedium"
+         parent="@android:style/TextAppearance.DeviceDefault.Medium">
+-        <item name="android:fontFamily">variable-title-medium</item>
++        <!-- Budík OS: was title-medium -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">500</item>
+         <item name="android:textSize">16sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">24sp</item>
+@@ -100,7 +116,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.TitleSmall"
+         parent="@android:style/TextAppearance.DeviceDefault.Medium">
+-        <item name="android:fontFamily">variable-title-small</item>
++        <!-- Budík OS: was title-small -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">600</item>
+         <item name="android:textSize">14sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">20sp</item>
+@@ -111,7 +129,9 @@
+ 
+     <style name="TextAppearance.SettingsLib.LabelLarge"
+         parent="@android:style/TextAppearance.DeviceDefault.Medium">
+-        <item name="android:fontFamily">variable-label-large</item>
++        <!-- Budík OS: was label-large -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">600</item>
+         <item name="android:textSize">14sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">20sp</item>
+@@ -121,7 +141,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.LabelMedium"
+         parent="@android:style/TextAppearance.DeviceDefault.Medium">
+-        <item name="android:fontFamily">variable-label-medium</item>
++        <!-- Budík OS: was label-medium -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">600</item>
+         <item name="android:textSize">12sp</item>
+         <item name="android:letterSpacing">0.00833333</item>
+         <item name="android:lineHeight">16sp</item>
+@@ -131,7 +153,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.LabelSmall"
+         parent="@android:style/TextAppearance.DeviceDefault.Medium">
+-        <item name="android:fontFamily">variable-label-small</item>
++        <!-- Budík OS: was label-small -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">600</item>
+         <item name="android:textSize">11sp</item>
+         <item name="android:letterSpacing">0.00909091</item>
+         <item name="android:lineHeight">16sp</item>
+@@ -142,7 +166,9 @@
+ 
+     <style name="TextAppearance.SettingsLib.BodyLarge"
+         parent="@android:style/TextAppearance.DeviceDefault">
+-        <item name="android:fontFamily">variable-body-large</item>
++        <!-- Budík OS: was body-large -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">400</item>
+         <item name="android:textSize">16sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">24sp</item>
+@@ -152,7 +178,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.BodyMedium"
+         parent="@android:style/TextAppearance.DeviceDefault">
+-        <item name="android:fontFamily">variable-body-medium</item>
++        <!-- Budík OS: was body-medium -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">400</item>
+         <item name="android:textSize">14sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">20sp</item>
+@@ -162,7 +190,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.BodySmall"
+         parent="@android:style/TextAppearance.DeviceDefault">
+-        <item name="android:fontFamily">variable-body-small</item>
++        <!-- Budík OS: was body-small -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">400</item>
+         <item name="android:textSize">12sp</item>
+         <item name="android:letterSpacing">0.00833333</item>
+         <item name="android:lineHeight">16sp</item>
+@@ -173,7 +203,9 @@
+ 
+     <style name="TextAppearance.SettingsLib.DisplayLarge.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+-        <item name="android:fontFamily">variable-display-large-emphasized</item>
++        <!-- Budík OS: was display-large-emphasized -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">57sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">64sp</item>
+@@ -183,7 +215,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.DisplayMedium.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+-        <item name="android:fontFamily">variable-display-medium-emphasized</item>
++        <!-- Budík OS: was display-medium-emphasized -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">45sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">52sp</item>
+@@ -193,7 +227,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.DisplaySmall.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+-        <item name="android:fontFamily">variable-display-small-emphasized</item>
++        <!-- Budík OS: was display-small-emphasized -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">36sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">44sp</item>
+@@ -204,7 +240,9 @@
+ 
+     <style name="TextAppearance.SettingsLib.HeadlineLarge.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+-        <item name="android:fontFamily">variable-headline-large-emphasized</item>
++        <!-- Budík OS: was headline-large-emphasized -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">32sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">40sp</item>
+@@ -214,7 +252,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.HeadlineMedium.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+-        <item name="android:fontFamily">variable-headline-medium-emphasized</item>
++        <!-- Budík OS: was headline-medium-emphasized -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">28sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">36sp</item>
+@@ -224,7 +264,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.HeadlineSmall.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+-        <item name="android:fontFamily">variable-headline-small-emphasized</item>
++        <!-- Budík OS: was headline-small-emphasized -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">24sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">32sp</item>
+@@ -235,7 +277,9 @@
+ 
+     <style name="TextAppearance.SettingsLib.TitleLarge.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+-        <item name="android:fontFamily">variable-title-large-emphasized</item>
++        <!-- Budík OS: was title-large-emphasized -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
+         <item name="android:textSize">22sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">28sp</item>
+@@ -245,7 +289,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.TitleMedium.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault">
+-        <item name="android:fontFamily">variable-title-medium-emphasized</item>
++        <!-- Budík OS: was title-medium-emphasized -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">700</item>
+         <item name="android:textSize">16sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">24sp</item>
+@@ -255,7 +301,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.TitleSmall.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault">
+-        <item name="android:fontFamily">variable-title-small-emphasized</item>
++        <!-- Budík OS: was title-small-emphasized -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">700</item>
+         <item name="android:textSize">14sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">20sp</item>
+@@ -266,7 +314,9 @@
+ 
+     <style name="TextAppearance.SettingsLib.LabelLarge.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault">
+-        <item name="android:fontFamily">variable-label-large-emphasized</item>
++        <!-- Budík OS: was label-large-emphasized -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">700</item>
+         <item name="android:textSize">14sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">20sp</item>
+@@ -276,7 +326,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.LabelMedium.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault">
+-        <item name="android:fontFamily">variable-label-medium-emphasized</item>
++        <!-- Budík OS: was label-medium-emphasized -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">700</item>
+         <item name="android:textSize">12sp</item>
+         <item name="android:letterSpacing">0.00833333</item>
+         <item name="android:lineHeight">16sp</item>
+@@ -286,7 +338,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.LabelSmall.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault">
+-        <item name="android:fontFamily">variable-label-small-emphasized</item>
++        <!-- Budík OS: was label-small-emphasized -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">700</item>
+         <item name="android:textSize">11sp</item>
+         <item name="android:letterSpacing">0.00909091</item>
+         <item name="android:lineHeight">16sp</item>
+@@ -297,7 +351,9 @@
+ 
+     <style name="TextAppearance.SettingsLib.BodyLarge.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Medium">
+-        <item name="android:fontFamily">variable-body-large-emphasized</item>
++        <!-- Budík OS: was body-large-emphasized -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">500</item>
+         <item name="android:textSize">16sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">24sp</item>
+@@ -307,7 +363,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.BodyMedium.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Medium">
+-        <item name="android:fontFamily">variable-body-medium-emphasized</item>
++        <!-- Budík OS: was body-medium-emphasized -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">500</item>
+         <item name="android:textSize">14sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">20sp</item>
+@@ -317,7 +375,9 @@
+     </style>
+     <style name="TextAppearance.SettingsLib.BodySmall.Emphasized"
+         parent="@android:style/TextAppearance.DeviceDefault.Medium">
+-        <item name="android:fontFamily">variable-body-small-emphasized</item>
++        <!-- Budík OS: was body-small-emphasized -->
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">500</item>
+         <item name="android:textSize">12sp</item>
+         <item name="android:letterSpacing">0</item>
+         <item name="android:lineHeight">16sp</item>
+@@ -333,10 +393,14 @@
+         <item name="android:background">@null</item>
+         <item name="android:clickable">false</item>
+         <item name="android:focusable">false</item>
+-        <item name="thumbIcon">@drawable/settingslib_expressive_switch_thumb_icon</item>
+-        <item name="thumbIconTint">@color/settingslib_expressive_color_switch_thumb_icon</item>
+-        <item name="thumbTint">@color/settingslib_expressive_color_switch_thumb</item>
+-        <item name="trackTint">@color/settingslib_expressive_color_switch_track</item>
++        <!-- Budík OS keycap switch (export/mockups/*/10_components): mint track with ink
++             stroke and an ink square thumb when on, light keycap when off. -->
++        <item name="android:thumb">@drawable/settingslib_budik_switch_thumb</item>
++        <item name="track">@drawable/settingslib_budik_switch_track</item>
++        <item name="thumbIcon">@null</item>
++        <item name="thumbTint">@null</item>
++        <item name="trackTint">@null</item>
++        <item name="trackDecoration">@null</item>
+     </style>
+ 
+     <style name="SettingslibMainSwitchStyle.Expressive" parent="SettingslibSwitchStyle.Expressive">
+@@ -437,6 +501,7 @@
+         <item name="android:scrollHorizontally">false</item>
+         <item name="android:ellipsize">end</item>
+         <item name="android:textAppearance">@style/TextAppearance.SettingsLib.HeadlineSmall</item>
++        <item name="android:letterSpacing">-0.035</item>
+     </style>
+ 
+     <style name="Widget.SettingsLib.ButtonBar" parent="@style/Widget.AppCompat.ButtonBar.AlertDialog">
+@@ -455,28 +520,61 @@
+         <item name="android:textAppearance">@style/TextAppearance.SettingsLib.LabelLarge</item>
+         <item name="android:textColor">@color/settingslib_materialColorPrimary</item>
+         <item name="android:background">@android:color/transparent</item>
++        <!-- Budík OS: bold Schibsted Grotesk button labels -->
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">700</item>
++        <item name="android:textSize">16sp</item>
+     </style>
+ 
+     <style name="Widget.SettingsLib.DialogButton.Filled">
+         <item name="android:layout_marginEnd">@dimen/settingslib_expressive_space_extrasmall6</item>
+-        <item name="android:background">@drawable/settingslib_expressive_button_background_filled</item>
+-        <item name="backgroundTint">@color/settingslib_materialColorPrimary</item>
+-        <item name="android:textColor">@color/settingslib_materialColorOnPrimary</item>
++        <!-- Budík OS: navy keycap with a hard 3dp shadow (export/mockups/*/11_dialog...) -->
++        <item name="android:background">@drawable/settingslib_budik_button_primary</item>
++        <item name="backgroundTint">@null</item>
++        <item name="android:backgroundTint">@null</item>
++        <item name="android:textColor">@color/settingslib_budik_on_primary</item>
++        <item name="android:paddingHorizontal">@dimen/settingslib_expressive_space_small4</item>
+     </style>
+ 
++    <!-- Budík OS: the secondary dialog action is plain bold text ("Později" in the mockup) -->
+     <style name="Widget.SettingsLib.DialogButton.Outline">
+         <item name="android:layout_marginEnd">@dimen/settingslib_expressive_space_extrasmall4</item>
+-        <item name="android:background">@drawable/settingslib_expressive_button_background_outline</item>
+-        <item name="backgroundTint">@color/settingslib_materialColorOutlineVariant</item>
+-        <item name="android:textColor">@color/settingslib_materialColorPrimary</item>
++        <item name="android:background">@drawable/settingslib_budik_button_text</item>
++        <item name="backgroundTint">@null</item>
++        <item name="android:backgroundTint">@null</item>
++        <item name="android:textColor">@color/settingslib_budik_fg</item>
+     </style>
+ 
++    <!-- Budík OS slider: drawn by BudikSegmentSlider as the control centre's segmented bar,
++         the Material track, thumb, ticks and halo stay invisible (input only). -->
+     <style name="SettingslibSliderStyle.Expressive" parent="">
+-        <item name="trackColorActive">@color/settingslib_expressive_color_slider_track_active</item>
+-        <item name="trackColorInactive">@color/settingslib_expressive_color_slider_track_inactive</item>
+-        <item name="thumbColor">@color/settingslib_expressive_color_slider_thumb</item>
+-        <item name="tickColorActive">@color/settingslib_expressive_color_slider_track_inactive</item>
+-        <item name="tickColorInactive">@color/settingslib_expressive_color_slider_track_active</item>
+-        <item name="haloColor">@color/settingslib_expressive_color_slider_halo</item>
++        <item name="trackColorActive">@android:color/transparent</item>
++        <item name="trackColorInactive">@android:color/transparent</item>
++        <item name="thumbColor">@android:color/transparent</item>
++        <item name="thumbStrokeWidth">0dp</item>
++        <item name="thumbElevation">0dp</item>
++        <item name="tickVisible">false</item>
++        <item name="tickColorActive">@android:color/transparent</item>
++        <item name="tickColorInactive">@android:color/transparent</item>
++        <item name="trackHeight">24dp</item>
++        <item name="thumbTrackGapSize">0dp</item>
++        <item name="trackStopIndicatorSize">0dp</item>
++        <item name="haloColor">@android:color/transparent</item>
++    </style>
++
++    <!-- Budík OS section label: Instrument Sans caps, letter-spaced, tabular digits -->
++    <style name="TextAppearance.SettingsLib.BudikCategoryTitle"
++        parent="@style/TextAppearance.SettingsLib.LabelLarge">
++        <item name="android:textSize">13sp</item>
++        <item name="android:textAllCaps">true</item>
++        <item name="android:letterSpacing">0.12</item>
++        <item name="android:fontFeatureSettings">tnum</item>
++    </style>
++
++    <!-- Budík OS slider value: Instrument Sans, tabular digits (control centre style) -->
++    <style name="TextAppearance.SettingsLib.BudikSliderValue"
++        parent="@style/TextAppearance.SettingsLib.TitleMedium">
++        <item name="android:fontFeatureSettings">tnum</item>
++        <item name="android:textColor">@color/settingslib_budik_fg</item>
+     </style>
+ </resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-v36/styles_preference_expressive.xml b/packages/SettingsLib/SettingsTheme/res/values-v36/styles_preference_expressive.xml
+index 5b16f7f79a4f..818d2272c937 100644
+--- a/packages/SettingsLib/SettingsTheme/res/values-v36/styles_preference_expressive.xml
++++ b/packages/SettingsLib/SettingsTheme/res/values-v36/styles_preference_expressive.xml
+@@ -80,7 +80,8 @@
+     </style>
+ 
+     <style name="ExpressivePreferenceRootLayoutStyle">
+-        <item name="android:minHeight">72dp</item>
++        <!-- Budík OS: compact iOS-like rows like the homepage (Pixel expressive: 72dp) -->
++        <item name="android:minHeight">@dimen/settingslib_budik_row_min_height</item>
+         <item name="android:gravity">center_vertical</item>
+         <item name="android:paddingStart">?android:attr/listPreferredItemPaddingStart</item>
+         <item name="android:paddingEnd">?android:attr/listPreferredItemPaddingEnd</item>
+@@ -118,7 +119,7 @@
+         <item name="android:layout_weight">1</item>
+         <item name="android:minHeight">@dimen/settingslib_expressive_space_medium3</item>
+         <item name="android:gravity">center_vertical</item>
+-        <item name="android:paddingVertical">@dimen/settingslib_expressive_space_small1</item>f
++        <item name="android:paddingVertical">@dimen/settingslib_budik_row_padding</item>
+         <item name="android:paddingStart">@dimen/settingslib_expressive_space_none</item>
+         <item name="android:paddingEnd">@dimen/settingslib_expressive_space_small1</item>
+     </style>
+@@ -166,7 +167,8 @@
+     <style name="ExpressiveTwoTargetDividerViewStyle">
+         <item name="android:layout_width">1dp</item>
+         <item name="android:layout_height">40dp</item>
+-        <item name="android:background">?android:attr/listDivider</item>
++        <!-- Budík OS: no vertical line between the two targets -->
++        <item name="android:background">@null</item>
+     </style>
+ 
+     <style name="ExpressivePreferenceCategoryTheme">
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-v36/themes_expressive.xml b/packages/SettingsLib/SettingsTheme/res/values-v36/themes_expressive.xml
+index 1e67ecc81b0a..23cf6f72eaeb 100644
+--- a/packages/SettingsLib/SettingsTheme/res/values-v36/themes_expressive.xml
++++ b/packages/SettingsLib/SettingsTheme/res/values-v36/themes_expressive.xml
+@@ -68,6 +68,8 @@
+         <item name="colorAccent">@color/settingslib_materialColorPrimary</item>
+         <item name="android:colorBackground">@color/settingslib_materialColorSurfaceContainerHigh</item>
+         <item name="android:windowTitleStyle">@style/Widget.SettingsLib.DialogWindowTitle</item>
++        <!-- Budík OS: surface card, radius 20, hard 4dp shadow -->
++        <item name="android:windowBackground">@drawable/settingslib_budik_dialog_background</item>
+         <item name="dialogPreferredPadding">@dimen/settingslib_expressive_space_small4</item>
+         <item name="buttonBarStyle">@style/Widget.SettingsLib.ButtonBar</item>
+         <item name="buttonBarPositiveButtonStyle">@style/Widget.SettingsLib.DialogButton.Filled</item>
+@@ -80,6 +82,8 @@
+         <item name="android:colorBackground">@color/settingslib_materialColorSurfaceContainerHigh</item>
+         <item name="android:dialogPreferredPadding">@dimen/settingslib_expressive_space_small4</item>
+         <item name="android:windowTitleStyle">@style/Widget.SettingsLib.DialogWindowTitle</item>
++        <!-- Budík OS: surface card, radius 20, hard 4dp shadow -->
++        <item name="android:windowBackground">@drawable/settingslib_budik_dialog_background</item>
+         <item name="android:buttonBarStyle">@style/Widget.SettingsLib.ButtonBar</item>
+         <item name="android:buttonBarPositiveButtonStyle">@style/Widget.SettingsLib.DialogButton.Filled</item>
+         <item name="android:buttonBarNegativeButtonStyle">@style/Widget.SettingsLib.DialogButton.Outline</item>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values-v36/themes_preference_expressive.xml b/packages/SettingsLib/SettingsTheme/res/values-v36/themes_preference_expressive.xml
+index 6a6b38830b81..8779f63a9b91 100644
+--- a/packages/SettingsLib/SettingsTheme/res/values-v36/themes_preference_expressive.xml
++++ b/packages/SettingsLib/SettingsTheme/res/values-v36/themes_preference_expressive.xml
+@@ -26,8 +26,8 @@
+         <item name="preferenceScreenStyle">@style/SettingsLibPreference.PreferenceScreen.Expressive</item>
+         <item name="preferenceStyle">@style/SettingsLibPreference.Expressive</item>
+         <item name="switchPreferenceCompatStyle">@style/SettingsLibPreference.SwitchPreferenceCompat.Expressive</item>
+-        <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.CategoryTitle.SettingsLib</item>
+-        <item name="preferenceCategoryTitleTextColor">@color/settingslib_materialColorPrimary</item>
++        <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.SettingsLib.BudikCategoryTitle</item>
++        <item name="preferenceCategoryTitleTextColor">@color/settingslib_budik_fg3</item>
+ 
+         <!-- Expressive Design: overridable styles/themes for Preferences -->
+         <item name="expressivePreferenceTheme">@style/ExpressivePreferenceTheme</item>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values/settingslib_budik_colors.xml b/packages/SettingsLib/SettingsTheme/res/values/settingslib_budik_colors.xml
+new file mode 100644
+index 000000000000..6d735cb0dcfc
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/values/settingslib_budik_colors.xml
+@@ -0,0 +1,34 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS design tokens (export/res/values/colors.xml), light. -->
++<resources>
++    <color name="settingslib_budik_bg">#F5F6F7</color>
++    <color name="settingslib_budik_surface">#FFFFFF</color>
++    <color name="settingslib_budik_line">#E3E5E8</color>
++    <color name="settingslib_budik_border">#CFD3D8</color>
++    <color name="settingslib_budik_fg">#0E0F11</color>
++    <color name="settingslib_budik_fg2">#3A3E43</color>
++    <color name="settingslib_budik_fg3">#5A6370</color>
++    <color name="settingslib_budik_pixel">#EEF0F2</color>
++    <!-- primary (navy) buttons -->
++    <color name="settingslib_budik_primary">#0B1E52</color>
++    <color name="settingslib_budik_primary_ink">#050E29</color>
++    <color name="settingslib_budik_on_primary">#FFFFFF</color>
++    <!-- accent: never as text on light, text on mint is always ink -->
++    <color name="settingslib_budik_mint">#21D4BE</color>
++    <color name="settingslib_budik_mint_ink">#05332E</color>
++    <color name="settingslib_budik_ink">#0E0F11</color>
++    <color name="settingslib_budik_inverse">#0E0F11</color>
++    <color name="settingslib_budik_on_inverse">#FFFFFF</color>
++    <!-- keycap -->
++    <color name="settingslib_budik_key_face">#F5F6F7</color>
++    <color name="settingslib_budik_key_shadow">#E3E5E8</color>
++    <color name="settingslib_budik_dialog_shadow">#CFD3D8</color>
++    <!-- switch -->
++    <color name="settingslib_budik_switch_track_off">#E3E5E8</color>
++    <color name="settingslib_budik_switch_stroke_off">#CFD3D8</color>
++    <color name="settingslib_budik_switch_stroke_on">#0E0F11</color>
++    <color name="settingslib_budik_switch_thumb_off">#FFFFFF</color>
++    <color name="settingslib_budik_switch_thumb_on">#0E0F11</color>
++    <color name="settingslib_budik_switch_disabled">#EEF0F2</color>
++    <color name="settingslib_budik_switch_thumb_disabled">#E3E5E8</color>
++</resources>
+diff --git a/packages/SettingsLib/SettingsTheme/res/values/settingslib_budik_dimens.xml b/packages/SettingsLib/SettingsTheme/res/values/settingslib_budik_dimens.xml
+new file mode 100644
+index 000000000000..ed96e168e632
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/res/values/settingslib_budik_dimens.xml
+@@ -0,0 +1,18 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS geometry (export/res/values/dimens.xml): radii 6 / 12 / 20, hard shadow 0 x 3 dp. -->
++<resources>
++    <!-- settingslib_preference_corner_radius (20dp) minus the 1dp card border -->
++    <dimen name="settingslib_budik_preference_inner_radius">19dp</dimen>
++    <dimen name="settingslib_budik_radius_s">6dp</dimen>
++    <dimen name="settingslib_budik_radius_m">12dp</dimen>
++    <dimen name="settingslib_budik_radius_l">20dp</dimen>
++    <dimen name="settingslib_budik_shadow">3dp</dimen>
++    <dimen name="settingslib_budik_shadow_dialog">4dp</dimen>
++    <!-- inset groups: card margin to the screen edge and content padding inside the card -->
++    <dimen name="settingslib_budik_card_margin">8dp</dimen>
++    <dimen name="settingslib_budik_card_inner">14dp</dimen>
++    <!-- rows of a group touch, the card draws the 1dp divider -->
++    <dimen name="settingslib_budik_preference_gap">0dp</dimen>
++    <dimen name="settingslib_budik_row_min_height">48dp</dimen>
++    <dimen name="settingslib_budik_row_padding">6dp</dimen>
++</resources>
+diff --git a/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/BudikSegmentProgressBar.java b/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/BudikSegmentProgressBar.java
+new file mode 100644
+index 000000000000..dfac67403ca9
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/BudikSegmentProgressBar.java
+@@ -0,0 +1,56 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settingslib.widget;
++
++import android.content.Context;
++import android.graphics.Canvas;
++import android.util.AttributeSet;
++import android.widget.ProgressBar;
++
++/**
++ * Budík OS determinate progress bar (storage, battery) drawn as the segmented control centre
++ * bar. Stays a {@link ProgressBar}, so callers keep using setProgress()/setMax(). The bar height
++ * is the view height, set it with android:layout_height.
++ */
++public class BudikSegmentProgressBar extends ProgressBar {
++    private final BudikSegments mSegments;
++
++    public BudikSegmentProgressBar(Context context, AttributeSet attrs) {
++        super(context, attrs, android.R.attr.progressBarStyleHorizontal);
++        mSegments = new BudikSegments(context);
++        setProgressDrawable(null);
++        setIndeterminateDrawable(null);
++        setIndeterminate(false);
++    }
++
++    @Override
++    protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
++        final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
++        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec), height);
++    }
++
++    @Override
++    protected synchronized void onDraw(Canvas canvas) {
++        final int range = getMax() - getMin();
++        final float fraction = isIndeterminate() || range <= 0
++                ? 0f : (float) (getProgress() - getMin()) / range;
++        mSegments.draw(canvas, getPaddingStart(), getPaddingTop(),
++                getWidth() - getPaddingStart() - getPaddingEnd(),
++                getHeight() - getPaddingTop() - getPaddingBottom(), fraction,
++                getLayoutDirection() == LAYOUT_DIRECTION_RTL, isEnabled());
++    }
++}
+diff --git a/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/BudikSegments.java b/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/BudikSegments.java
+new file mode 100644
+index 000000000000..60ef41383951
+--- /dev/null
++++ b/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/BudikSegments.java
+@@ -0,0 +1,67 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settingslib.widget;
++
++import android.content.Context;
++import android.graphics.Canvas;
++import android.graphics.Paint;
++import android.graphics.RectF;
++
++import com.android.settingslib.widget.theme.R;
++
++/**
++ * Budík OS segmented bar, the look of the control centre brightness slider: equal mint segments
++ * for the filled part, line-coloured ones for the rest. Shared by sliders and progress bars.
++ */
++public final class BudikSegments {
++    public static final int COUNT = 20;
++    private static final int DISABLED_ALPHA = 97; // 38 %
++
++    private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final RectF mRect = new RectF();
++    private final int mOnColor;
++    private final int mOffColor;
++    private final float mGap;
++    private final float mRadius;
++
++    public BudikSegments(Context context) {
++        mOnColor = context.getColor(R.color.settingslib_budik_mint);
++        mOffColor = context.getColor(R.color.settingslib_budik_line);
++        final float density = context.getResources().getDisplayMetrics().density;
++        mGap = 3 * density;
++        mRadius = 2 * density;
++    }
++
++    /** Draws the bar into [left, top, left + width, top + height], {@code fraction} in 0..1. */
++    public void draw(Canvas canvas, float left, float top, float width, float height,
++            float fraction, boolean rtl, boolean enabled) {
++        final float segment = (width - mGap * (COUNT - 1)) / COUNT;
++        if (segment <= 0) {
++            return;
++        }
++        final int filled = Math.round(Math.max(0f, Math.min(1f, fraction)) * COUNT);
++        final int alpha = enabled ? 255 : DISABLED_ALPHA;
++        for (int i = 0; i < COUNT; i++) {
++            final float offset = i * (segment + mGap);
++            final float x = rtl ? left + width - offset - segment : left + offset;
++            mRect.set(x, top, x + segment, top + height);
++            mPaint.setColor(i < filled ? mOnColor : mOffColor);
++            mPaint.setAlpha(alpha);
++            canvas.drawRoundRect(mRect, mRadius, mRadius, mPaint);
++        }
++    }
++}
+diff --git a/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/SettingsBasePreferenceFragment.kt b/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/SettingsBasePreferenceFragment.kt
+index 0a2426782cb7..9821608bdd3c 100644
+--- a/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/SettingsBasePreferenceFragment.kt
++++ b/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/SettingsBasePreferenceFragment.kt
+@@ -273,15 +273,16 @@ abstract class SettingsBasePreferenceFragment : PreferenceFragmentCompat() {
+             val viewHolder = parent.getChildViewHolder(view)
+             val position = viewHolder.bindingAdapterPosition
+ 
++            // Budík OS: rows of a group touch, the card background draws the 1dp dividers.
+             val dimensionResId =
+                 (parent.adapter as? SettingsPreferenceGroupAdapter)?.let { adapter ->
+                     if (adapter.getItem(position) is ChainedMixin) {
+                         R.dimen.settingslib_expressive_space_none
+                     } else {
+-                        R.dimen.settingslib_expressive_space_extrasmall1
++                        R.dimen.settingslib_budik_preference_gap
+                     }
+                 }
+-                    ?: R.dimen.settingslib_expressive_space_extrasmall1 // Default if adapter is null or wrong type
++                    ?: R.dimen.settingslib_budik_preference_gap // Default if adapter is null or wrong type
+ 
+             with(outRect) {
+                 bottom = view.resources.getDimensionPixelSize(dimensionResId)
+diff --git a/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/SettingsPreferenceGroupAdapter.kt b/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/SettingsPreferenceGroupAdapter.kt
+index 74ec0f0aa30d..139b4d662c1d 100644
+--- a/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/SettingsPreferenceGroupAdapter.kt
++++ b/packages/SettingsLib/SettingsTheme/src/com/android/settingslib/widget/SettingsPreferenceGroupAdapter.kt
+@@ -66,10 +66,14 @@ open class SettingsPreferenceGroupAdapter @JvmOverloads constructor(
+         val context = preferenceGroup.context
+         mNormalPaddingStart =
+             context.resources.getDimensionPixelSize(R.dimen.settingslib_expressive_space_small1)
+-        mGroupPaddingStart = mNormalPaddingStart * 2
++        // Budík OS: cards sit close to the screen edges (iOS-like inset groups)
++        val budikGroupPadding =
++            context.resources.getDimensionPixelSize(R.dimen.settingslib_budik_card_margin) +
++                context.resources.getDimensionPixelSize(R.dimen.settingslib_budik_card_inner)
++        mGroupPaddingStart = budikGroupPadding
+         mNormalPaddingEnd =
+             context.resources.getDimensionPixelSize(R.dimen.settingslib_expressive_space_small1)
+-        mGroupPaddingEnd = mNormalPaddingEnd * 2
++        mGroupPaddingEnd = budikGroupPadding
+         val outValue = TypedValue()
+         context.theme.resolveAttribute(
+             android.R.attr.selectableItemBackground,
+diff --git a/packages/SettingsLib/SliderPreference/res/layout/settingslib_expressive_layout_slider.xml b/packages/SettingsLib/SliderPreference/res/layout/settingslib_expressive_layout_slider.xml
+index 21d608f273ba..8c6faf1db847 100644
+--- a/packages/SettingsLib/SliderPreference/res/layout/settingslib_expressive_layout_slider.xml
++++ b/packages/SettingsLib/SliderPreference/res/layout/settingslib_expressive_layout_slider.xml
+@@ -41,7 +41,8 @@
+             android:tintMode="src_in" />
+     </FrameLayout>
+ 
+-    <com.google.android.material.slider.Slider
++    <!-- Budík OS: segmented bar like the control centre brightness -->
++    <com.android.settingslib.widget.BudikSegmentSlider
+         android:id="@+id/slider"
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+@@ -49,6 +50,15 @@
+         android:theme="@style/Theme.MaterialComponents.DayNight"
+         style="@style/SettingslibSliderStyle.Expressive" />
+ 
++    <TextView
++        android:id="@+id/budik_slider_value"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:minWidth="32dp"
++        android:gravity="end"
++        android:importantForAccessibility="no"
++        android:textAppearance="@style/TextAppearance.SettingsLib.BudikSliderValue" />
++
+     <FrameLayout
+         android:id="@+id/icon_end_frame"
+         android:layout_width="@dimen/settingslib_expressive_space_medium4"
+diff --git a/packages/SettingsLib/SliderPreference/src/com/android/settingslib/widget/BudikSegmentSlider.java b/packages/SettingsLib/SliderPreference/src/com/android/settingslib/widget/BudikSegmentSlider.java
+new file mode 100644
+index 000000000000..3aa154817dd8
+--- /dev/null
++++ b/packages/SettingsLib/SliderPreference/src/com/android/settingslib/widget/BudikSegmentSlider.java
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settingslib.widget;
++
++import android.content.Context;
++import android.graphics.Canvas;
++import android.util.AttributeSet;
++
++import androidx.annotation.NonNull;
++
++import com.google.android.material.slider.Slider;
++
++/**
++ * Budík OS slider: the Material {@link Slider} keeps input, steps and accessibility, but is drawn
++ * as the segmented bar of the control centre brightness slider (no thumb).
++ * The Material track and thumb are transparent (SettingslibSliderStyle.Expressive).
++ */
++public class BudikSegmentSlider extends Slider {
++    private final BudikSegments mSegments;
++    private final float mBarHeight;
++
++    public BudikSegmentSlider(@NonNull Context context, AttributeSet attrs) {
++        super(context, attrs);
++        mSegments = new BudikSegments(context);
++        mBarHeight = 24 * getResources().getDisplayMetrics().density;
++    }
++
++    @Override
++    protected void onDraw(@NonNull Canvas canvas) {
++        super.onDraw(canvas);
++        final float range = getValueTo() - getValueFrom();
++        if (range <= 0) {
++            return;
++        }
++        mSegments.draw(canvas, getTrackSidePadding(), (getHeight() - mBarHeight) / 2f,
++                getTrackWidth(), mBarHeight, (getValue() - getValueFrom()) / range,
++                getLayoutDirection() == LAYOUT_DIRECTION_RTL, isEnabled());
++    }
++}
+diff --git a/packages/SettingsLib/SliderPreference/src/com/android/settingslib/widget/SliderPreference.java b/packages/SettingsLib/SliderPreference/src/com/android/settingslib/widget/SliderPreference.java
+index d675bc5ce317..f28c9e7e4862 100644
+--- a/packages/SettingsLib/SliderPreference/src/com/android/settingslib/widget/SliderPreference.java
++++ b/packages/SettingsLib/SliderPreference/src/com/android/settingslib/widget/SliderPreference.java
+@@ -66,6 +66,7 @@ public class SliderPreference extends Preference {
+     private final int mThumbTrackGapSize;
+     private final int mTickRadius;
+     @Nullable private Slider mSlider;
++    @Nullable private TextView mBudikValue;
+     private int mSliderValue;
+     private int mMin;
+     private int mMax;
+@@ -152,6 +153,7 @@ public class SliderPreference extends Preference {
+     private final Slider.OnChangeListener mChangeListener = new Slider.OnChangeListener() {
+         @Override
+         public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
++            updateBudikValue(slider);
+             if (fromUser && (mUpdatesContinuously || !mTrackingTouch)) {
+                 syncValueInternal(slider);
+             }
+@@ -350,7 +352,7 @@ public class SliderPreference extends Preference {
+             Log.e(TAG, "Slider is null in onBindViewHolder.");
+             return;
+         }
+-
++        mBudikValue = (TextView) holder.findViewById(R.id.budik_slider_value);
+         if (mShowSliderValue) {
+             mSlider.setLabelBehavior(LabelFormatter.LABEL_FLOATING);
+         } else {
+@@ -402,6 +404,14 @@ public class SliderPreference extends Preference {
+             mSlider.setTickActiveRadius(mTickRadius);
+             mSlider.setTickInactiveRadius(mTickRadius);
+         }
++        // Budík OS: BudikSegmentSlider draws the bar, the Material thumb and ticks stay hidden.
++        mSlider.setThumbStrokeWidth(0);
++        // a thin invisible track keeps Material from widening the side padding
++        mSlider.setTrackHeight(1);
++        mSlider.setThumbWidth(0);
++        mSlider.setHaloRadius(0);
++        mSlider.setTickVisible(false);
++        updateBudikValue(mSlider);
+ 
+         TextView startText = (TextView) holder.findViewById(android.R.id.text1);
+         if (mTextStartId > 0 && startText != null) {
+@@ -426,6 +436,17 @@ public class SliderPreference extends Preference {
+         updateIconEndIfNeeded(iconEndView);
+     }
+ 
++    /** Budík OS: value next to the bar in percent, like the control centre brightness. */
++    private void updateBudikValue(@NonNull Slider slider) {
++        if (mBudikValue == null) {
++            return;
++        }
++        final float range = slider.getValueTo() - slider.getValueFrom();
++        final int percent = range > 0
++                ? Math.round((slider.getValue() - slider.getValueFrom()) / range * 100) : 0;
++        mBudikValue.setText(String.valueOf(percent));
++    }
++
+     /**
+      * Gets the {@link Slider} widget owned by this preference.
+      *
+diff --git a/packages/SettingsLib/Spa/spa/res/values-night/spa_budik_colors.xml b/packages/SettingsLib/Spa/spa/res/values-night/spa_budik_colors.xml
+new file mode 100644
+index 000000000000..14f2baae6b32
+--- /dev/null
++++ b/packages/SettingsLib/Spa/spa/res/values-night/spa_budik_colors.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS page background (export/res/values-night/colors.xml budik_bg) -->
++<resources>
++    <color name="spa_budik_bg">#0E0F11</color>
++</resources>
+diff --git a/packages/SettingsLib/Spa/spa/res/values/spa_budik_colors.xml b/packages/SettingsLib/Spa/spa/res/values/spa_budik_colors.xml
+new file mode 100644
+index 000000000000..7cde7948250d
+--- /dev/null
++++ b/packages/SettingsLib/Spa/spa/res/values/spa_budik_colors.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS page background (export/res/values/colors.xml budik_bg) -->
++<resources>
++    <color name="spa_budik_bg">#F5F6F7</color>
++</resources>
+diff --git a/packages/SettingsLib/Spa/spa/res/values/themes.xml b/packages/SettingsLib/Spa/spa/res/values/themes.xml
+index 8f2460f53f56..c29e69142272 100644
+--- a/packages/SettingsLib/Spa/spa/res/values/themes.xml
++++ b/packages/SettingsLib/Spa/spa/res/values/themes.xml
+@@ -21,6 +21,9 @@
+         <item name="android:navigationBarColor">@android:color/transparent</item>
+         <item name="android:windowActionBar">false</item>
+         <item name="android:windowNoTitle">true</item>
++        <!-- Budík OS: page background from the Budík palette, not wallpaper colours -->
++        <item name="android:colorBackground">@color/spa_budik_bg</item>
++        <item name="android:windowBackground">@color/spa_budik_bg</item>
+     </style>
+ 
+     <style name="Theme.SpaLib.Dialog" parent="Theme.Material3.DayNight.Dialog.Alert">
+diff --git a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/MaterialColors.kt b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/MaterialColors.kt
+index d6704a534c3a..20e8e2f148ad 100644
+--- a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/MaterialColors.kt
++++ b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/MaterialColors.kt
+@@ -16,31 +16,84 @@
+ 
+ package com.android.settingslib.spa.framework.theme
+ 
+-import android.os.Build
+ import androidx.compose.material3.ColorScheme
+ import androidx.compose.material3.darkColorScheme
+-import androidx.compose.material3.dynamicDarkColorScheme
+-import androidx.compose.material3.dynamicLightColorScheme
+ import androidx.compose.material3.lightColorScheme
+ import androidx.compose.runtime.Composable
+-import androidx.compose.runtime.remember
+ import androidx.compose.ui.graphics.Color
+-import androidx.compose.ui.platform.LocalContext
+ 
++/** Budík OS: fixed palette (export/res/values*), not wallpaper colours. */
+ @Composable
+-internal fun materialColorScheme(isDarkTheme: Boolean): ColorScheme {
+-    val context = LocalContext.current
+-    return remember(isDarkTheme) {
+-        when {
+-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+-                if (isDarkTheme) dynamicDarkColorScheme(context)
+-                else dynamicLightColorScheme(context)
+-            }
+-            isDarkTheme -> darkColorScheme()
+-            else -> lightColorScheme()
+-        }
+-    }
+-}
++internal fun materialColorScheme(isDarkTheme: Boolean): ColorScheme =
++    if (isDarkTheme) BudikDarkColors else BudikLightColors
++
++private val BudikLightColors = lightColorScheme(
++    primary = Color(0xFF0B1E52),
++    onPrimary = Color(0xFFFFFFFF),
++    primaryContainer = Color(0xFF21D4BE),
++    onPrimaryContainer = Color(0xFF0E0F11),
++    inversePrimary = Color(0xFF21D4BE),
++    secondary = Color(0xFF3A3E43),
++    onSecondary = Color(0xFFFFFFFF),
++    secondaryContainer = Color(0xFFE3E5E8),
++    onSecondaryContainer = Color(0xFF0E0F11),
++    tertiary = Color(0xFF05332E),
++    onTertiary = Color(0xFFFFFFFF),
++    tertiaryContainer = Color(0xFF21D4BE),
++    onTertiaryContainer = Color(0xFF0E0F11),
++    background = Color(0xFFF5F6F7),
++    onBackground = Color(0xFF0E0F11),
++    surface = Color(0xFFF5F6F7),
++    onSurface = Color(0xFF0E0F11),
++    surfaceVariant = Color(0xFFEEF0F2),
++    onSurfaceVariant = Color(0xFF5A6370),
++    surfaceTint = Color(0xFF0B1E52),
++    inverseSurface = Color(0xFF0E0F11),
++    inverseOnSurface = Color(0xFFFFFFFF),
++    outline = Color(0xFFCFD3D8),
++    outlineVariant = Color(0xFFE3E5E8),
++    surfaceBright = Color(0xFFFFFFFF),
++    surfaceDim = Color(0xFFE3E5E8),
++    surfaceContainer = Color(0xFFF5F6F7),
++    surfaceContainerLow = Color(0xFFFFFFFF),
++    surfaceContainerLowest = Color(0xFFFFFFFF),
++    surfaceContainerHigh = Color(0xFFFFFFFF),
++    surfaceContainerHighest = Color(0xFFE3E5E8),
++)
++
++private val BudikDarkColors = darkColorScheme(
++    primary = Color(0xFF21D4BE),
++    onPrimary = Color(0xFF0E0F11),
++    primaryContainer = Color(0xFF21D4BE),
++    onPrimaryContainer = Color(0xFF0E0F11),
++    inversePrimary = Color(0xFF0B1E52),
++    secondary = Color(0xFFC4C8CE),
++    onSecondary = Color(0xFF0E0F11),
++    secondaryContainer = Color(0xFF262A2F),
++    onSecondaryContainer = Color(0xFFF5F6F7),
++    tertiary = Color(0xFF21D4BE),
++    onTertiary = Color(0xFF0E0F11),
++    tertiaryContainer = Color(0xFF05332E),
++    onTertiaryContainer = Color(0xFF21D4BE),
++    background = Color(0xFF0E0F11),
++    onBackground = Color(0xFFF5F6F7),
++    surface = Color(0xFF0E0F11),
++    onSurface = Color(0xFFF5F6F7),
++    surfaceVariant = Color(0xFF1A1C20),
++    onSurfaceVariant = Color(0xFF8D949E),
++    surfaceTint = Color(0xFF21D4BE),
++    inverseSurface = Color(0xFFF5F6F7),
++    inverseOnSurface = Color(0xFF0E0F11),
++    outline = Color(0xFF3A3F46),
++    outlineVariant = Color(0xFF262A2F),
++    surfaceBright = Color(0xFF17191C),
++    surfaceDim = Color(0xFF0E0F11),
++    surfaceContainer = Color(0xFF0E0F11),
++    surfaceContainerLow = Color(0xFF17191C),
++    surfaceContainerLowest = Color(0xFF0A0B0D),
++    surfaceContainerHigh = Color(0xFF17191C),
++    surfaceContainerHighest = Color(0xFF262A2F),
++)
+ 
+ val ColorScheme.divider: Color
+     get() = onSurface.copy(SettingsOpacity.Divider)
+diff --git a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/SettingsDimension.kt b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/SettingsDimension.kt
+index a8a8cfc1e647..75b2da509901 100644
+--- a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/SettingsDimension.kt
++++ b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/SettingsDimension.kt
+@@ -31,7 +31,7 @@ object SettingsDimension {
+     val itemPaddingStart = if (isSpaExpressiveEnabled) paddingLarge else paddingExtraLarge
+     val itemPaddingEnd = paddingLarge
+     val itemPaddingVertical =
+-        if (isSpaExpressiveEnabled) SettingsSpace.extraSmall6 else paddingLarge
++        if (isSpaExpressiveEnabled) 8.dp else paddingLarge // Budík OS: compact rows
+     val itemPadding = PaddingValues(
+         start = itemPaddingStart,
+         top = itemPaddingVertical,
+@@ -84,5 +84,5 @@ object SettingsDimension {
+     val illustrationPadding = paddingLarge
+     val illustrationCornerRadius = 28.dp
+ 
+-    val preferenceMinHeight = 72.dp
++    val preferenceMinHeight = 48.dp // Budík OS: compact iOS-like rows (was 72dp)
+ }
+diff --git a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/SettingsFontFamily.kt b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/SettingsFontFamily.kt
+index 8810a7e1e318..110f04c64e1f 100644
+--- a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/SettingsFontFamily.kt
++++ b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/framework/theme/SettingsFontFamily.kt
+@@ -18,7 +18,6 @@
+ 
+ package com.android.settingslib.spa.framework.theme
+ 
+-import android.annotation.SuppressLint
+ import android.content.Context
+ import androidx.compose.runtime.Composable
+ import androidx.compose.ui.text.ExperimentalTextApi
+@@ -49,53 +48,35 @@ internal interface SettingsFontFamily {
+     val labelSmallEmphasized: FontFamily
+ }
+ 
++/** Budík OS fonts: Schibsted Grotesk for headings, Instrument Sans for everything else. */
++@Suppress("UnusedReceiverParameter")
+ private fun Context.getSettingsFontFamily() = object : SettingsFontFamily {
+-    override val brand = getFontFamily(
+-        configFontFamilyNormal = "config_headlineFontFamily",
+-        configFontFamilyMedium = "config_headlineFontFamilyMedium",
+-    )
+-    override val plain = getFontFamily(
+-        configFontFamilyNormal = "config_bodyFontFamily",
+-        configFontFamilyMedium = "config_bodyFontFamilyMedium",
+-    )
+-    override val displayLargeEmphasized = fontFamily("variable-display-large-emphasized")
+-    override val displayMediumEmphasized = fontFamily("variable-display-medium-emphasized")
+-    override val displaySmallEmphasized = fontFamily("variable-display-small-emphasized")
+-    override val headlineLargeEmphasized = fontFamily("variable-headline-large-emphasized")
+-    override val headlineMediumEmphasized = fontFamily("variable-headline-medium-emphasized")
+-    override val headlineSmallEmphasized = fontFamily("variable-headline-small-emphasized")
+-    override val titleLargeEmphasized = fontFamily("variable-title-large-emphasized")
+-    override val titleMediumEmphasized = fontFamily("variable-title-medium-emphasized")
+-    override val titleSmallEmphasized = fontFamily("variable-title-small-emphasized")
+-    override val bodyLargeEmphasized = fontFamily("variable-body-large-emphasized")
+-    override val bodyMediumEmphasized = fontFamily("variable-body-medium-emphasized")
+-    override val bodySmallEmphasized = fontFamily("variable-body-small-emphasized")
+-    override val labelLargeEmphasized = fontFamily("variable-label-large-emphasized")
+-    override val labelMediumEmphasized = fontFamily("variable-label-medium-emphasized")
+-    override val labelSmallEmphasized = fontFamily("variable-label-small-emphasized")
++    private val schibsted = deviceFamily("schibsted-grotesk")
++    private val instrument = deviceFamily("instrument-sans")
+ 
+-    private fun fontFamily(name: String): FontFamily =
+-        FontFamily(Font(DeviceFontFamilyName(name)))
++    override val brand = schibsted
++    override val plain = instrument
++    override val displayLargeEmphasized = schibsted
++    override val displayMediumEmphasized = schibsted
++    override val displaySmallEmphasized = schibsted
++    override val headlineLargeEmphasized = schibsted
++    override val headlineMediumEmphasized = schibsted
++    override val headlineSmallEmphasized = schibsted
++    override val titleLargeEmphasized = schibsted
++    override val titleMediumEmphasized = instrument
++    override val titleSmallEmphasized = instrument
++    override val bodyLargeEmphasized = instrument
++    override val bodyMediumEmphasized = instrument
++    override val bodySmallEmphasized = instrument
++    override val labelLargeEmphasized = instrument
++    override val labelMediumEmphasized = instrument
++    override val labelSmallEmphasized = instrument
+ }
+ 
+-private fun Context.getFontFamily(
+-    configFontFamilyNormal: String,
+-    configFontFamilyMedium: String,
+-): FontFamily {
+-    val fontFamilyNormal = getAndroidConfig(configFontFamilyNormal)
+-    val fontFamilyMedium = getAndroidConfig(configFontFamilyMedium)
+-    if (fontFamilyNormal.isEmpty() || fontFamilyMedium.isEmpty()) return FontFamily.Default
+-    return FontFamily(
+-        Font(DeviceFontFamilyName(fontFamilyNormal), FontWeight.Normal),
+-        Font(DeviceFontFamilyName(fontFamilyMedium), FontWeight.Medium),
+-    )
+-}
+-
+-private fun Context.getAndroidConfig(configName: String): String {
+-    @SuppressLint("DiscouragedApi")
+-    val configId = resources.getIdentifier(configName, "string", "android")
+-    return resources.getString(configId)
+-}
++private fun deviceFamily(name: String): FontFamily = FontFamily(
++    listOf(FontWeight.Normal, FontWeight.Medium, FontWeight.SemiBold, FontWeight.Bold,
++        FontWeight.ExtraBold).map { Font(DeviceFontFamilyName(name), it) }
++)
+ 
+ @Composable
+ internal fun rememberSettingsFontFamily(): SettingsFontFamily {
+diff --git a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/preference/BaseLayout.kt b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/preference/BaseLayout.kt
+index f0d509d786e0..bb03d68cab31 100644
+--- a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/preference/BaseLayout.kt
++++ b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/preference/BaseLayout.kt
+@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
+ import androidx.compose.runtime.Composable
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
++import androidx.compose.ui.graphics.RectangleShape
+ import androidx.compose.ui.semantics.semantics
+ import androidx.compose.ui.tooling.preview.Preview
+ import androidx.compose.ui.unit.Dp
+@@ -38,7 +39,6 @@ import com.android.settingslib.spa.framework.compose.highlightBackground
+ import com.android.settingslib.spa.framework.compose.thenIf
+ import com.android.settingslib.spa.framework.theme.SettingsDimension
+ import com.android.settingslib.spa.framework.theme.SettingsOpacity.alphaForEnabled
+-import com.android.settingslib.spa.framework.theme.SettingsShape
+ import com.android.settingslib.spa.framework.theme.SettingsSize
+ import com.android.settingslib.spa.framework.theme.SettingsSpace
+ import com.android.settingslib.spa.framework.theme.SettingsTheme
+@@ -71,7 +71,8 @@ internal fun BaseLayout(
+                 .thenIf(isSpaExpressiveEnabled && LocalIsInCategory.current) {
+                     Modifier.highlightBackground(
+                         originalColor = surfaceBright,
+-                        shape = SettingsShape.CornerExtraSmall2,
++                        // Budík OS: square rows, the category card rounds the group
++                        shape = RectangleShape,
+                     )
+                 }
+                 .padding(end = paddingEnd),
+diff --git a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/ui/Category.kt b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/ui/Category.kt
+index 60ca43bea551..6767f83f5df6 100644
+--- a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/ui/Category.kt
++++ b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/ui/Category.kt
+@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.draw.clip
+ import androidx.compose.ui.layout.onGloballyPositioned
+ import androidx.compose.ui.tooling.preview.Preview
++import androidx.compose.ui.unit.dp
+ import com.android.settingslib.spa.framework.compose.thenIf
+ import com.android.settingslib.spa.framework.theme.SettingsDimension
+ import com.android.settingslib.spa.framework.theme.SettingsShape
+@@ -103,7 +104,8 @@ fun Category(
+                         Modifier.fillMaxWidth().clip(SettingsShape.CornerLarge2)
+                     },
+             verticalArrangement =
+-                if (isSpaExpressiveEnabled) Arrangement.spacedBy(SettingsSpace.extraSmall1)
++                // Budík OS: rows touch, the 1dp gap is the divider
++                if (isSpaExpressiveEnabled) Arrangement.spacedBy(1.dp)
+                 else Arrangement.Top,
+             content = { CompositionLocalProvider(LocalIsInCategory provides true) { content() } },
+         )
+diff --git a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/ui/LazyCategory.kt b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/ui/LazyCategory.kt
+index 3ce0468af158..78ecb51b8dbf 100644
+--- a/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/ui/LazyCategory.kt
++++ b/packages/SettingsLib/Spa/spa/src/com/android/settingslib/spa/widget/ui/LazyCategory.kt
+@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.draw.clip
+ import androidx.compose.ui.tooling.preview.Preview
+ import androidx.compose.ui.unit.Dp
++import androidx.compose.ui.unit.dp
+ import com.android.settingslib.spa.framework.theme.SettingsRadius
+ import com.android.settingslib.spa.framework.theme.SettingsSpace
+ import com.android.settingslib.spa.framework.theme.SettingsTheme
+@@ -67,12 +68,13 @@ fun LazyCategory(
+         modifier = Modifier.fillMaxSize(),
+         contentPadding =
+             PaddingValues(
+-                start = SettingsSpace.small1,
++                start = 8.dp, // Budík OS: cards close to the screen edge
+                 top = SettingsSpace.extraSmall4,
+-                end = SettingsSpace.small1,
++                end = 8.dp,
+                 bottom = bottomPadding,
+             ),
+-        verticalArrangement = Arrangement.spacedBy(SettingsSpace.extraSmall1),
++        // Budík OS: rows of a group touch, the 1dp gap shows as a divider line
++        verticalArrangement = Arrangement.spacedBy(1.dp),
+         state = state,
+     ) {
+         item(contentType = "header") { header() }
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_high.xml b/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_high.xml
+index 114d46af0d8a..3e7484220678 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_high.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_high.xml
+@@ -17,5 +17,5 @@
+ <shape xmlns:android="http://schemas.android.com/apk/res/android"
+     android:shape="oval">
+     <size android:height="72dp" android:width="72dp" />
+-    <solid android:color="@color/m3_ref_palette_red20" />
++    <solid android:color="@color/settingslib_budik_pixel" />
+ </shape>
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_low.xml b/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_low.xml
+index 21770686220a..3e7484220678 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_low.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_low.xml
+@@ -17,5 +17,5 @@
+ <shape xmlns:android="http://schemas.android.com/apk/res/android"
+     android:shape="oval">
+     <size android:height="72dp" android:width="72dp" />
+-    <solid android:color="@color/m3_ref_palette_green20" />
++    <solid android:color="@color/settingslib_budik_pixel" />
+ </shape>
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_medium.xml b/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_medium.xml
+index 9d15211a988e..3e7484220678 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_medium.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/drawable-night/settingslib_expressive_background_level_medium.xml
+@@ -17,5 +17,5 @@
+ <shape xmlns:android="http://schemas.android.com/apk/res/android"
+     android:shape="oval">
+     <size android:height="72dp" android:width="72dp" />
+-    <solid android:color="@color/m3_ref_palette_yellow20" />
++    <solid android:color="@color/settingslib_budik_pixel" />
+ </shape>
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_high.xml b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_high.xml
+index cb9f124f6574..3e7484220678 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_high.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_high.xml
+@@ -17,5 +17,5 @@
+ <shape xmlns:android="http://schemas.android.com/apk/res/android"
+     android:shape="oval">
+     <size android:height="72dp" android:width="72dp" />
+-    <solid android:color="@color/m3_ref_palette_red95" />
++    <solid android:color="@color/settingslib_budik_pixel" />
+ </shape>
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_low.xml b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_low.xml
+index efb620bcb316..3e7484220678 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_low.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_low.xml
+@@ -17,5 +17,5 @@
+ <shape xmlns:android="http://schemas.android.com/apk/res/android"
+     android:shape="oval">
+     <size android:height="72dp" android:width="72dp" />
+-    <solid android:color="@color/m3_ref_palette_green95" />
++    <solid android:color="@color/settingslib_budik_pixel" />
+ </shape>
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_medium.xml b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_medium.xml
+index 1ed258930ffb..3e7484220678 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_medium.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_background_level_medium.xml
+@@ -17,5 +17,5 @@
+ <shape xmlns:android="http://schemas.android.com/apk/res/android"
+     android:shape="oval">
+     <size android:height="72dp" android:width="72dp" />
+-    <solid android:color="@color/m3_ref_palette_yellow95" />
++    <solid android:color="@color/settingslib_budik_pixel" />
+ </shape>
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_high.xml b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_high.xml
+index da736a9a3e7e..eb7101b46c69 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_high.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_high.xml
+@@ -21,8 +21,8 @@
+     android:viewportHeight="42">
+     <path
+         android:pathData="M0.856,17.569C0.887,19.083 1.004,20.593 1.206,22.094C2.166,28.584 5.804,35.937 15.774,41.089C16.171,41.293 16.61,41.4 17.056,41.4C17.503,41.4 17.942,41.293 18.339,41.089C28.309,35.936 31.947,28.583 32.907,22.093C33.109,20.593 33.226,19.083 33.256,17.569V8.605C33.257,7.919 33.046,7.25 32.652,6.688C32.259,6.127 31.703,5.7 31.059,5.467L18.191,0.8C17.458,0.534 16.655,0.534 15.922,0.8L3.054,5.467C2.41,5.7 1.854,6.127 1.461,6.688C1.067,7.25 0.856,7.919 0.856,8.605V17.569Z"
+-        android:fillColor="@color/m3_ref_palette_red50"/>
++        android:fillColor="@color/settingslib_colorBackgroundLevel_high"/>
+     <path
+         android:pathData="M15.067,24.333V10.733H18.933V24.333H15.067ZM15.067,31.267V27.433H18.933V31.267H15.067Z"
+-        android:fillColor="@color/settingslib_materialColorSurfaceContainerLowest"/>
++        android:fillColor="@color/settingslib_colorContentLevel_high"/>
+ </vector>
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_low.xml b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_low.xml
+index 0c9d6fb93e2b..99c3412a988f 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_low.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_low.xml
+@@ -21,8 +21,8 @@
+     android:viewportHeight="42">
+     <path
+         android:pathData="M0.856,17.569C0.887,19.083 1.004,20.593 1.206,22.094C2.166,28.584 5.804,35.937 15.774,41.089C16.171,41.293 16.61,41.4 17.056,41.4C17.503,41.4 17.942,41.293 18.339,41.089C28.309,35.936 31.947,28.583 32.907,22.093C33.109,20.593 33.226,19.083 33.256,17.569V8.605C33.257,7.919 33.046,7.25 32.652,6.688C32.259,6.127 31.703,5.7 31.059,5.467L18.191,0.8C17.458,0.534 16.655,0.534 15.922,0.8L3.054,5.467C2.41,5.7 1.854,6.127 1.461,6.688C1.067,7.25 0.856,7.919 0.856,8.605V17.569Z"
+-        android:fillColor="@color/m3_ref_palette_green60"/>
++        android:fillColor="@color/settingslib_colorBackgroundLevel_low"/>
+     <path
+         android:pathData="M14.389,27.733L8.423,21.767L11.156,19.033L14.389,22.267L22.956,13.7L25.69,16.433L14.389,27.733Z"
+-        android:fillColor="@color/settingslib_materialColorSurfaceContainerLowest"/>
++        android:fillColor="@color/settingslib_colorContentLevel_low"/>
+ </vector>
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_medium.xml b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_medium.xml
+index 2d369c169cd4..1e5a5cb80eb4 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_medium.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/drawable/settingslib_expressive_icon_status_level_medium.xml
+@@ -21,8 +21,8 @@
+     android:viewportHeight="42">
+     <path
+         android:pathData="M0.856,17.569C0.887,19.083 1.004,20.593 1.206,22.094C2.166,28.584 5.804,35.937 15.774,41.089C16.171,41.293 16.61,41.4 17.056,41.4C17.503,41.4 17.942,41.293 18.339,41.089C28.309,35.936 31.947,28.583 32.907,22.093C33.109,20.593 33.226,19.083 33.256,17.569V8.605C33.257,7.919 33.046,7.25 32.652,6.688C32.259,6.127 31.703,5.7 31.059,5.467L18.191,0.8C17.458,0.534 16.655,0.534 15.922,0.8L3.054,5.467C2.41,5.7 1.854,6.127 1.461,6.688C1.067,7.25 0.856,7.919 0.856,8.605V17.569Z"
+-        android:fillColor="@color/m3_ref_palette_yellow80"/>
++        android:fillColor="@color/settingslib_colorBackgroundLevel_medium"/>
+     <path
+         android:pathData="M15.067,24.333V10.733H18.933V24.333H15.067ZM15.067,31.267V27.433H18.933V31.267H15.067Z"
+-        android:fillColor="@color/settingslib_materialColorSurfaceContainerLowest"/>
++        android:fillColor="@color/settingslib_colorContentLevel_medium"/>
+ </vector>
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/layout/settingslib_expressive_preference_statusbanner.xml b/packages/SettingsLib/StatusBannerPreference/res/layout/settingslib_expressive_preference_statusbanner.xml
+index dc57bbacae36..7f390b45f39c 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/layout/settingslib_expressive_preference_statusbanner.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/layout/settingslib_expressive_preference_statusbanner.xml
+@@ -97,7 +97,7 @@
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:textColor="@color/settingslib_text_color_primary"
+-                        android:textAppearance="@style/TextAppearance.SettingsLib.TitleLarge.Emphasized"/>
++                        android:textAppearance="@style/TextAppearance.SettingsLib.TitleMedium.Emphasized"/>
+ 
+                     <TextView
+                         android:id="@android:id/summary"
+diff --git a/packages/SettingsLib/StatusBannerPreference/res/values/colors.xml b/packages/SettingsLib/StatusBannerPreference/res/values/colors.xml
+index 5a1971b07467..08aa184ad088 100644
+--- a/packages/SettingsLib/StatusBannerPreference/res/values/colors.xml
++++ b/packages/SettingsLib/StatusBannerPreference/res/values/colors.xml
+@@ -17,10 +17,10 @@
+ 
+ <resources>
+     <!-- static palette green60 -->
+-    <color name="settingslib_expressive_color_status_level_low">@color/m3_ref_palette_green60</color>
++    <color name="settingslib_expressive_color_status_level_low">@color/settingslib_colorBackgroundLevel_low</color> <!-- Budík OS palette -->
+     <!-- static palette yellow80 -->
+-    <color name="settingslib_expressive_color_status_level_medium">@color/m3_ref_palette_yellow80</color>
++    <color name="settingslib_expressive_color_status_level_medium">@color/settingslib_colorBackgroundLevel_medium</color> <!-- Budík OS palette -->
+     <!-- static palette red50 -->
+-    <color name="settingslib_expressive_color_status_level_high">@color/m3_ref_palette_red50</color>
++    <color name="settingslib_expressive_color_status_level_high">@color/settingslib_colorBackgroundLevel_high</color> <!-- Budík OS palette -->
+     <color name="settingslib_expressive_color_status_level_off">#D1C2CB</color>
+ </resources>
+\ No newline at end of file
+diff --git a/packages/SettingsLib/UsageProgressBarPreference/res/layout/preference_usage_progress_bar_expressive.xml b/packages/SettingsLib/UsageProgressBarPreference/res/layout/preference_usage_progress_bar_expressive.xml
+index bedc44a130db..cb7e52093389 100644
+--- a/packages/SettingsLib/UsageProgressBarPreference/res/layout/preference_usage_progress_bar_expressive.xml
++++ b/packages/SettingsLib/UsageProgressBarPreference/res/layout/preference_usage_progress_bar_expressive.xml
+@@ -60,14 +60,13 @@
+             app:layout_constraintBottom_toBottomOf="@id/total_summary"/>
+     </androidx.constraintlayout.widget.ConstraintLayout>
+ 
+-    <com.google.android.material.progressindicator.LinearProgressIndicator
+-        android:theme="@style/Theme.Material3.DynamicColors.DayNight"
++    <!-- Budík OS: segmented bar like the control centre brightness (storage, battery) -->
++    <com.android.settingslib.widget.BudikSegmentProgressBar
+         android:id="@android:id/progress"
+         android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:max="100"
+-        android:scaleY="1"
+-        style="@style/SettingsLibProgressBarStyle.Linear.Expressive" />
++        android:layout_height="24dp"
++        android:layout_marginTop="8dp"
++        android:max="100" />
+ 
+     <TextView
+         android:id="@+id/bottom_summary"
+-- 
+2.53.0
+

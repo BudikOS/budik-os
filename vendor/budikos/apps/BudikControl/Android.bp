@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Budik OS performance page: Settings page (injected into the Settings homepage) +
+// Quick Settings tile. Sets persist.sys.budik.* (system_prop), so it runs as
+// android.uid.system (platform cert). Not privileged: no privapp whitelist needed.
+// Backend: vendor/budikos/perf/budik_perf.rc
+android_app {
+    name: "BudikControl",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    platform_apis: true,
+    certificate: "platform",
+    system_ext_specific: true,
+}

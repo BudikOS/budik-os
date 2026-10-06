@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- No blurred wallpaper behind the shade: a full-screen blur pass is too
+         expensive for Adreno 5xx / Mali-G52 class GPUs (WindowRootViewBlurInteractor) -->
+    <bool name="config_supportBlurredWallpaper">false</bool>
+
+    <!-- Default control centre tiles (new users only; sysui_qs_tiles wins after
+         the first edit), ending with the performance profile tile. -->
+    <string name="quick_settings_tiles_default" translatable="false">
+        internet,bt,cell,airplane,hotspot,nfc,flashlight,dnd,rotation,location,dark,battery,screenrecord,custom(org.budikos.control/.PerfTileService)
+    </string>
+</resources>

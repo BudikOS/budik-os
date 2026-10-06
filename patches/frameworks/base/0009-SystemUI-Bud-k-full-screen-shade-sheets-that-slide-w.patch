@@ -1,0 +1,835 @@
+From 4d0c3dd18c3b0ed83428918cc6b9930257c79798 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 05:18:00 +0000
+Subject: [PATCH 09/12] =?UTF-8?q?SystemUI:=20Bud=C3=ADk=20full=20screen=20?=
+ =?UTF-8?q?shade=20sheets=20that=20slide=20with=20the=20finger?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Both Dual Shade overlays become opaque full screen sheets (iOS like) that
+slide in from the top edge and follow the finger instead of the AOSP
+container reveal. The reveal animated the size and alpha of the panel on
+every frame (re-measure, re-record, offscreen alpha); the slide only moves
+the sheet, which is a single offscreen layer while it moves. The bottom
+edge is hard: rounded corners, a 0 x 3 dp solid edge and a grab handle, no
+gradient or blur. The blur behind the bouncer is dropped as well.
+
+The status icons and battery are shown once in the header; the clock and
+date are shown once, large, in each sheet.
+---
+ .../systemui/budik/ui/compose/BudikTheme.kt   |  15 +++
+ .../ui/composable/BudikNotificationReceipt.kt |  27 +---
+ .../composable/NotificationsShadeOverlay.kt   | 122 +++++++++---------
+ .../qs/ui/composable/BudikControlCenter.kt    |  25 ++--
+ .../composable/QuickSettingsShadeOverlay.kt   |  67 ++++------
+ .../composable/transitions/BudikSheetSlide.kt |  37 ++++++
+ .../ToNotificationsShadeTransition.kt         |   4 +-
+ .../ToQuickSettingsShadeTransition.kt         |   9 +-
+ .../shade/ui/composable/OverlayShade.kt       |  59 ++++++++-
+ .../shade/ui/composable/ShadeHeader.kt        |  17 ++-
+ .../QuickSettingsShadeOverlayKosmos.kt        |   2 -
+ 11 files changed, 226 insertions(+), 158 deletions(-)
+ create mode 100644 packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/BudikSheetSlide.kt
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt b/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt
+index 1693dd840f9b..8d081bbd295c 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt
+@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.BoxScope
+ import androidx.compose.foundation.layout.offset
+ import androidx.compose.foundation.layout.padding
++import androidx.compose.foundation.layout.size
+ import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.Immutable
+ import androidx.compose.runtime.ReadOnlyComposable
+@@ -279,6 +280,20 @@ fun BudikKey(
+     )
+ }
+ 
++/** Space kept free at the bottom of a full screen shade sheet for [BudikSheetHandle]. */
++val BudikSheetHandleArea = 24.dp
++
++/** The grab handle at the bottom edge of a full screen shade sheet: drag up to close. */
++@Composable
++fun BudikSheetHandle(modifier: Modifier = Modifier, color: Color = Budik.colors.fg3) {
++    Box(
++        modifier
++            .padding(bottom = 10.dp)
++            .size(width = 40.dp, height = 5.dp)
++            .drawBehind { drawRoundRect(color, cornerRadius = CornerRadius(size.height / 2f)) }
++    )
++}
++
+ /** Budík line icons (export/icons/ui, 24 dp grid, stroke 2, round caps and joins). */
+ object BudikIcons {
+     val Edit by lazy { stroke("M5 19l1-4L15.5 5.5a2.1 2.1 0 0 1 3 3L9 18z") }
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+index bca1004d51e0..285f9e8665db 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.Row
+ import androidx.compose.foundation.layout.Spacer
+ import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.height
+-import androidx.compose.foundation.layout.heightIn
+ import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.layout.width
+ import androidx.compose.foundation.layout.widthIn
+@@ -284,7 +283,6 @@ fun ContentScope.BudikNotificationReceipt(
+ ) {
+     val c = Budik.colors
+     val locale = LocalConfiguration.current.locales[0]
+-    val screenHeight = LocalConfiguration.current.screenHeightDp
+     val store by actions.activeNotifications.collectAsStateWithLifecycle()
+     var seenVersion by remember { mutableIntStateOf(0) }
+     val items = remember(store, seenVersion) { actions.items(store, SeenNotifications.keys) }
+@@ -306,24 +304,13 @@ fun ContentScope.BudikNotificationReceipt(
+             .border(1.dp, c.line, shape)
+             .padding(top = 16.dp, bottom = 14.dp)
+     ) {
+-        Row(
+-            verticalAlignment = Alignment.Bottom,
++        // The date is shown once, next to the large clock above the card.
++        Text(
++            text = "Oznámení.",
++            style = Budik.headline(30.sp, c.fg, FontWeight.ExtraBold),
++            maxLines = 1,
+             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+-        ) {
+-            Text(
+-                text = "Oznámení.",
+-                style = Budik.headline(30.sp, c.fg, FontWeight.ExtraBold),
+-                maxLines = 1,
+-                modifier = Modifier.weight(1f),
+-            )
+-            val today = remember(locale) { dateFormat(locale, "EEEdMyyyy").format(Date()).capitalized(locale) }
+-            Text(
+-                text = today,
+-                style = Budik.meta(12.sp, c.fg3),
+-                maxLines = 1,
+-                modifier = Modifier.padding(bottom = 5.dp),
+-            )
+-        }
++        )
+         Spacer(Modifier.height(12.dp))
+         Rule(thick = true)
+         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp)) {
+@@ -344,7 +331,7 @@ fun ContentScope.BudikNotificationReceipt(
+             LazyColumn(
+                 modifier =
+                     Modifier.fillMaxWidth()
+-                        .heightIn(max = (screenHeight - 330).coerceAtLeast(160).dp)
++                        .weight(1f, fill = false)
+                         .disableSwipesWhenScrolling()
+             ) {
+                 items(items, key = { it.key }) { item ->
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
+index 256c3327e62b..1b6501b5c762 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
+@@ -16,24 +16,22 @@
+ 
+ package com.android.systemui.notifications.ui.composable
+ 
+-import androidx.compose.animation.core.animateFloatAsState
+ import androidx.compose.foundation.focusable
+ import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.fillMaxSize
+ import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.height
+ import androidx.compose.foundation.layout.padding
+ import androidx.compose.runtime.Composable
+-import androidx.compose.runtime.derivedStateOf
+ import androidx.compose.runtime.getValue
+ import androidx.compose.runtime.remember
++import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+-import androidx.compose.ui.draw.blur
+ import androidx.compose.ui.focus.FocusRequester
+ import androidx.compose.ui.focus.focusProperties
+ import androidx.compose.ui.focus.focusRequester
+-import androidx.compose.ui.platform.LocalDensity
+ import androidx.compose.ui.res.dimensionResource
+ import androidx.compose.ui.res.stringResource
+ import androidx.compose.ui.semantics.paneTitle
+@@ -46,6 +44,8 @@ import com.android.compose.animation.scene.UserActionResult
+ import com.android.compose.lifecycle.DisposableEffectWithLifecycle
+ import com.android.compose.lifecycle.LaunchedEffectWithLifecycle
+ import com.android.internal.jank.InteractionJankMonitor
++import com.android.systemui.budik.ui.compose.BudikSheetHandle
++import com.android.systemui.budik.ui.compose.BudikSheetHandleArea
+ import com.android.systemui.dagger.SysUISingleton
+ import com.android.systemui.keyguard.ui.composable.elements.LockscreenElements
+ import com.android.systemui.lifecycle.rememberViewModel
+@@ -145,19 +145,13 @@ constructor(
+ 
+         val isFullWidth = LocalSceneContainerPreloadedResources.current.isFullWidthShade
+ 
+-        val targetBlurRadiusPx: Float by
+-            remember(layoutState) {
+-                derivedStateOf { viewModel.calculateTargetBlurRadius(layoutState.transitionState) }
+-            }
+-        val animatedBlurRadiusPx: Float by
+-            animateFloatAsState(targetValue = targetBlurRadiusPx, label = "NSOverlay-blurRadius")
+-
++        // Budík: no blur behind the bouncer (an opaque sheet; blur is too costly on the GPU).
+         OverlayShade(
+             panelElement = NotificationsShade.Elements.Panel,
+             alignmentOnWideScreens = viewModel.alignmentOnWideScreens,
+             statusBarHeightPx = viewModel.statusBarHeightPx,
+             enableTransparency = viewModel.isTransparencyEnabled,
+-            modifier = modifier.blur(with(LocalDensity.current) { animatedBlurRadiusPx.toDp() }),
++            modifier = modifier,
+             onScrimClicked = viewModel::onScrimClicked,
+             onBackgroundPlaced = { bounds, _, _ -> viewModel.onShadeOverlayBoundsChanged(bounds) },
+             header = {
+@@ -171,6 +165,7 @@ constructor(
+                         notificationsHighlight = ChipHighlightModel.Strong,
+                         quickSettingsHighlight = headerViewModel.inactiveChipHighlight,
+                         showClock = !isFullWidth,
++                        showDate = !isFullWidth,
+                         modifier = Modifier.element(NotificationsShade.Elements.StatusBar),
+                     )
+                 }
+@@ -187,56 +182,63 @@ constructor(
+ 
+             val accessibilityTitle = stringResource(R.string.accessibility_desc_notification_shade)
+ 
+-            Column(
+-                modifier =
+-                    Modifier.focusRequester(focusRequester).focusable().semantics {
+-                        paneTitle = accessibilityTitle
+-                    }
+-            ) {
+-                // Budík: large clock + date, media, then the receipt card. The notification stack
+-                // keeps a zero-height placeholder below so its lifecycle (expansion, HUNs, clear
+-                // all) works as in AOSP while the rows themselves are not shown.
+-                BudikShadeClock(Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp))
+-                if (viewModel.showMedia) {
+-                    Element(
+-                        key = Media.Elements.MediaCarousel,
+-                        modifier = Modifier.padding(horizontal = 12.dp).padding(bottom = 12.dp),
+-                    ) {
+-                        Media(
+-                            viewModelFactory = viewModel.mediaViewModelFactory,
+-                            presentationStyle = MediaPresentationStyle.Default,
+-                            behavior = viewModel.mediaUiBehavior,
+-                            onDismissed = viewModel::onMediaSwipeToDismiss,
+-                            location = Media.Location.SHADE,
+-                        )
++            Box(Modifier.fillMaxSize()) {
++                Column(
++                    modifier =
++                        Modifier.fillMaxSize()
++                            .padding(bottom = BudikSheetHandleArea)
++                            .focusRequester(focusRequester)
++                            .focusable()
++                            .semantics { paneTitle = accessibilityTitle }
++                ) {
++                    // Budík: large clock + date, media, then the receipt card. The notification stack
++                    // keeps a zero-height placeholder below so its lifecycle (expansion, HUNs, clear
++                    // all) works as in AOSP while the rows themselves are not shown.
++                    BudikShadeClock(
++                        Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp)
++                    )
++                    if (viewModel.showMedia) {
++                        Element(
++                            key = Media.Elements.MediaCarousel,
++                            modifier = Modifier.padding(horizontal = 12.dp).padding(bottom = 12.dp),
++                        ) {
++                            Media(
++                                viewModelFactory = viewModel.mediaViewModelFactory,
++                                presentationStyle = MediaPresentationStyle.Default,
++                                behavior = viewModel.mediaUiBehavior,
++                                onDismissed = viewModel::onMediaSwipeToDismiss,
++                                location = Media.Location.SHADE,
++                            )
++                        }
+                     }
++                    BudikNotificationReceipt(
++                        actions = budikActions,
++                        modifier = Modifier.padding(horizontal = 12.dp).weight(1f, fill = false),
++                    )
++                    Spacer(Modifier.height(12.dp))
++                    val stackScrollView = stackScrollView.get()
++                    ScrollingNotificationPanel(
++                        tag = "NotifShadeOverlay",
++                        shadeSession = shadeSession,
++                        stackScrollView = stackScrollView,
++                        viewModel = placeholderViewModel,
++                        notificationRulesParentViewModel = notificationRulesParentViewModel,
++                        jankMonitor = jankMonitor,
++                        shouldPunchHoleBehindScrim = false,
++                        isTransparencyEnabled = viewModel.isTransparencyEnabled,
++                        stackTopPadding = notificationStackPadding,
++                        stackBottomPadding = { notificationStackPadding },
++                        aboveNotifications = {},
++                        shouldDrawScrimBackground = false,
++                        modifier =
++                            Modifier.fillMaxWidth().height(0.dp).focusProperties {
++                                // The `ScrollingNotificationPanel` is a compose placeholder. Therefore,
++                                // focus on the view that actually shows notifications.
++                                onEnter = { stackScrollView.asView().requestFocus() }
++                            },
++                    )
+                 }
+-                BudikNotificationReceipt(
+-                    actions = budikActions,
+-                    modifier = Modifier.padding(horizontal = 12.dp),
+-                )
+-                Spacer(Modifier.height(12.dp))
+-                val stackScrollView = stackScrollView.get()
+-                ScrollingNotificationPanel(
+-                    tag = "NotifShadeOverlay",
+-                    shadeSession = shadeSession,
+-                    stackScrollView = stackScrollView,
+-                    viewModel = placeholderViewModel,
+-                    notificationRulesParentViewModel = notificationRulesParentViewModel,
+-                    jankMonitor = jankMonitor,
+-                    shouldPunchHoleBehindScrim = false,
+-                    isTransparencyEnabled = viewModel.isTransparencyEnabled,
+-                    stackTopPadding = notificationStackPadding,
+-                    stackBottomPadding = { notificationStackPadding },
+-                    aboveNotifications = {},
+-                    shouldDrawScrimBackground = false,
+-                    modifier =
+-                        Modifier.fillMaxWidth().height(0.dp).focusProperties {
+-                            // The `ScrollingNotificationPanel` is a compose placeholder. Therefore,
+-                            // focus on the view that actually shows notifications.
+-                            onEnter = { stackScrollView.asView().requestFocus() }
+-                        },
+-                )
++                BudikSheetHandle(Modifier.align(Alignment.BottomCenter))
+             }
+         }
+     }
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+index e5108d380680..a3b20934fb13 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+@@ -75,6 +75,7 @@ import com.android.systemui.brightness.ui.viewmodel.Drag
+ import com.android.systemui.budik.ui.compose.Budik
+ import com.android.systemui.budik.ui.compose.BudikIcons
+ import com.android.systemui.budik.ui.compose.BudikKey
++import com.android.systemui.budik.ui.compose.BudikSheetHandle
+ import com.android.systemui.common.shared.model.Icon
+ import com.android.systemui.lifecycle.rememberViewModel
+ import com.android.systemui.media.remedia.ui.compose.Media
+@@ -112,7 +113,6 @@ private const val BRIGHTNESS_SEGMENTS = 20
+ fun ContentScope.BudikControlCenter(
+     containerViewModel: QuickSettingsContainerViewModel,
+     toolbarViewModelFactory: ToolbarViewModel.Factory,
+-    batteryLevel: Int?,
+     onDone: () -> Unit,
+     modifier: Modifier = Modifier,
+ ) {
+@@ -130,12 +130,14 @@ fun ContentScope.BudikControlCenter(
+                 .fillMaxWidth()
+                 .background(c.ccPanel, sheetShape)
+                 .then(if (c.isDark) Modifier.border(1.dp, c.ccBorder, sheetShape) else Modifier)
+-                .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 16.dp)
++                .padding(start = 16.dp, end = 16.dp, top = 14.dp)
+     ) {
+-        Header(tiles, batteryLevel)
++        Header()
+         Spacer(Modifier.height(14.dp))
+ 
+-        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
++        Column(
++            Modifier.fillMaxWidth().weight(1f, fill = false).verticalScroll(rememberScrollState())
++        ) {
+             if (containerViewModel.showMedia) {
+                 Media(
+                     viewModelFactory = containerViewModel.mediaViewModelFactory,
+@@ -180,15 +182,17 @@ fun ContentScope.BudikControlCenter(
+ 
+             Spacer(Modifier.height(16.dp))
+             Footer(toolbarViewModel)
++            Spacer(Modifier.height(12.dp))
+         }
++        BudikSheetHandle(Modifier.align(Alignment.CenterHorizontally), color = c.ccText)
+     }
+ }
+ 
++/** Title and grab bar; network and battery are shown once, in the status icons above. */
+ @Composable
+-private fun Header(tiles: List<TileViewModel>, batteryLevel: Int?) {
++private fun Header() {
+     val c = Budik.colors
+     val style = Budik.meta(11.sp, c.ccText, caps = true)
+-    val network = rememberNetworkLabel(tiles)
+     Box(Modifier.fillMaxWidth().height(20.dp)) {
+         Text(
+             text = "ŘÍDICÍ CENTRUM",
+@@ -201,15 +205,6 @@ private fun Header(tiles: List<TileViewModel>, batteryLevel: Int?) {
+                 .size(32.dp, 4.dp)
+                 .background(c.ccHandle, RoundedCornerShape(2.dp))
+         )
+-        val status = listOfNotNull(network, batteryLevel?.let { "$it %" }).joinToString(" · ")
+-        Text(
+-            text = status,
+-            style = style,
+-            maxLines = 1,
+-            overflow = TextOverflow.Ellipsis,
+-            textAlign = TextAlign.End,
+-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.42f),
+-        )
+     }
+ }
+ 
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlay.kt b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlay.kt
+index d71c8814150d..faccd72862e7 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlay.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlay.kt
+@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.Row
+ import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.fillMaxSize
+ import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.height
+ import androidx.compose.foundation.layout.padding
+@@ -42,16 +43,13 @@ import androidx.compose.material3.IconButtonDefaults
+ import androidx.compose.material3.MaterialTheme
+ import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.ReadOnlyComposable
+-import androidx.compose.runtime.derivedStateOf
+ import androidx.compose.runtime.getValue
+ import androidx.compose.runtime.mutableStateOf
+-import androidx.compose.runtime.produceState
+ import androidx.compose.runtime.remember
+ import androidx.compose.runtime.rememberCoroutineScope
+ import androidx.compose.runtime.setValue
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+-import androidx.compose.ui.draw.blur
+ import androidx.compose.ui.focus.FocusRequester
+ import androidx.compose.ui.focus.focusRequester
+ import androidx.compose.ui.geometry.Offset
+@@ -91,6 +89,7 @@ import com.android.systemui.development.ui.viewmodel.BuildNumberViewModel
+ import com.android.systemui.lifecycle.rememberViewModel
+ import com.android.systemui.media.remedia.ui.compose.Media
+ import com.android.systemui.media.remedia.ui.compose.MediaPresentationStyle
++import com.android.systemui.notifications.ui.composable.BudikShadeClock
+ import com.android.systemui.notifications.ui.composable.SnoozableHeadsUpNotificationPlaceholder
+ import com.android.systemui.qs.composefragment.ui.GridAnchor
+ import com.android.systemui.qs.flags.QsDetailedView
+@@ -117,7 +116,6 @@ import com.android.systemui.statusbar.notification.stack.shared.model.ShadeScrim
+ import com.android.systemui.statusbar.notification.stack.shared.model.ShadeScrimShape
+ import com.android.systemui.statusbar.notification.stack.ui.view.NotificationScrollView
+ import com.android.systemui.statusbar.notification.stack.ui.viewmodel.NotificationsPlaceholderViewModel
+-import com.android.systemui.statusbar.policy.BatteryController
+ import com.android.systemui.volume.panel.component.volume.slider.ui.viewmodel.AudioStreamSliderViewModel
+ import com.android.systemui.volume.panel.component.volume.ui.composable.VolumeSlider
+ import com.android.systemui.volume.panel.component.volume.ui.composable.VolumeSliderDimensions
+@@ -135,7 +133,6 @@ constructor(
+     private val quickSettingsContainerViewModelFactory: QuickSettingsContainerViewModel.Factory,
+     private val notificationStackScrollView: Lazy<NotificationScrollView>,
+     private val notificationsPlaceholderViewModelFactory: NotificationsPlaceholderViewModel.Factory,
+-    private val batteryController: BatteryController,
+ ) : Overlay {
+ 
+     override val key = Overlays.QuickSettingsShade
+@@ -177,14 +174,8 @@ constructor(
+         val contentAlphaFromBrightnessMirror by
+             animateFloatAsState(if (showBrightnessMirror) 0f else 1f)
+ 
+-        val targetBlurRadiusPx: Float by
+-            remember(layoutState) {
+-                derivedStateOf {
+-                    contentViewModel.calculateTargetBlurRadius(layoutState.transitionState)
+-                }
+-            }
+-        val animatedBlurRadiusPx: Float by
+-            animateFloatAsState(targetValue = targetBlurRadiusPx, label = "NSOverlay-blurRadius")
++        // Budík: no blur behind the bouncer (an opaque sheet; blur is too costly on the GPU).
++        val isFullWidth = LocalSceneContainerPreloadedResources.current.isFullWidthShade
+ 
+         // Set the bounds to null when the QuickSettings overlay disappears.
+         DisposableEffectWithLifecycle(Unit) {
+@@ -196,27 +187,10 @@ constructor(
+ 
+         LaunchedEffectWithLifecycle(key1 = Unit) { contentViewModel.detectShadeModeChanges() }
+ 
+-        val batteryLevel by
+-            produceState<Int?>(null, batteryController) {
+-                val callback =
+-                    object : BatteryController.BatteryStateChangeCallback {
+-                        override fun onBatteryLevelChanged(
+-                            level: Int,
+-                            pluggedIn: Boolean,
+-                            charging: Boolean,
+-                        ) {
+-                            value = level
+-                        }
+-                    }
+-                batteryController.addCallback(callback)
+-                awaitDispose { batteryController.removeCallback(callback) }
+-            }
+-
+         Box(
+             modifier =
+                 modifier
+                     .graphicsLayer { alpha = contentAlphaFromBrightnessMirror }
+-                    .blur(with(LocalDensity.current) { animatedBlurRadiusPx.toDp() })
+                     .thenIf(showBrightnessMirror) { Modifier.gesturesDisabled() }
+         ) {
+             OverlayShade(
+@@ -242,7 +216,10 @@ constructor(
+                             viewModel = headerViewModel,
+                             notificationsHighlight = headerViewModel.inactiveChipHighlight,
+                             quickSettingsHighlight = ChipHighlightModel.Strong,
+-                            showClock = true,
++                            // Budík: the sheet shows the large clock and date itself; the header
++                            // keeps only the system icons and battery (one place, like iOS).
++                            showClock = !isFullWidth,
++                            showDate = !isFullWidth,
+                             modifier = Modifier.element(QuickSettingsShade.Elements.StatusBar),
+                         )
+                     }
+@@ -251,7 +228,6 @@ constructor(
+                 QuickSettingsContainer(
+                     contentViewModel = contentViewModel,
+                     containerViewModel = quickSettingsContainerViewModel,
+-                    batteryLevel = batteryLevel,
+                 )
+             }
+             SnoozableHeadsUpNotificationPlaceholder(
+@@ -284,7 +260,6 @@ private fun useBrightnessMirrorInOverlay(): Boolean {
+ private fun ContentScope.QuickSettingsContainer(
+     contentViewModel: QuickSettingsShadeOverlayContentViewModel,
+     containerViewModel: QuickSettingsContainerViewModel,
+-    batteryLevel: Int?,
+     modifier: Modifier = Modifier,
+ ) {
+     val isEditing by containerViewModel.editModeViewModel.isEditing.collectAsStateWithLifecycle()
+@@ -312,7 +287,8 @@ private fun ContentScope.QuickSettingsContainer(
+ 
+     AnimatedContent(
+         modifier =
+-            Modifier.focusRequester(focusRequester)
++            Modifier.fillMaxSize()
++                .focusRequester(focusRequester)
+                 .focusable()
+                 .onLayoutRectChanged { currentHeight = it.height }
+                 .semantics { paneTitle = accessibilityTitle }
+@@ -348,19 +324,26 @@ private fun ContentScope.QuickSettingsContainer(
+             }
+ 
+             ShadeBodyState.Default -> {
+-                // Budík: own control centre instead of QuickSettingsLayout.
+-                Column(modifier = modifier.sysuiResTag("quick_settings_panel")) {
++                // Budík: own control centre instead of QuickSettingsLayout: the large clock on
++                // top and the dark sheet anchored to the bottom edge (05_quick_settings).
++                Column(modifier = modifier.fillMaxSize().sysuiResTag("quick_settings_panel")) {
+                     QuickSettingsOverlayPrivacyChip(
+                         containerViewModel.shadeHeaderViewModel,
+                         modifier = Modifier.padding(horizontal = 16.dp),
+                     )
+-                    Spacer(Modifier.height(8.dp))
+-                    BudikControlCenter(
+-                        containerViewModel = containerViewModel,
+-                        toolbarViewModelFactory = contentViewModel.toolbarViewModelFactory,
+-                        batteryLevel = batteryLevel,
+-                        onDone = contentViewModel::onScrimClicked,
++                    BudikShadeClock(
++                        Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp)
+                     )
++                    Box(
++                        modifier = Modifier.weight(1f).fillMaxWidth(),
++                        contentAlignment = Alignment.BottomCenter,
++                    ) {
++                        BudikControlCenter(
++                            containerViewModel = containerViewModel,
++                            toolbarViewModelFactory = contentViewModel.toolbarViewModelFactory,
++                            onDone = contentViewModel::onScrimClicked,
++                        )
++                    }
+                 }
+             }
+         }
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/BudikSheetSlide.kt b/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/BudikSheetSlide.kt
+new file mode 100644
+index 000000000000..f0ac3e86ba36
+--- /dev/null
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/BudikSheetSlide.kt
+@@ -0,0 +1,37 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.scene.ui.composable.transitions
++
++import com.android.compose.animation.scene.Edge
++import com.android.compose.animation.scene.ElementKey
++import com.android.compose.animation.scene.TransitionBuilder
++import com.android.compose.animation.scene.UserActionDistance
++
++/**
++ * Budík: the full screen shade sheet slides in from the top edge and follows the finger, like on
++ * iOS. Only its placement changes per frame: the sheet keeps its size, so nothing is re-measured
++ * or re-recorded (the AOSP container reveal animates the size and alpha of the panel instead).
++ */
++fun TransitionBuilder.budikSheetSlide(container: ElementKey) {
++    // The swipe distance is exactly the height of the sheet.
++    distance = UserActionDistance { fromContent, toContent, _ ->
++        (container.targetSize(toContent) ?: container.targetSize(fromContent))
++            ?.height
++            ?.toFloat() ?: 0f
++    }
++    translate(container, Edge.Top)
++}
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToNotificationsShadeTransition.kt b/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToNotificationsShadeTransition.kt
+index 1428d253deb6..db048b8c0d72 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToNotificationsShadeTransition.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToNotificationsShadeTransition.kt
+@@ -19,7 +19,6 @@ package com.android.systemui.scene.ui.composable.transitions
+ import androidx.compose.animation.core.tween
+ import com.android.compose.animation.scene.TransitionBuilder
+ import com.android.compose.animation.scene.reveal.ContainerRevealHaptics
+-import com.android.compose.animation.scene.reveal.verticalContainerReveal
+ import com.android.mechanics.behavior.VerticalExpandContainerSpec
+ import com.android.systemui.notifications.ui.composable.Notifications
+ import com.android.systemui.notifications.ui.composable.NotificationsShade
+@@ -54,7 +53,8 @@ fun TransitionBuilder.toNotificationsShadeTransition(
+         enabled = enableSharedElements,
+     )
+ 
+-    verticalContainerReveal(NotificationsShade.Elements.Panel, shadeExpansionMotion, revealHaptics)
++    // Budík: full screen sheet sliding with the finger instead of the container reveal.
++    budikSheetSlide(NotificationsShade.Elements.Panel)
+ 
+     fractionRange(start = .16f, end = 0.8f) { fade(NotificationsShade.Elements.StatusBar) }
+     fractionRange(start = .33f, end = 0.8f) { fade(Notifications.Elements.StackPlaceholder) }
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToQuickSettingsShadeTransition.kt b/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToQuickSettingsShadeTransition.kt
+index 93b18054b3ad..81e94f10afb3 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToQuickSettingsShadeTransition.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToQuickSettingsShadeTransition.kt
+@@ -19,7 +19,6 @@ package com.android.systemui.scene.ui.composable.transitions
+ import androidx.compose.animation.core.tween
+ import com.android.compose.animation.scene.TransitionBuilder
+ import com.android.compose.animation.scene.reveal.ContainerRevealHaptics
+-import com.android.compose.animation.scene.reveal.verticalContainerReveal
+ import com.android.mechanics.behavior.VerticalExpandContainerSpec
+ import com.android.systemui.qs.ui.composable.QuickSettingsShade
+ import com.android.systemui.shade.ui.composable.OverlayShade
+@@ -32,12 +31,8 @@ fun TransitionBuilder.toQuickSettingsShadeTransition(
+ ) {
+     spec = tween(durationMillis = (DefaultDuration * durationScale).inWholeMilliseconds.toInt())
+ 
+-    verticalContainerReveal(
+-        container = QuickSettingsShade.Elements.Panel,
+-        motionSpec = shadeExpansionMotion,
+-        haptics = revealHaptics,
+-        useMechanics = true,
+-    )
++    // Budík: full screen sheet sliding with the finger instead of the container reveal.
++    budikSheetSlide(QuickSettingsShade.Elements.Panel)
+ 
+     fractionRange(end = .5f) { fade(OverlayShade.Elements.Scrim) }
+     fractionRange(start = .5f) {
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
+index 2363a7f5a39e..5fd8ffebd5d6 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
+@@ -17,23 +17,31 @@
+ package com.android.systemui.shade.ui.composable
+ 
+ import android.annotation.SuppressLint
++import androidx.compose.foundation.background
+ import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.PaddingValues
+ import androidx.compose.foundation.layout.WindowInsets
+ import androidx.compose.foundation.layout.fillMaxSize
++import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.safeDrawing
+ import androidx.compose.foundation.layout.union
+ import androidx.compose.foundation.layout.width
+ import androidx.compose.foundation.layout.windowInsetsPadding
+ import androidx.compose.foundation.overscroll
++import androidx.compose.foundation.shape.RoundedCornerShape
+ import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.ReadOnlyComposable
+ import androidx.compose.runtime.remember
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
++import androidx.compose.ui.draw.drawBehind
++import androidx.compose.ui.geometry.CornerRadius
++import androidx.compose.ui.geometry.Offset
+ import androidx.compose.ui.geometry.Rect
+ import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.graphics.CompositingStrategy
++import androidx.compose.ui.graphics.graphicsLayer
+ import androidx.compose.ui.layout.approachLayout
+ import androidx.compose.ui.layout.boundsInWindow
+ import androidx.compose.ui.layout.onPlaced
+@@ -81,6 +89,7 @@ fun ContentScope.OverlayShade(
+     val isFullWidth = LocalSceneContainerPreloadedResources.current.isFullWidthShade
+     val panelSpec = rememberShadeExpansionMotion(isFullWidth)
+     val panelCornerRadiusPx = with(LocalDensity.current) { panelSpec.radius.toPx() }
++    val panelWidth = Dimensions.PanelWidth
+     val panelAlignment =
+         when {
+             isFullWidth -> Alignment.TopCenter
+@@ -100,6 +109,7 @@ fun ContentScope.OverlayShade(
+             Panel(
+                 enableTransparency = enableTransparency,
+                 spec = panelSpec,
++                isFullScreen = isFullWidth,
+                 modifier =
+                     Modifier.overscroll(verticalOverscrollEffect)
+                         .element(panelElement)
+@@ -109,7 +119,9 @@ fun ContentScope.OverlayShade(
+                                 label = "OverlayShade",
+                             )
+                         }
+-                        .width(Dimensions.PanelWidth)
++                        // Budík: on phones the sheet covers the whole screen (iOS like).
++                        .thenIf(isFullWidth) { Modifier.fillMaxSize() }
++                        .thenIf(!isFullWidth) { Modifier.width(panelWidth) }
+                         // TODO(440566878): Investigate if this can be optimized by replacing with
+                         // onLayoutRectChanged.
+                         .onPlaced { coordinates ->
+@@ -167,19 +179,58 @@ fun ContentScope.OverlayShade(
+ private fun ContentScope.Panel(
+     enableTransparency: Boolean,
+     spec: VerticalExpandContainerSpec,
++    isFullScreen: Boolean,
+     modifier: Modifier = Modifier,
+     header: (@Composable () -> Unit)?,
+     content: @Composable () -> Unit,
+ ) {
++    if (!isFullScreen) {
++        Box(
++            modifier =
++                modifier
++                    .disableSwipesWhenScrolling()
++                    .verticalExpandContainerBackground(
++                        Colors.panelBackground(enableTransparency),
++                        spec,
++                    )
++        ) {
++            Column {
++                header?.invoke()
++                content()
++            }
++        }
++        return
++    }
++
++    // Budík: an opaque full screen sheet with rounded bottom corners and a hard 0 x 3 dp edge
++    // below it (no gradient, no blur). While it slides, the sheet is one offscreen layer, so a
++    // frame only moves an already rendered texture instead of drawing the whole panel again.
++    val edge = Budik.colors.border
++    val shape = remember { RoundedCornerShape(bottomStart = Budik.RadiusL, bottomEnd = Budik.RadiusL) }
+     Box(
+         modifier =
+             modifier
+                 .disableSwipesWhenScrolling()
+-                .verticalExpandContainerBackground(Colors.panelBackground(enableTransparency), spec)
++                .drawBehind {
++                    drawRoundRect(
++                        edge,
++                        topLeft = Offset(0f, Budik.KeyDepth.toPx()),
++                        size = size,
++                        cornerRadius = CornerRadius(Budik.RadiusL.toPx()),
++                    )
++                }
++                .graphicsLayer {
++                    this.shape = shape
++                    clip = true
++                    compositingStrategy =
++                        if (layoutState.isTransitioning()) CompositingStrategy.Offscreen
++                        else CompositingStrategy.Auto
++                }
++                .background(Colors.panelBackground(enableTransparency))
+     ) {
+-        Column {
++        Column(Modifier.fillMaxSize()) {
+             header?.invoke()
+-            content()
++            Box(Modifier.weight(1f).fillMaxWidth()) { content() }
+         }
+     }
+ }
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/ShadeHeader.kt b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/ShadeHeader.kt
+index fa73ce5783c5..940e96cdf52a 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/ShadeHeader.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/ShadeHeader.kt
+@@ -376,6 +376,7 @@ fun ContentScope.OverlayShadeHeader(
+     quickSettingsHighlight: ChipHighlightModel,
+     showClock: Boolean,
+     modifier: Modifier = Modifier,
++    showDate: Boolean = true,
+ ) {
+     val horizontalPadding =
+         maxOf(
+@@ -390,7 +391,9 @@ fun ContentScope.OverlayShadeHeader(
+         modifier = modifier,
+         startContent = {
+             Box(modifier = Modifier.layoutId(ShadeHeader.LayoutId.StartContent)) {
+-                ShadeHighlightChip(
++                // Budík: the sheet shows its own large clock and date, so the chip goes away
++                // instead of repeating them.
++                if (showClock || showDate) ShadeHighlightChip(
+                     backgroundColor = notificationsHighlight.backgroundColor,
+                     hoverBackgroundColor = notificationsHighlight.hoverBackgroundColor,
+                     horizontalArrangement = Arrangement.spacedBy(5.dp),
+@@ -411,11 +414,13 @@ fun ContentScope.OverlayShadeHeader(
+                     if (showClock) {
+                         Clock(textColor = notificationsHighlight.foregroundColor)
+                     }
+-                    VariableDayDate(
+-                        longerDateText = viewModel.longerDateText,
+-                        shorterDateText = viewModel.shorterDateText,
+-                        textColor = notificationsHighlight.foregroundColor,
+-                    )
++                    if (showDate) {
++                        VariableDayDate(
++                            longerDateText = viewModel.longerDateText,
++                            shorterDateText = viewModel.shorterDateText,
++                            textColor = notificationsHighlight.foregroundColor,
++                        )
++                    }
+                 }
+             }
+         },
+diff --git a/packages/SystemUI/tests/utils/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlayKosmos.kt b/packages/SystemUI/tests/utils/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlayKosmos.kt
+index e80800a3e006..592a459e1f44 100644
+--- a/packages/SystemUI/tests/utils/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlayKosmos.kt
++++ b/packages/SystemUI/tests/utils/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlayKosmos.kt
+@@ -21,7 +21,6 @@ import com.android.systemui.qs.ui.viewmodel.quickSettingsShadeOverlayActionsView
+ import com.android.systemui.qs.ui.viewmodel.quickSettingsShadeOverlayContentViewModelFactory
+ import com.android.systemui.statusbar.notification.stack.ui.view.notificationScrollView
+ import com.android.systemui.statusbar.notification.stack.ui.viewmodel.notificationsPlaceholderViewModelFactory
+-import com.android.systemui.statusbar.policy.batteryController
+ 
+ val Kosmos.quickSettingsShadeOverlay by
+     Kosmos.Fixture {
+@@ -31,6 +30,5 @@ val Kosmos.quickSettingsShadeOverlay by
+             quickSettingsContainerViewModelFactory = quickSettingsContainerViewModelFactory,
+             notificationStackScrollView = { notificationScrollView },
+             notificationsPlaceholderViewModelFactory = notificationsPlaceholderViewModelFactory,
+-            batteryController = batteryController,
+         )
+     }
+-- 
+2.53.0
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Key travel: drop by the shadow height while pressed. No elevation/blur shadow. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <objectAnimator android:propertyName="translationY" android:duration="40"
+            android:valueTo="@dimen/budik_shadow_offset" android:valueType="floatType" />
+    </item>
+    <item>
+        <objectAnimator android:propertyName="translationY" android:duration="80"
+            android:valueTo="0" android:valueType="floatType" />
+    </item>
+</selector>

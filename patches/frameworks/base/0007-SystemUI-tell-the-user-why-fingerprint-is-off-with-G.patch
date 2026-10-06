@@ -1,0 +1,76 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Mon, 5 Oct 2026 21:55:36 +0000
+Subject: [PATCH] SystemUI: tell the user why fingerprint is off with
+ Graphene's second factor
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+With the scene container (Dual Shade) keyguard fingerprint is disabled
+while GrapheneOS's fingerprint second factor is enabled, because the
+second factor PIN has no UI in the Compose bouncer (see "keyguard: make
+Graphene's second factor safe under the scene container"). Show it as the
+Compose bouncer's secondary message instead of silently ignoring the
+finger: "Otisk prstu je s druhým faktorem vypnutý – odemkněte PINem,
+heslem nebo vzorem". Only when no other secondary message (lockout,
+restriction reason) is shown. BouncerMessageViewModel is only active
+with the scene container, so the legacy bouncer is unchanged.
+---
+ .../ui/viewmodel/BouncerMessageViewModel.kt   | 23 ++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/bouncer/ui/viewmodel/BouncerMessageViewModel.kt b/packages/SystemUI/src/com/android/systemui/bouncer/ui/viewmodel/BouncerMessageViewModel.kt
+index 2b839c4bc81c..b2bc758cc338 100644
+--- a/packages/SystemUI/src/com/android/systemui/bouncer/ui/viewmodel/BouncerMessageViewModel.kt
++++ b/packages/SystemUI/src/com/android/systemui/bouncer/ui/viewmodel/BouncerMessageViewModel.kt
+@@ -16,12 +16,14 @@
+ 
+ package com.android.systemui.bouncer.ui.viewmodel
+ 
++import android.app.ActivityManager
+ import android.content.Context
+ import android.security.Flags.lockscreenLargerTimeoutTimeUnits
+ import android.security.Flags.secureLockDevice
+ import android.util.PluralsMessageFormatter
+ import android.view.accessibility.AccessibilityManager.FLAG_CONTENT_TEXT
+ import com.android.app.tracing.coroutines.launchTraced as launch
++import com.android.internal.widget.LockPatternUtils
+ import com.android.systemui.accessibility.domain.interactor.AccessibilityInteractor
+ import com.android.systemui.authentication.domain.interactor.AuthenticationInteractor
+ import com.android.systemui.authentication.shared.model.AuthenticationMethodModel
+@@ -463,7 +465,22 @@ constructor(
+                     isFingerprintAllowedOnBouncer,
+                 )
+             else -> BouncerMessageStrings.defaultMessage(authMethod, isFingerprintAllowedOnBouncer)
+-        }.toMessage()
++        }.toMessage().withSecondFactorNotice()
++    }
++
++    private val lockPatternUtils by lazy { LockPatternUtils(applicationContext) }
++
++    /**
++     * GrapheneOS's fingerprint second factor has no UI in the Compose bouncer, so keyguard
++     * fingerprint is off while it is enabled (see KeyguardUpdateMonitor). Say so instead of
++     * silently ignoring the finger.
++     */
++    private fun MessageViewModel.withSecondFactorNotice(): MessageViewModel {
++        if (!secondaryText.isNullOrEmpty()) return this
++        if (!lockPatternUtils.isBiometricSecondFactorEnabled(ActivityManager.getCurrentUser())) {
++            return this
++        }
++        return copy(secondaryText = SECOND_FACTOR_NOTICE)
+     }
+ 
+     private fun BouncerMessagePair.toMessage(): MessageViewModel {
+@@ -535,6 +552,10 @@ constructor(
+     }
+ 
+     companion object {
++        // Budík OS: Czech only for now, like the other Budík shade texts.
++        private const val SECOND_FACTOR_NOTICE =
++            "Otisk prstu je s druhým faktorem vypnutý – odemkněte PINem, heslem nebo vzorem"
++
+         val DEFAULT_MESSAGE_DURATION = 2.seconds
+     }
+ }

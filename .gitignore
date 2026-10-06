@@ -1,12 +1,10 @@
-# local tooling, never published
-CLAUDE.md
-.claude/
-tasks/
-memory/
-*.local.md
-
 # build output
 out/
 *.img
 *.simg
 *.zip
+
+# downloaded or machine-specific
+vendor/budikos/fonts/
+vendor/budikos/dev/
+!vendor/budikos/bootanimation.zip

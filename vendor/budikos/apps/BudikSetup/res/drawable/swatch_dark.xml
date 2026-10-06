@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mode preview: fixed colors on purpose (shows the other mode too). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="64dp" android:height="44dp">
+        <shape>
+            <solid android:color="#0E0F11" />
+            <stroke android:width="1dp" android:color="#3A3F46" />
+            <corners android:radius="@dimen/budik_radius_s" />
+        </shape>
+    </item>
+    <item android:width="20dp" android:height="4dp" android:gravity="bottom|start"
+        android:left="8dp" android:bottom="8dp">
+        <shape><solid android:color="@color/budik_accent" /></shape>
+    </item>
+</layer-list>

@@ -1,0 +1,411 @@
+From 7057f633d8b268cd035506ce3ce1c80cd962e58f Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 08:37:12 +0000
+Subject: [PATCH] =?UTF-8?q?SettingsIntelligence:=20Bud=C3=ADk=20OS=20setti?=
+ =?UTF-8?q?ngs=20search?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Budík palette and fonts instead of wallpaper colours, the keycap search field
+of the Settings homepage and results grouped in one card with compact rows.
+---
+ res/drawable/budik_result_row.xml          |  7 +++
+ res/drawable/budik_results_card.xml        |  7 +++
+ res/drawable/budik_search_field.xml        | 19 +++++++
+ res/layout/search_intent_item.xml          | 17 +++---
+ res/layout/search_panel.xml                | 17 ++++--
+ res/layout/search_saved_query_item.xml     |  4 +-
+ res/values-night/budik_colors.xml          | 13 +++++
+ res/values-night/budik_material_colors.xml | 41 +++++++++++++++
+ res/values/budik_colors.xml                | 13 +++++
+ res/values/budik_material_colors.xml       | 41 +++++++++++++++
+ res/values/dimens.xml                      |  6 +--
+ res/values/themes.xml                      | 60 ++++++++++++++++------
+ 12 files changed, 213 insertions(+), 32 deletions(-)
+ create mode 100644 res/drawable/budik_result_row.xml
+ create mode 100644 res/drawable/budik_results_card.xml
+ create mode 100644 res/drawable/budik_search_field.xml
+ create mode 100644 res/values-night/budik_colors.xml
+ create mode 100644 res/values-night/budik_material_colors.xml
+ create mode 100644 res/values/budik_colors.xml
+ create mode 100644 res/values/budik_material_colors.xml
+
+diff --git a/res/drawable/budik_result_row.xml b/res/drawable/budik_result_row.xml
+new file mode 100644
+index 0000000..125cfbc
+--- /dev/null
++++ b/res/drawable/budik_result_row.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS result row: press ripple and a 1dp divider line at the bottom. -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    android:color="?android:attr/colorControlHighlight">
++    <item android:gravity="bottom" android:height="1dp" android:drawable="@color/budik_line" />
++    <item android:id="@android:id/mask" android:drawable="@android:color/white" />
++</ripple>
+diff --git a/res/drawable/budik_results_card.xml b/res/drawable/budik_results_card.xml
+new file mode 100644
+index 0000000..acb50ad
+--- /dev/null
++++ b/res/drawable/budik_results_card.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: results grouped in one card (surface, 1dp line, radius 20). -->
++<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
++    <solid android:color="@color/budik_surface" />
++    <stroke android:width="1dp" android:color="@color/budik_line" />
++    <corners android:radius="20dp" />
++</shape>
+diff --git a/res/drawable/budik_search_field.xml b/res/drawable/budik_search_field.xml
+new file mode 100644
+index 0000000..cb7e35f
+--- /dev/null
++++ b/res/drawable/budik_search_field.xml
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS search field, same as the Settings homepage: surface, 1dp border, radius 12,
++     hard 3dp shadow in the line colour. -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    android:color="?android:attr/colorControlHighlight">
++    <item android:top="3dp">
++        <shape android:shape="rectangle">
++            <solid android:color="@color/budik_line" />
++            <corners android:radius="12dp" />
++        </shape>
++    </item>
++    <item android:bottom="3dp">
++        <shape android:shape="rectangle">
++            <solid android:color="@color/budik_surface" />
++            <stroke android:width="1dp" android:color="@color/budik_border" />
++            <corners android:radius="12dp" />
++        </shape>
++    </item>
++</ripple>
+diff --git a/res/layout/search_intent_item.xml b/res/layout/search_intent_item.xml
+index 6bc00ad..a2dcd4d 100644
+--- a/res/layout/search_intent_item.xml
++++ b/res/layout/search_intent_item.xml
+@@ -18,15 +18,15 @@
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+-    android:minHeight="?android:attr/listPreferredItemHeight"
+-    android:paddingTop="16dp"
+-    android:paddingBottom="16dp"
+-    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+-    android:background="?android:attr/selectableItemBackground"
++    android:minHeight="48dp"
++    android:paddingTop="8dp"
++    android:paddingBottom="8dp"
++    android:paddingStart="14dp"
++    android:paddingEnd="2dp"
++    android:gravity="center_vertical"
++    android:background="@drawable/budik_result_row"
+     android:clipToPadding="false">
+ 
+-    <include layout="@layout/search_icon_view"/>
+-
+     <LinearLayout
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+@@ -51,4 +51,7 @@
+ 
+         <include layout="@layout/search_breadcrumb_view"/>
+     </LinearLayout>
++
++    <!-- Budík OS: icon at the row end, so rows without one keep the text at the card edge -->
++    <include layout="@layout/search_icon_view"/>
+ </LinearLayout>
+diff --git a/res/layout/search_panel.xml b/res/layout/search_panel.xml
+index 990d11a..468f4c5 100644
+--- a/res/layout/search_panel.xml
++++ b/res/layout/search_panel.xml
+@@ -25,19 +25,21 @@
+         android:id="@+id/search_bar_container"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:elevation="4dp">
++        android:elevation="0dp">
+         <androidx.cardview.widget.CardView
+             android:id="@+id/search_bar"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_margin="@dimen/search_bar_margin"
+-            app:cardCornerRadius="2dp"
+-            app:cardElevation="2dp">
++            app:cardCornerRadius="12dp"
++            app:cardBackgroundColor="@android:color/transparent"
++            app:cardElevation="0dp">
+             <Toolbar
+                 android:id="@+id/search_toolbar"
+                 android:layout_width="match_parent"
+                 android:layout_height="@dimen/search_bar_height"
+-                android:background="?android:attr/selectableItemBackground"
++                android:background="@drawable/budik_search_field"
++                android:paddingBottom="3dp"
+                 android:contentInsetStart="0dp"
+                 android:contentInsetStartWithNavigation="0dp"
+                 android:theme="?android:attr/actionBarTheme">
+@@ -69,7 +71,12 @@
+             android:paddingTop="@dimen/dashboard_padding_top"
+             android:paddingBottom="@dimen/dashboard_padding_bottom"
+             android:scrollbarStyle="outsideOverlay"
+-            android:scrollbars="vertical"/>
++            android:scrollbars="vertical"
++            android:layout_marginStart="8dp"
++            android:layout_marginEnd="8dp"
++            android:layout_marginTop="4dp"
++            android:background="@drawable/budik_results_card"
++            android:clipToOutline="true"/>
+ 
+         <LinearLayout
+             android:id="@+id/no_results_layout"
+diff --git a/res/layout/search_saved_query_item.xml b/res/layout/search_saved_query_item.xml
+index f8c239a..c1fec01 100644
+--- a/res/layout/search_saved_query_item.xml
++++ b/res/layout/search_saved_query_item.xml
+@@ -21,8 +21,8 @@
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+-    android:background="?android:attr/selectableItemBackground"
+-    android:minHeight="?android:attr/listPreferredItemHeight"
++    android:background="@drawable/budik_result_row"
++    android:minHeight="48dp"
+     android:gravity="center_vertical">
+ 
+     <ImageView
+diff --git a/res/values-night/budik_colors.xml b/res/values-night/budik_colors.xml
+new file mode 100644
+index 0000000..7129a5d
+--- /dev/null
++++ b/res/values-night/budik_colors.xml
+@@ -0,0 +1,13 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS tokens (export/res/values-night/colors.xml) for the settings search. -->
++<resources>
++    <color name="budik_bg">#0E0F11</color>
++    <color name="budik_surface">#17191C</color>
++    <color name="budik_line">#262A2F</color>
++    <color name="budik_border">#3A3F46</color>
++    <color name="budik_fg">#F5F6F7</color>
++    <color name="budik_fg2">#C4C8CE</color>
++    <color name="budik_fg3">#8D949E</color>
++    <color name="budik_mint">#21D4BE</color>
++    <bool name="budik_light_bars">false</bool>
++</resources>
+diff --git a/res/values-night/budik_material_colors.xml b/res/values-night/budik_material_colors.xml
+new file mode 100644
+index 0000000..1330beb
+--- /dev/null
++++ b/res/values-night/budik_material_colors.xml
+@@ -0,0 +1,41 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: SettingsIntelligence override of the dynamiccolors library (wallpaper colours) with the
++     fixed Budík palette; SystemUI keeps its own. Same values as SettingsLib budik colours. -->
++<resources>
++    <color name="materialColorPrimary">#21D4BE</color>
++    <color name="materialColorPrimaryDim">#21D4BE</color>
++    <color name="materialColorOnPrimary">#0E0F11</color>
++    <color name="materialColorPrimaryContainer">#21D4BE</color>
++    <color name="materialColorOnPrimaryContainer">#0E0F11</color>
++    <color name="materialColorInversePrimary">#0B1E52</color>
++    <color name="materialColorSecondary">#C4C8CE</color>
++    <color name="materialColorSecondaryDim">#C4C8CE</color>
++    <color name="materialColorOnSecondary">#0E0F11</color>
++    <color name="materialColorSecondaryContainer">#262A2F</color>
++    <color name="materialColorOnSecondaryContainer">#F5F6F7</color>
++    <color name="materialColorTertiary">#21D4BE</color>
++    <color name="materialColorTertiaryDim">#21D4BE</color>
++    <color name="materialColorOnTertiary">#0E0F11</color>
++    <color name="materialColorTertiaryContainer">#05332E</color>
++    <color name="materialColorOnTertiaryContainer">#21D4BE</color>
++    <color name="materialColorOutline">#3A3F46</color>
++    <color name="materialColorOutlineVariant">#262A2F</color>
++    <color name="materialColorBackground">#0E0F11</color>
++    <color name="materialColorOnBackground">#F5F6F7</color>
++    <color name="materialColorSurface">#0E0F11</color>
++    <color name="materialColorOnSurface">#F5F6F7</color>
++    <color name="materialColorSurfaceVariant">#1A1C20</color>
++    <color name="materialColorOnSurfaceVariant">#8D949E</color>
++    <color name="materialColorInverseSurface">#F5F6F7</color>
++    <color name="materialColorInverseOnSurface">#0E0F11</color>
++    <color name="materialColorSurfaceBright">#17191C</color>
++    <color name="materialColorSurfaceDim">#0E0F11</color>
++    <color name="materialColorSurfaceTint">#21D4BE</color>
++    <color name="materialColorSurfaceContainer">#0E0F11</color>
++    <color name="materialColorSurfaceContainerLow">#17191C</color>
++    <color name="materialColorSurfaceContainerLowest">#0A0B0D</color>
++    <color name="materialColorSurfaceContainerHigh">#17191C</color>
++    <color name="materialColorSurfaceContainerHighest">#262A2F</color>
++    <color name="materialColorControlActivated">#21D4BE</color>
++    <color name="materialColorControlNormal">#C4C8CE</color>
++</resources>
+diff --git a/res/values/budik_colors.xml b/res/values/budik_colors.xml
+new file mode 100644
+index 0000000..61d8d3a
+--- /dev/null
++++ b/res/values/budik_colors.xml
+@@ -0,0 +1,13 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS tokens (export/res/values/colors.xml) for the settings search. -->
++<resources>
++    <color name="budik_bg">#F5F6F7</color>
++    <color name="budik_surface">#FFFFFF</color>
++    <color name="budik_line">#E3E5E8</color>
++    <color name="budik_border">#CFD3D8</color>
++    <color name="budik_fg">#0E0F11</color>
++    <color name="budik_fg2">#3A3E43</color>
++    <color name="budik_fg3">#5A6370</color>
++    <color name="budik_mint">#21D4BE</color>
++    <bool name="budik_light_bars">true</bool>
++</resources>
+diff --git a/res/values/budik_material_colors.xml b/res/values/budik_material_colors.xml
+new file mode 100644
+index 0000000..7a62a79
+--- /dev/null
++++ b/res/values/budik_material_colors.xml
+@@ -0,0 +1,41 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: SettingsIntelligence override of the dynamiccolors library (wallpaper colours) with the
++     fixed Budík palette; SystemUI keeps its own. Same values as SettingsLib budik colours. -->
++<resources>
++    <color name="materialColorPrimary">#0B1E52</color>
++    <color name="materialColorPrimaryDim">#0B1E52</color>
++    <color name="materialColorOnPrimary">#FFFFFF</color>
++    <color name="materialColorPrimaryContainer">#21D4BE</color>
++    <color name="materialColorOnPrimaryContainer">#0E0F11</color>
++    <color name="materialColorInversePrimary">#21D4BE</color>
++    <color name="materialColorSecondary">#3A3E43</color>
++    <color name="materialColorSecondaryDim">#3A3E43</color>
++    <color name="materialColorOnSecondary">#FFFFFF</color>
++    <color name="materialColorSecondaryContainer">#E3E5E8</color>
++    <color name="materialColorOnSecondaryContainer">#0E0F11</color>
++    <color name="materialColorTertiary">#05332E</color>
++    <color name="materialColorTertiaryDim">#05332E</color>
++    <color name="materialColorOnTertiary">#FFFFFF</color>
++    <color name="materialColorTertiaryContainer">#21D4BE</color>
++    <color name="materialColorOnTertiaryContainer">#0E0F11</color>
++    <color name="materialColorOutline">#CFD3D8</color>
++    <color name="materialColorOutlineVariant">#E3E5E8</color>
++    <color name="materialColorBackground">#F5F6F7</color>
++    <color name="materialColorOnBackground">#0E0F11</color>
++    <color name="materialColorSurface">#F5F6F7</color>
++    <color name="materialColorOnSurface">#0E0F11</color>
++    <color name="materialColorSurfaceVariant">#EEF0F2</color>
++    <color name="materialColorOnSurfaceVariant">#5A6370</color>
++    <color name="materialColorInverseSurface">#0E0F11</color>
++    <color name="materialColorInverseOnSurface">#FFFFFF</color>
++    <color name="materialColorSurfaceBright">#FFFFFF</color>
++    <color name="materialColorSurfaceDim">#E3E5E8</color>
++    <color name="materialColorSurfaceTint">#0B1E52</color>
++    <color name="materialColorSurfaceContainer">#F5F6F7</color>
++    <color name="materialColorSurfaceContainerLow">#FFFFFF</color>
++    <color name="materialColorSurfaceContainerLowest">#FFFFFF</color>
++    <color name="materialColorSurfaceContainerHigh">#FFFFFF</color>
++    <color name="materialColorSurfaceContainerHighest">#E3E5E8</color>
++    <color name="materialColorControlActivated">#21D4BE</color>
++    <color name="materialColorControlNormal">#3A3E43</color>
++</resources>
+diff --git a/res/values/dimens.xml b/res/values/dimens.xml
+index 8a40eb6..8090be7 100644
+--- a/res/values/dimens.xml
++++ b/res/values/dimens.xml
+@@ -29,12 +29,12 @@
+     <dimen name="search_bar_margin">8dp</dimen>
+     <dimen name="search_bar_negative_margin">-8dp</dimen>
+ 
+-    <dimen name="search_bar_height">48dp</dimen>
++    <dimen name="search_bar_height">51dp</dimen> <!-- Budík OS: 48dp keycap face + 3dp shadow -->
+     <dimen name="search_bar_text_size">16dp</dimen>
+ 
+     <!-- Dashboard image tile size -->
+-    <dimen name="dashboard_tile_image_size">24dp</dimen>
++    <dimen name="dashboard_tile_image_size">20dp</dimen> <!-- Budík OS: compact rows -->
+ 
+     <!-- Dashboard tile image margin start / end -->
+-    <dimen name="dashboard_tile_image_margin">24dp</dimen>
++    <dimen name="dashboard_tile_image_margin">14dp</dimen>
+ </resources>
+\ No newline at end of file
+diff --git a/res/values/themes.xml b/res/values/themes.xml
+index 66868de..ba9273e 100644
+--- a/res/values/themes.xml
++++ b/res/values/themes.xml
+@@ -1,26 +1,56 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <!--
+-  ~ Copyright (C) 2017 The Android Open Source Project
+-  ~
+-  ~ Licensed under the Apache License, Version 2.0 (the "License");
+-  ~ you may not use this file except in compliance with the License.
+-  ~ You may obtain a copy of the License at
+-  ~
+-  ~      http://www.apache.org/licenses/LICENSE-2.0
+-  ~
+-  ~ Unless required by applicable law or agreed to in writing, software
+-  ~ distributed under the License is distributed on an "AS IS" BASIS,
+-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  ~ See the License for the specific language governing permissions and
+-  ~ limitations under the License.
++  Copyright (C) 2017 The Android Open Source Project
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
+   -->
+ 
+ <resources>
+-    <style name="Theme.Settings" parent="@android:style/Theme.DeviceDefault.Settings"/>
++    <!-- Budík OS: palette and fonts of the Settings app instead of wallpaper colours -->
++    <style name="Theme.Settings" parent="@android:style/Theme.DeviceDefault.Settings">
++        <item name="android:windowBackground">@color/budik_bg</item>
++        <item name="android:colorBackground">@color/budik_bg</item>
++        <item name="android:statusBarColor">@color/budik_bg</item>
++        <item name="android:navigationBarColor">@color/budik_bg</item>
++        <item name="android:windowLightStatusBar">@bool/budik_light_bars</item>
++        <item name="android:windowLightNavigationBar">@bool/budik_light_bars</item>
++        <item name="android:colorAccent">@color/budik_mint</item>
++        <item name="android:colorControlNormal">@color/budik_fg2</item>
++        <item name="android:colorControlActivated">@color/budik_mint</item>
++        <item name="android:textColorPrimary">@color/budik_fg</item>
++        <item name="android:textColorSecondary">@color/budik_fg3</item>
++        <item name="android:textColorHint">@color/budik_fg3</item>
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textAppearanceListItem">@style/TextAppearance.Budik.ResultTitle</item>
++        <item name="android:textAppearanceListItemSecondary">@style/TextAppearance.Budik.ResultSummary</item>
++    </style>
+ 
+     <style name="Theme.Settings.NoActionBar">
+         <item name="android:windowActionBar">false</item>
+         <item name="android:windowNoTitle">true</item>
+         <item name="android:windowSoftInputMode">adjustPan</item>
+     </style>
+-</resources>
+\ No newline at end of file
++
++    <style name="TextAppearance.Budik.ResultTitle" parent="@android:style/TextAppearance.DeviceDefault">
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textFontWeight">500</item>
++        <item name="android:textSize">16sp</item>
++        <item name="android:textColor">@color/budik_fg</item>
++    </style>
++
++    <style name="TextAppearance.Budik.ResultSummary" parent="@android:style/TextAppearance.DeviceDefault">
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textSize">14sp</item>
++        <item name="android:textColor">@color/budik_fg3</item>
++    </style>
++</resources>
+-- 
+2.53.0
+

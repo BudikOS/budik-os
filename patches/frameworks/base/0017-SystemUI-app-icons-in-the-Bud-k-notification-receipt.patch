@@ -1,0 +1,295 @@
+From fc34747e4007ed3198a70a0f7b0c6644b036ef56 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 08:07:23 +0000
+Subject: [PATCH] =?UTF-8?q?SystemUI:=20app=20icons=20in=20the=20Bud=C3=ADk?=
+ =?UTF-8?q?=20notification=20receipt?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Rows of the receipt were text only, hard to tell apart. Each row now
+starts with the posting app's launcher icon (so the Budík icon overlays
+apply) in a 6 dp keycap frame, or the notification's small icon tinted
+like text for the system and apps without an icon. The time moves next
+to the title; the app name is no longer shown, TalkBack reads it from
+the icon. Icons are decoded on the background dispatcher once per
+package and user and kept in a small LRU cache (48 entries of 26 dp),
+so scrolling and swiping never wait for them.
+---
+ .../ui/composable/BudikNotificationReceipt.kt | 108 ++++++++++++++++--
+ .../composable/NotificationsShadeOverlay.kt   |   4 +
+ 2 files changed, 100 insertions(+), 12 deletions(-)
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+index a57d2731fe76..df0f18c95dfe 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+@@ -18,12 +18,16 @@ package com.android.systemui.notifications.ui.composable
+ 
+ import android.app.Notification
+ import android.app.PendingIntent
++import android.content.Context
++import android.content.pm.PackageManager
+ import android.service.notification.NotificationListenerService
+ import android.text.format.DateFormat
+ import android.util.Log
++import android.util.LruCache
+ import androidx.compose.animation.core.Animatable
+ import androidx.compose.animation.core.spring
+ import androidx.compose.animation.core.tween
++import androidx.compose.foundation.Image
+ import androidx.compose.foundation.background
+ import androidx.compose.foundation.border
+ import androidx.compose.foundation.clickable
+@@ -37,8 +41,8 @@ import androidx.compose.foundation.layout.Spacer
+ import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.height
+ import androidx.compose.foundation.layout.padding
++import androidx.compose.foundation.layout.size
+ import androidx.compose.foundation.layout.width
+-import androidx.compose.foundation.layout.widthIn
+ import androidx.compose.foundation.lazy.LazyColumn
+ import androidx.compose.foundation.lazy.items
+ import androidx.compose.foundation.shape.RoundedCornerShape
+@@ -60,22 +64,30 @@ import androidx.compose.ui.draw.drawBehind
+ import androidx.compose.ui.geometry.Offset
+ import androidx.compose.ui.geometry.Size
+ import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.graphics.ColorFilter
++import androidx.compose.ui.graphics.ImageBitmap
++import androidx.compose.ui.graphics.asImageBitmap
+ import androidx.compose.ui.graphics.graphicsLayer
+ import androidx.compose.ui.input.pointer.pointerInput
+ import androidx.compose.ui.input.pointer.util.VelocityTracker
+ import androidx.compose.ui.input.pointer.util.addPointerInputChange
+ import androidx.compose.ui.platform.LocalConfiguration
+ import androidx.compose.ui.platform.LocalContext
++import androidx.compose.ui.platform.LocalDensity
+ import androidx.compose.ui.semantics.Role
++import androidx.compose.ui.semantics.contentDescription
++import androidx.compose.ui.semantics.semantics
+ import androidx.compose.ui.text.font.FontWeight
+ import androidx.compose.ui.text.style.TextOverflow
+ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.sp
++import androidx.core.graphics.drawable.toBitmap
+ import androidx.lifecycle.compose.collectAsStateWithLifecycle
+ import com.android.compose.animation.scene.ContentScope
+ import com.android.internal.statusbar.NotificationVisibility
+ import com.android.systemui.budik.ui.compose.Budik
+ import com.android.systemui.budik.ui.compose.BudikKey
++import com.android.systemui.budik.ui.compose.budikKeycap
+ import com.android.systemui.plugins.ActivityStarter
+ import com.android.systemui.statusbar.NotificationClickNotifier
+ import com.android.systemui.statusbar.notification.collection.NotifPipeline
+@@ -94,8 +106,10 @@ import java.util.Date
+ import java.util.Locale
+ import kotlin.math.abs
+ import kotlin.math.sign
++import kotlinx.coroutines.CoroutineDispatcher
+ import kotlinx.coroutines.delay
+ import kotlinx.coroutines.launch
++import kotlinx.coroutines.withContext
+ 
+ private const val TAG = "BudikNotifications"
+ 
+@@ -103,6 +117,8 @@ private const val TAG = "BudikNotifications"
+ @Immutable
+ data class BudikNotificationItem(
+     val key: String,
++    /** Package and user of the posting app, the key of its icon. */
++    val iconKey: String,
+     val time: Long,
+     val title: String,
+     val text: String,
+@@ -127,9 +143,44 @@ class BudikNotificationActions(
+     private val activityStarter: Lazy<ActivityStarter>,
+     private val clickNotifier: Lazy<NotificationClickNotifier>,
+     private val stackScrollView: Lazy<NotificationScrollView>,
++    private val bgDispatcher: CoroutineDispatcher,
+ ) {
+     val activeNotifications = repository.activeNotifications
+ 
++    private val icons = LruCache<String, BudikAppIcon>(ICON_CACHE_SIZE)
++
++    fun cachedIcon(item: BudikNotificationItem): BudikAppIcon? = icons[item.iconKey]
++
++    /**
++     * The posting app's launcher icon (with the Budík icon overlays), or the notification's small
++     * icon for the system and for apps without one. Decoded off the main thread, [sizePx] square.
++     */
++    suspend fun appIcon(item: BudikNotificationItem, context: Context, sizePx: Int): BudikAppIcon? {
++        icons[item.iconKey]?.let { return it }
++        val sbn = notifPipeline.get().getEntry(item.key)?.sbn ?: return null
++        val smallIcon = sbn.notification.smallIcon
++        val icon =
++            withContext(bgDispatcher) {
++                val pm = context.packageManager
++                val app =
++                    sbn.packageName
++                        .takeIf { it !in SYSTEM_PACKAGES }
++                        ?.let {
++                            try {
++                                pm.getApplicationInfoAsUser(it, 0, sbn.userId)
++                            } catch (e: PackageManager.NameNotFoundException) {
++                                null
++                            }
++                        }
++                        ?.takeIf { it.icon != 0 }
++                app?.loadIcon(pm)?.let { BudikAppIcon(it.toBitmap(sizePx, sizePx).asImageBitmap(), false) }
++                    ?: smallIcon?.loadDrawable(context)?.let {
++                        BudikAppIcon(it.toBitmap(sizePx, sizePx).asImageBitmap(), true)
++                    }
++            }
++        return icon?.also { icons.put(item.iconKey, it) }
++    }
++
+     fun items(store: ActiveNotificationsStore, seen: Set<String>): List<BudikNotificationItem> {
+         val pipeline = notifPipeline.get()
+         return store
+@@ -220,6 +271,7 @@ class BudikNotificationActions(
+         val isNew = model.key !in seen && !model.isSilent
+         return BudikNotificationItem(
+             key = model.key,
++            iconKey = "${sbn.packageName}:${sbn.userId}",
+             time = model.whenTime.takeIf { it > 0 } ?: sbn.postTime,
+             title = (title ?: model.appName).toString(),
+             text = text?.toString().orEmpty(),
+@@ -252,6 +304,13 @@ class BudikNotificationActions(
+         remoteInputs.orEmpty().any { it.allowFreeFormInput }
+ }
+ 
++/** An app icon for a receipt row; a [monochrome] small icon is tinted like text. */
++@Immutable
++class BudikAppIcon(val bitmap: ImageBitmap, val monochrome: Boolean)
++
++private const val ICON_CACHE_SIZE = 48
++private val SYSTEM_PACKAGES = setOf("android", "com.android.systemui")
++
+ /** Keys already shown in the shade (no longer "nové"); lives as long as SystemUI. */
+ private object SeenNotifications {
+     val keys = mutableSetOf<String>()
+@@ -363,6 +422,7 @@ fun ContentScope.BudikNotificationReceipt(
+                     ) {
+                         ReceiptRow(
+                             item = item,
++                            actions = actions,
+                             locale = locale,
+                             showDivider = index > 0 && !item.isNew && !items[index - 1].isNew,
+                             onOpen = { actions.open(item, index, items.size) },
+@@ -418,7 +478,8 @@ fun ContentScope.BudikNotificationReceipt(
+     }
+ }
+ 
+-private val TimeColumn = 48.dp
++private val AppIconFrame = 36.dp
++private val AppIconSize = 26.dp
+ 
+ /**
+  * A row that can be swiped away sideways, like a row of the notification stack: past 40 % of
+@@ -492,6 +553,7 @@ private fun Rule(thick: Boolean) {
+ @Composable
+ private fun ReceiptRow(
+     item: BudikNotificationItem,
++    actions: BudikNotificationActions,
+     locale: Locale,
+     showDivider: Boolean,
+     onOpen: () -> Unit,
+@@ -524,12 +586,8 @@ private fun ReceiptRow(
+             )
+             .padding(vertical = 12.dp)
+     ) {
+-        Text(
+-            text = time,
+-            style = Budik.meta(14.sp, c.fg, FontWeight.Bold),
+-            maxLines = 1,
+-            modifier = Modifier.width(TimeColumn),
+-        )
++        AppIcon(item, actions)
++        Spacer(Modifier.width(12.dp))
+         Column(Modifier.weight(1f)) {
+             Row(verticalAlignment = Alignment.Top) {
+                 Text(
+@@ -541,11 +599,10 @@ private fun ReceiptRow(
+                 )
+                 Spacer(Modifier.width(8.dp))
+                 Text(
+-                    text = item.app,
+-                    style = Budik.meta(11.sp, c.fg3),
++                    text = time,
++                    style = Budik.meta(13.sp, c.fg3, FontWeight.Medium),
+                     maxLines = 1,
+-                    overflow = TextOverflow.Ellipsis,
+-                    modifier = Modifier.padding(top = 2.dp).widthIn(max = 110.dp),
++                    modifier = Modifier.padding(top = 2.dp),
+                 )
+             }
+             if (item.text.isNotEmpty()) {
+@@ -576,6 +633,33 @@ private fun ReceiptRow(
+     }
+ }
+ 
++/** The app's icon in a keycap frame, named for TalkBack; loads off the main thread, once. */
++@Composable
++private fun AppIcon(item: BudikNotificationItem, actions: BudikNotificationActions) {
++    val c = Budik.colors
++    val context = LocalContext.current
++    val sizePx = with(LocalDensity.current) { AppIconSize.roundToPx() }
++    val icon by
++        produceState(actions.cachedIcon(item), item.iconKey, sizePx) {
++            if (value == null) value = actions.appIcon(item, context, sizePx)
++        }
++    Box(
++        Modifier.size(AppIconFrame, AppIconFrame + Budik.KeyDepth)
++            .budikKeycap(c.surface, c.border, border = c.line)
++            .semantics { contentDescription = item.app },
++        contentAlignment = Alignment.Center,
++    ) {
++        icon?.let {
++            Image(
++                bitmap = it.bitmap,
++                contentDescription = null,
++                colorFilter = if (it.monochrome) ColorFilter.tint(c.fg) else null,
++                modifier = Modifier.size(AppIconSize),
++            )
++        }
++    }
++}
++
+ @Composable
+ private fun ActionKey(label: String, primary: Boolean, onClick: () -> Unit) {
+     val c = Budik.colors
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
+index 1b6501b5c762..df00dd661912 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
+@@ -70,8 +70,10 @@ import com.android.systemui.statusbar.notification.collection.NotifPipeline
+ import com.android.systemui.statusbar.notification.data.repository.ActiveNotificationListRepository
+ import com.android.systemui.statusbar.notification.row.OnUserInteractionCallback
+ import com.android.systemui.statusbar.notification.stack.ui.view.NotificationScrollView
++import com.android.systemui.dagger.qualifiers.Background
+ import dagger.Lazy
+ import javax.inject.Inject
++import kotlinx.coroutines.CoroutineDispatcher
+ import kotlinx.coroutines.flow.Flow
+ 
+ @SysUISingleton
+@@ -90,6 +92,7 @@ constructor(
+     onUserInteractionCallback: Lazy<OnUserInteractionCallback>,
+     activityStarter: Lazy<ActivityStarter>,
+     notificationClickNotifier: Lazy<NotificationClickNotifier>,
++    @Background bgDispatcher: CoroutineDispatcher,
+ ) : Overlay {
+     private val budikActions =
+         BudikNotificationActions(
+@@ -99,6 +102,7 @@ constructor(
+             activityStarter = activityStarter,
+             clickNotifier = notificationClickNotifier,
+             stackScrollView = stackScrollView,
++            bgDispatcher = bgDispatcher,
+         )
+ 
+     override val key = Overlays.NotificationsShade
+-- 
+2.53.0
+

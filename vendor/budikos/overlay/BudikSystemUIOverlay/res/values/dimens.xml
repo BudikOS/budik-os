@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Budik OS radius scale (export/README.md): only 6 / 12 / 20 dp.
+     Containers 20, tiles/controls 12, small inner parts 6. One scale instead of
+     the stock mix of 4/16/21/24/28/30/32/46/50 dp pills gives a clear hierarchy.
+     Phone-only: values-sw600dp keeps stock tablet values. -->
+<resources>
+    <!-- QS tiles (Compose, CommonTileDefaults): same shape on/off, state is shown
+         by fill vs. outline, not by morphing a pill into a rectangle -->
+    <dimen name="common_tile_default_active_tile_corner_radius">12dp</dimen>
+    <dimen name="common_tile_default_inactive_tile_corner_radius">12dp</dimen>
+    <dimen name="common_tile_default_active_icon_corner_radius">6dp</dimen>
+    <dimen name="common_tile_default_inactive_icon_corner_radius">6dp</dimen>
+    <!-- focus ring / tile details entry follows the tile shape -->
+    <dimen name="focus_ring_wide_corner_radius">12dp</dimen>
+
+    <!-- Dual Shade panels (OverlayShade) and the single-shade notification scrim -->
+    <dimen name="overlay_shade_panel_shape_radius">20dp</dimen>
+    <dimen name="notification_scrim_corner_radius">20dp</dimen>
+    <!-- QS footer background (FooterActions.kt) -->
+    <dimen name="qs_corner_radius">20dp</dimen>
+
+    <!-- notifications: card 20, joined edges of grouped/stacked cards 6 -->
+    <dimen name="notification_corner_radius">20dp</dimen>
+    <dimen name="notification_corner_radius_small">6dp</dimen>
+
+    <!-- dialogs / sheets -->
+    <dimen name="bottom_sheet_corner_radius">20dp</dimen>
+    <dimen name="global_actions_corner_radius">20dp</dimen>
+    <dimen name="biometric_prompt_content_corner_radius">20dp</dimen>
+    <dimen name="volume_dialog_background_corner_radius">20dp</dimen>
+    <!-- not overlaid: ksh_dialog_top_corner_radius, volume_dialog_slider_corner_radius,
+         overlay_button_corner_radius are stripped from the shipped SystemUI.apk -->
+</resources>

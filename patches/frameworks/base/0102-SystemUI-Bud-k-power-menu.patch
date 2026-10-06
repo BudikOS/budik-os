@@ -1,0 +1,461 @@
+From 9cf1d0bb6a2f4c6f0d7403580160020145703db7 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 05:16:37 +0000
+Subject: [PATCH 102/102] =?UTF-8?q?SystemUI:=20Bud=C3=ADk=20power=20menu?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+"Napájení" card (export/mockups 09_power) with the battery level and a
+2-column keycap grid (navy "Vypnout") replacing the power menu grid; all
+keys go through the AOSP adapter. Adds "Pokročilý restart" (recovery,
+bootloader, safe mode) which needs REBOOT and RECOVERY (platform signature).
+No blur, no overflow menu.
+---
+ packages/SystemUI/AndroidManifest.xml         |   3 +
+ .../systemui/globalactions/BudikPowerMenu.kt  | 367 ++++++++++++++++++
+ .../GlobalActionsDialogLite.java              |  19 +-
+ 3 files changed, 388 insertions(+), 1 deletion(-)
+ create mode 100644 packages/SystemUI/src/com/android/systemui/globalactions/BudikPowerMenu.kt
+
+diff --git a/packages/SystemUI/AndroidManifest.xml b/packages/SystemUI/AndroidManifest.xml
+index d2a7ba046774..71b25557ab94 100644
+--- a/packages/SystemUI/AndroidManifest.xml
++++ b/packages/SystemUI/AndroidManifest.xml
+@@ -231,6 +231,9 @@
+ 
+     <!-- Access battery information -->
+     <uses-permission android:name="android.permission.BATTERY_STATS" />
++    <!-- Budík OS power menu: "Pokročilý restart" (recovery, bootloader, safe mode) -->
++    <uses-permission android:name="android.permission.REBOOT" />
++    <uses-permission android:name="android.permission.RECOVERY" />
+ 
+     <!-- DevicePolicyManager get user restrictions -->
+     <uses-permission android:name="android.permission.MANAGE_PROFILE_AND_DEVICE_OWNERS" />
+diff --git a/packages/SystemUI/src/com/android/systemui/globalactions/BudikPowerMenu.kt b/packages/SystemUI/src/com/android/systemui/globalactions/BudikPowerMenu.kt
+new file mode 100644
+index 000000000000..e668b1043c82
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/globalactions/BudikPowerMenu.kt
+@@ -0,0 +1,367 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.globalactions
++
++import android.content.Context
++import android.database.DataSetObserver
++import android.graphics.drawable.Drawable
++import android.os.BatteryManager
++import android.os.PowerManager
++import android.os.UserManager
++import android.view.View
++import android.view.ViewGroup
++import android.widget.LinearLayout
++import androidx.compose.foundation.Image
++import androidx.compose.foundation.layout.Arrangement
++import androidx.compose.foundation.layout.Column
++import androidx.compose.foundation.layout.Row
++import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.fillMaxSize
++import androidx.compose.foundation.layout.fillMaxWidth
++import androidx.compose.foundation.layout.height
++import androidx.compose.foundation.layout.padding
++import androidx.compose.foundation.layout.size
++import androidx.compose.foundation.text.BasicText
++import androidx.compose.runtime.Composable
++import androidx.compose.runtime.getValue
++import androidx.compose.runtime.mutableIntStateOf
++import androidx.compose.runtime.mutableStateOf
++import androidx.compose.runtime.remember
++import androidx.compose.runtime.setValue
++import androidx.compose.ui.Alignment
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.graphics.ColorFilter
++import androidx.compose.ui.graphics.asImageBitmap
++import androidx.compose.ui.graphics.vector.ImageVector
++import androidx.compose.ui.platform.ComposeView
++import androidx.compose.ui.text.font.FontWeight
++import androidx.compose.ui.unit.dp
++import androidx.compose.ui.unit.sp
++import androidx.constraintlayout.widget.ConstraintLayout
++import androidx.core.graphics.drawable.toBitmap
++import androidx.lifecycle.findViewTreeLifecycleOwner
++import com.android.systemui.budik.ui.compose.Budik
++import com.android.systemui.budik.ui.compose.BudikKey
++import com.android.systemui.budik.ui.compose.BudikSoundPowerIcons
++import com.android.systemui.budik.ui.compose.BudikIcons
++import com.android.systemui.budik.ui.compose.budikKeycap
++import com.android.systemui.compose.ComposeInitializer
++import java.util.Locale
++
++/**
++ * Budík OS power menu (export/mockups 09_power): a "Napájení" card with the battery level and a
++ * 2-column grid of keycaps (navy "Vypnout"). The AOSP list stays inflated but hidden; the card is
++ * a child of the same [GlobalActionsLayout], so the dialog's enter/exit animations still apply and
++ * every key goes through the adapter like the AOSP views did. "Pokročilý restart" (recovery,
++ * bootloader, safe mode) is Budík's own.
++ */
++object BudikPowerMenu {
++
++    @JvmStatic
++    fun attach(
++        container: ViewGroup,
++        layout: ViewGroup,
++        list: View,
++        adapter: GlobalActionsDialogLite.MyAdapter,
++        dismiss: Runnable,
++    ) {
++        list.visibility = View.GONE
++        (layout.layoutParams as? ConstraintLayout.LayoutParams)?.let {
++            it.width = 0 // match constraints: full width, the card adds its own margins
++            it.verticalBias = 1f
++            layout.layoutParams = it
++        }
++        val version = mutableIntStateOf(0)
++        val observer =
++            object : DataSetObserver() {
++                override fun onChanged() {
++                    version.intValue++
++                }
++
++                override fun onInvalidated() {
++                    version.intValue++
++                }
++            }
++        val context = container.context
++        val composeView =
++            ComposeView(context).apply {
++                setContent {
++                    version.intValue
++                    PowerCard(
++                        entries = entries(context, adapter),
++                        battery = batteryLevel(context),
++                        onReboot = { reason ->
++                            dismiss.run()
++                            reboot(context, reason)
++                        },
++                    )
++                }
++            }
++        val attachListener =
++            object : View.OnAttachStateChangeListener {
++                // SystemUIDialog is not a ComponentDialog, so the window root needs Compose's
++                // owners. Use the decor view: DialogTransitionAnimator may move the content.
++                var composeRoot: View? = null
++
++                override fun onViewAttachedToWindow(v: View) {
++                    val root = container.rootView
++                    if (root.findViewTreeLifecycleOwner() == null) {
++                        ComposeInitializer.onAttachedToWindow(root)
++                        composeRoot = root
++                    }
++                    adapter.registerDataSetObserver(observer)
++                    layout.addView(
++                        composeView,
++                        LinearLayout.LayoutParams(
++                            ViewGroup.LayoutParams.MATCH_PARENT,
++                            ViewGroup.LayoutParams.WRAP_CONTENT,
++                        ),
++                    )
++                }
++
++                override fun onViewDetachedFromWindow(v: View) {
++                    layout.removeView(composeView)
++                    adapter.unregisterDataSetObserver(observer)
++                    composeRoot?.let { ComposeInitializer.onDetachedFromWindow(it) }
++                    composeRoot = null
++                }
++            }
++        container.addOnAttachStateChangeListener(attachListener)
++        if (container.isAttachedToWindow) attachListener.onViewAttachedToWindow(container)
++    }
++
++    private class Entry(
++        val key: String,
++        val label: String,
++        val icon: ImageVector?,
++        val drawable: Drawable?,
++        val onClick: () -> Unit,
++        val onLongClick: (() -> Unit)?,
++    )
++
++    private const val POWER_OFF = "global_action_power_off"
++    private const val RESTART = "global_action_restart"
++    private const val SCREENSHOT = "global_action_screenshot"
++    private const val LOCKDOWN = "global_action_lockdown"
++    private const val EMERGENCY = "global_action_emergency"
++    private const val ADVANCED = "budik_advanced_restart"
++
++    /** Mockup order; anything else follows in the adapter's order. */
++    private val Order = listOf(POWER_OFF, RESTART, SCREENSHOT, ADVANCED, LOCKDOWN, EMERGENCY)
++
++    private val isCzech: Boolean
++        get() = Locale.getDefault().language == "cs"
++
++    private fun cs(czech: String, english: String) = if (isCzech) czech else english
++
++    private fun entries(context: Context, adapter: GlobalActionsDialogLite.MyAdapter): List<Entry> {
++        val entries = mutableListOf<Entry>()
++        for (i in 0 until adapter.count) {
++            val action = adapter.getItem(i)
++            val resId = action.messageResId
++            val key =
++                if (resId != 0) {
++                    runCatching { context.resources.getResourceEntryName(resId) }.getOrDefault("")
++                } else {
++                    ""
++                }
++            val systemLabel =
++                action.message?.toString() ?: if (resId != 0) context.getString(resId) else ""
++            val icon = iconFor(key)
++            entries +=
++                Entry(
++                    key = key,
++                    label = designLabel(key) ?: systemLabel,
++                    icon = icon,
++                    drawable = if (icon == null) action.getIcon(context) else null,
++                    onClick = { adapter.onClickItem(i) },
++                    onLongClick =
++                        if (key == POWER_OFF || key == RESTART) {
++                            { adapter.onLongClickItem(i) }
++                        } else {
++                            null
++                        },
++                )
++        }
++        if (entries.any { it.key == RESTART }) {
++            entries +=
++                Entry(
++                    ADVANCED,
++                    cs("Pokročilý restart", "Advanced restart"),
++                    BudikSoundPowerIcons.Recovery,
++                    null,
++                    {},
++                    null,
++                )
++        }
++        return entries.sortedBy { Order.indexOf(it.key).let { i -> if (i < 0) Order.size else i } }
++    }
++
++    private fun designLabel(key: String): String? =
++        if (!isCzech) null
++        else
++            when (key) {
++                POWER_OFF -> "Vypnout"
++                RESTART -> "Restartovat"
++                SCREENSHOT -> "Snímek obrazovky"
++                LOCKDOWN -> "Uzamčení"
++                EMERGENCY -> "Tísňové volání"
++                else -> null
++            }
++
++    private fun iconFor(key: String): ImageVector? =
++        when (key) {
++            POWER_OFF -> BudikIcons.Power
++            RESTART -> BudikSoundPowerIcons.Restart
++            SCREENSHOT -> BudikSoundPowerIcons.Screenshot
++            LOCKDOWN -> BudikSoundPowerIcons.Lock
++            EMERGENCY -> BudikSoundPowerIcons.Emergency
++            else -> null
++        }
++
++    private fun batteryLevel(context: Context): Int? =
++        context
++            .getSystemService(BatteryManager::class.java)
++            ?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
++            ?.takeIf { it in 0..100 }
++
++    /** [reason] null = safe mode. PowerManager blocks until shutdown, so not on the main thread. */
++    private fun reboot(context: Context, reason: String?) {
++        val pm = context.getSystemService(PowerManager::class.java) ?: return
++        Thread({ if (reason == null) pm.rebootSafeMode() else pm.reboot(reason) }, "BudikReboot")
++            .start()
++    }
++
++    @Composable
++    private fun PowerCard(entries: List<Entry>, battery: Int?, onReboot: (String?) -> Unit) {
++        val colors = Budik.colors
++        val context = androidx.compose.ui.platform.LocalContext.current
++        var advanced by remember { mutableStateOf(false) }
++        Column(
++            modifier =
++                Modifier.fillMaxWidth()
++                    .padding(start = 16.dp, end = 16.dp, bottom = 92.dp)
++                    .budikKeycap(
++                        face = colors.surface,
++                        shadow = colors.border,
++                        radius = Budik.RadiusL,
++                        border = colors.line,
++                    )
++                    .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 14.dp)
++        ) {
++            Row(verticalAlignment = Alignment.CenterVertically) {
++                BasicText(
++                    text = if (advanced) cs("Pokročilý restart", "Advanced restart")
++                        else cs("Napájení", "Power"),
++                    style = Budik.headline(22.sp, colors.fg, FontWeight.ExtraBold),
++                    modifier = Modifier.weight(1f),
++                )
++                if (battery != null) {
++                    BasicText(
++                        text = cs("baterie $battery %", "battery $battery %"),
++                        style = Budik.mono(12.sp, colors.fg3),
++                    )
++                }
++            }
++            Spacer(Modifier.height(14.dp))
++            val keys =
++                if (!advanced) {
++                    entries.map {
++                        if (it.key == ADVANCED) Entry(it.key, it.label, it.icon, null, { advanced = true }, null)
++                        else it
++                    }
++                } else {
++                    advancedEntries(context, onReboot) { advanced = false }
++                }
++            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
++                keys.chunked(2).forEach { row ->
++                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
++                        row.forEach { PowerKey(it, Modifier.weight(1f)) }
++                        if (row.size == 1) Spacer(Modifier.weight(1f))
++                    }
++                }
++            }
++        }
++    }
++
++    private fun advancedEntries(
++        context: Context,
++        onReboot: (String?) -> Unit,
++        onBack: () -> Unit,
++    ): List<Entry> {
++        val safeBootAllowed =
++            context
++                .getSystemService(UserManager::class.java)
++                ?.hasUserRestriction(UserManager.DISALLOW_SAFE_BOOT) != true
++        return listOfNotNull(
++            Entry("recovery", "Recovery", BudikSoundPowerIcons.Recovery, null,
++                { onReboot(PowerManager.REBOOT_RECOVERY) }, null),
++            Entry("bootloader", "Bootloader", BudikSoundPowerIcons.System, null,
++                { onReboot("bootloader") }, null),
++            if (safeBootAllowed) {
++                Entry("safemode", cs("Nouzový režim", "Safe mode"), BudikSoundPowerIcons.Restart,
++                    null, { onReboot(null) }, null)
++            } else {
++                null
++            },
++            Entry("back", cs("Zpět", "Back"), BudikSoundPowerIcons.Back, null, onBack, null),
++        )
++    }
++
++    @Composable
++    private fun PowerKey(entry: Entry, modifier: Modifier) {
++        val colors = Budik.colors
++        val primary = entry.key == POWER_OFF
++        val content = if (primary) Budik.White else colors.fg
++        BudikKey(
++            face = if (primary) colors.primary else colors.key,
++            shadow = if (primary) colors.primaryShadow else colors.keyShadow,
++            border = if (primary) Color.Unspecified else colors.keyBorder,
++            radius = Budik.RadiusM,
++            onClick = entry.onClick,
++            onLongClick = entry.onLongClick,
++            modifier = modifier.height(86.dp),
++        ) {
++            Column(
++                modifier = Modifier.fillMaxSize().padding(start = 14.dp, end = 10.dp, top = 14.dp, bottom = 10.dp),
++                verticalArrangement = Arrangement.SpaceBetween,
++            ) {
++                val tint = ColorFilter.tint(content)
++                when {
++                    entry.icon != null ->
++                        Image(entry.icon, null, Modifier.size(24.dp), colorFilter = tint)
++                    entry.drawable != null ->
++                        Image(
++                            remember(entry.drawable) {
++                                entry.drawable.toBitmap(48, 48).asImageBitmap()
++                            },
++                            null,
++                            Modifier.size(24.dp),
++                            colorFilter = tint,
++                        )
++                    else -> Spacer(Modifier.size(24.dp))
++                }
++                BasicText(
++                    text = entry.label,
++                    style = Budik.body(16.sp, content, FontWeight.Bold).copy(lineHeight = 17.sp),
++                    maxLines = 2,
++                )
++            }
++        }
++    }
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/globalactions/GlobalActionsDialogLite.java b/packages/SystemUI/src/com/android/systemui/globalactions/GlobalActionsDialogLite.java
+index dc11e240c285..3c849a281cab 100644
+--- a/packages/SystemUI/src/com/android/systemui/globalactions/GlobalActionsDialogLite.java
++++ b/packages/SystemUI/src/com/android/systemui/globalactions/GlobalActionsDialogLite.java
+@@ -190,6 +190,10 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
+     @VisibleForTesting
+     static final String GLOBAL_ACTION_KEY_FEEDBACK = "feedback";
+ 
++    /** Budík OS power menu card (export/mockups 09_power), see {@link BudikPowerMenu}. */
++    private static final boolean BUDIK_POWER_MENU = true;
++    private static final int BUDIK_MAX_ITEMS = 12;
++
+     private static final boolean DEBUG = false;
+ 
+     private static final String TAG = "GlobalActionsDialogLite";
+@@ -607,7 +611,8 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
+         WindowManager.LayoutParams attrs = dialog.getWindow().getAttributes();
+         attrs.setTitle("GlobalActionsDialogLite");
+         attrs.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+-        if (isVolumeAndPowerBlurEnabled() && mTranslucentPowerMenu) {
++        // Budík OS: no blur behind the power menu (design rule, and cheaper).
++        if (false && isVolumeAndPowerBlurEnabled() && mTranslucentPowerMenu) {
+             attrs.flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+             attrs.setBlurBehindRadius(mContext.getResources().getDimensionPixelSize(
+                     com.android.systemui.res.R.dimen.global_actions_blur_radius));
+@@ -638,6 +643,10 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
+      * layout is being used.
+      */
+     private int getMaxShownPowerItems() {
++        // Budík OS: BudikPowerMenu shows every action in its own grid, no overflow menu.
++        if (BUDIK_POWER_MENU) {
++            return BUDIK_MAX_ITEMS;
++        }
+         return mResources.getInteger(com.android.systemui.res.R.integer.power_menu_lite_max_columns)
+                 * mResources.getInteger(
+                     com.android.systemui.res.R.integer.power_menu_lite_max_rows);
+@@ -2829,6 +2838,14 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
+             mGlobalActionsLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+             mGlobalActionsLayout.setRotationListener(this::onRotate);
+             mGlobalActionsLayout.setAdapter(mAdapter);
++            if (BUDIK_POWER_MENU) {
++                BudikPowerMenu.attach(
++                        dialog.findViewById(com.android.systemui.res.R.id.global_actions_container),
++                        mGlobalActionsLayout,
++                        mGlobalActionsLayout.findViewById(android.R.id.list),
++                        (MyAdapter) mAdapter,
++                        this::dismissWithoutAnimation);
++            }
+             final WindowRootViewBlurInteractor blurInteractor = dialog.getBlurInteractor();
+             collectFlow(mGlobalActionsLayout, blurInteractor.isBlurCurrentlySupported(),
+                     mGlobalActionsLayout::setIsBlurSupported);
+-- 
+2.53.0
+

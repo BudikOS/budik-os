@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Budík průvodce</string>
+    <string name="start">Začít</string>
+    <string name="next">Pokračovat</string>
+    <string name="skip_step">Přeskočit</string>
+    <string name="finish">Začít používat Budík OS</string>
+    <string name="skip_setup">Přeskočit nastavení</string>
+    <string name="cancel">Zrušit</string>
+    <string name="close">Zavřít</string>
+    <string name="search_empty">Nic nenalezeno.</string>
+
+    <string name="skip_confirm_title">Přeskočit nastavení?</string>
+    <string name="skip_confirm_body">Telefon bude hned připravený. Jazyk, Wi-Fi a vše ostatní můžete kdykoli změnit v Nastavení.</string>
+    <string name="skip_confirm_action">Přeskočit</string>
+
+    <string name="language_title">Vítejte v Budík OS</string>
+    <string name="language_body">Vyberte jazyk telefonu.</string>
+    <string name="language_search">Hledat jazyk</string>
+    <string name="summary_language">Jazyk</string>
+
+    <string name="wifi_title">Wi-Fi</string>
+    <string name="wifi_body">Připojte se kvůli přesnému času a aktualizacím. Můžete to přeskočit.</string>
+    <string name="wifi_networks">Sítě v okolí</string>
+    <string name="wifi_off">Vypnuto</string>
+    <string name="wifi_off_body">Wi-Fi je vypnutá. Zapněte ji přepínačem nahoře.</string>
+    <string name="wifi_none_found">Hledám sítě…</string>
+    <string name="wifi_connected_to">Připojeno k síti %1$s</string>
+    <string name="wifi_connecting_to">Připojování k síti %1$s…</string>
+    <string name="wifi_not_connected">Nepřipojeno</string>
+    <string name="wifi_state_connected">Připojeno</string>
+    <string name="wifi_state_connecting">Připojování…</string>
+    <string name="wifi_state_saved">Uloženo</string>
+    <string name="wifi_state_wrong_password">Špatné heslo</string>
+    <string name="wifi_state_failed">Nepodařilo se připojit</string>
+    <string name="wifi_secured">Zabezpečená</string>
+    <string name="wifi_open">Otevřená síť</string>
+    <string name="wifi_unsupported">Tady nastavit nejde</string>
+    <string name="wifi_password_body">Zadejte heslo k síti.</string>
+    <string name="wifi_password_hint">Heslo</string>
+    <string name="show_password">Zobrazit heslo</string>
+    <string name="wifi_connect">Připojit</string>
+    <string name="wifi_forget">Zapomenout</string>
+    <string name="wifi_connected_body">Telefon je k této síti připojený.</string>
+    <string name="wifi_unsupported_body">Tento typ sítě (firemní přihlášení nebo staré zabezpečení WEP) tady nastavit nejde. Připojíte se později v Nastavení.</string>
+
+    <string name="time_title">Datum a čas</string>
+    <string name="time_body">Čas se nastavuje automaticky ze sítě. Zkontrolujte časové pásmo.</string>
+    <string name="time_zone_label">Časové pásmo</string>
+    <string name="time_zone_search">Hledat město nebo zemi</string>
+    <string name="summary_time">Časové pásmo</string>
+
+    <string name="theme_title">Vzhled</string>
+    <string name="theme_body">Světlý, tmavý, nebo podle denní doby.</string>
+    <string name="theme_light">Světlý</string>
+    <string name="theme_dark">Tmavý</string>
+    <string name="theme_auto">Automaticky</string>
+    <string name="theme_note_light">Světlý po celý den.</string>
+    <string name="theme_note_dark">Tmavý po celý den. V noci méně oslňuje.</string>
+    <string name="theme_note_auto">Tmavý od %1$s do %2$s, přes den světlý. Přepne se při příštím zhasnutí displeje.</string>
+
+    <string name="lock_title">Zámek obrazovky</string>
+    <string name="lock_body">Chraňte telefon kódem. Bez něj ho odemkne kdokoli.</string>
+    <string name="lock_pin">PIN</string>
+    <string name="lock_pin_sub">Aspoň 4 číslice</string>
+    <string name="lock_password">Heslo</string>
+    <string name="lock_password_sub">Aspoň 4 znaky</string>
+    <string name="lock_none">Bez zámku</string>
+    <string name="lock_none_sub">Odemknutí přejetím</string>
+    <string name="lock_pattern">Gesto</string>
+    <string name="lock_enter_pin">Zadejte PIN</string>
+    <string name="lock_repeat_pin">Zopakujte PIN</string>
+    <string name="lock_enter_password">Zadejte heslo</string>
+    <string name="lock_repeat_password">Zopakujte heslo</string>
+    <string name="lock_mismatch">Kódy se neshodují.</string>
+    <string name="lock_remember">Kód si zapamatujte. Bez něj telefon neodemknete.</string>
+    <string name="lock_set">Nastavit zámek</string>
+    <string name="lock_saving">Ukládám…</string>
+    <string name="lock_failed">Zámek se nepodařilo uložit. Zkuste to znovu, nebo pokračujte bez zámku.</string>
+    <string name="lock_already">Zámek obrazovky už je nastavený. Změnit ho můžete později v Nastavení.</string>
+
+    <string name="done_title">Hotovo</string>
+    <string name="done_body">Telefon je připravený. Klepnutím na řádek ho můžete změnit.</string>
+</resources>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fonts are the system named families from vendor/budikos/fonts_customization.xml. -->
+<resources>
+    <style name="Theme.BudikSetup" parent="@android:style/Theme.DeviceDefault.DayNight">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/budik_bg</item>
+        <item name="android:colorBackground">@color/budik_bg</item>
+        <item name="android:colorAccent">@color/budik_accent</item>
+        <item name="android:colorControlActivated">@color/budik_accent</item>
+        <item name="android:colorControlNormal">@color/budik_fg3</item>
+        <item name="android:colorControlHighlight">@color/budik_line</item>
+        <item name="android:textColorPrimary">@color/budik_fg</item>
+        <item name="android:textColorSecondary">@color/budik_fg3</item>
+        <item name="android:textColorHint">@color/budik_fg3</item>
+        <item name="android:fontFamily">instrument-sans</item>
+        <!-- edge-to-edge, bar icons follow the mode (values-night/bools.xml) -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:windowLightStatusBar">@bool/budik_light_bars</item>
+        <item name="android:windowLightNavigationBar">@bool/budik_light_bars</item>
+    </style>
+
+    <!-- our own dialog card (layout/dialog), the window itself is transparent -->
+    <style name="Theme.BudikSetup.Dialog" parent="@android:style/Theme.DeviceDefault.DayNight">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.45</item>
+        <item name="android:colorAccent">@color/budik_accent</item>
+        <item name="android:colorControlActivated">@color/budik_accent</item>
+        <item name="android:colorControlNormal">@color/budik_fg3</item>
+        <item name="android:textColorPrimary">@color/budik_fg</item>
+        <item name="android:textColorHint">@color/budik_fg3</item>
+        <item name="android:fontFamily">instrument-sans</item>
+    </style>
+
+    <style name="BudikSetup.Title" parent="">
+        <item name="android:fontFamily">schibsted-grotesk</item>
+        <item name="android:textFontWeight">800</item>
+        <item name="android:textSize">@dimen/budik_text_display_l</item>
+        <item name="android:letterSpacing">-0.045</item>
+        <item name="android:lineSpacingMultiplier">0.95</item>
+        <item name="android:textColor">@color/budik_fg</item>
+    </style>
+
+    <style name="BudikSetup.DialogTitle" parent="BudikSetup.Title">
+        <item name="android:textSize">26sp</item>
+        <item name="android:letterSpacing">-0.03</item>
+    </style>
+
+    <style name="BudikSetup.Body" parent="">
+        <item name="android:fontFamily">instrument-sans</item>
+        <item name="android:textSize">@dimen/budik_text_body_l</item>
+        <item name="android:lineSpacingMultiplier">1.25</item>
+        <item name="android:textColor">@color/budik_fg2</item>
+    </style>
+
+    <!-- small mono caps label, like the section labels in the mockups -->
+    <style name="BudikSetup.Detail" parent="">
+        <item name="android:fontFamily">jetbrains-mono</item>
+        <item name="android:textSize">@dimen/budik_text_caption</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.06</item>
+        <item name="android:textColor">@color/budik_fg3</item>
+    </style>
+
+    <!-- keycap: face + hard 3 dp shadow, pressed = face drops onto the shadow.
+         Only the action label, never a key name. -->
+    <style name="BudikSetup.Keycap" parent="@android:style/Widget.DeviceDefault.Button.Borderless">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/budik_keycap_height</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingBottom">@dimen/budik_shadow_offset</item>
+        <item name="android:fontFamily">schibsted-grotesk</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:stateListAnimator">@animator/keycap_press</item>
+    </style>
+
+    <!-- dialog action (mockup 11 "Restartovat") -->
+    <style name="BudikSetup.Keycap.Compact">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:background">@drawable/keycap_primary</item>
+        <item name="android:textColor">@color/budik_on_primary</item>
+    </style>
+
+    <!-- text link with a mint underline -->
+    <style name="BudikSetup.Link" parent="">
+        <item name="android:fontFamily">schibsted-grotesk</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/budik_fg</item>
+        <item name="android:background">@drawable/link_underline</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- plain text action next to a keycap -->
+    <style name="BudikSetup.TextAction" parent="">
+        <item name="android:fontFamily">schibsted-grotesk</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/budik_fg</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:background">@drawable/row_bg</item>
+    </style>
+
+    <style name="BudikSetup.Option" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">132dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/option_card</item>
+        <item name="android:gravity">center_horizontal|bottom</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:drawablePadding">14dp</item>
+        <item name="android:fontFamily">schibsted-grotesk</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/budik_fg</item>
+    </style>
+
+    <style name="BudikSetup.RowTitle" parent="">
+        <item name="android:fontFamily">instrument-sans</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/budik_fg</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="BudikSetup.RowSubtitle" parent="">
+        <item name="android:fontFamily">instrument-sans</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/budik_fg3</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="BudikSetup.Field" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:background">@drawable/field</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:fontFamily">instrument-sans</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/budik_fg</item>
+        <item name="android:textColorHint">@color/budik_fg3</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:imeOptions">actionDone|flagNoExtractUi</item>
+    </style>
+
+    <style name="BudikSetup.Field.Search">
+        <item name="android:drawableStart">@drawable/ic_search</item>
+        <item name="android:drawableTint">@color/budik_fg3</item>
+        <item name="android:drawablePadding">12dp</item>
+        <item name="android:inputType">text|textNoSuggestions</item>
+        <item name="android:imeOptions">actionSearch|flagNoExtractUi</item>
+    </style>
+</resources>

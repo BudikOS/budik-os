@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- radius scale is only 6 / 12 / 20 dp -->
+    <dimen name="budik_radius_s">6dp</dimen>
+    <dimen name="budik_radius_m">12dp</dimen>
+    <dimen name="budik_radius_l">20dp</dimen>
+    <!-- hard shadow: 0 x 3 dp offset, no blur -->
+    <dimen name="budik_shadow_offset">3dp</dimen>
+    <dimen name="budik_screen_margin">16dp</dimen>
+    <!-- 48 dp face + 3 dp shadow -->
+    <dimen name="budik_keycap_height">51dp</dimen>
+    <dimen name="budik_text_display_l">40sp</dimen>
+    <dimen name="budik_text_body_l">15sp</dimen>
+    <dimen name="budik_text_label">13sp</dimen>
+    <dimen name="budik_text_caption">12sp</dimen>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- radius scale is only 6 / 12 / 20 dp -->
+    <dimen name="budik_radius_s">6dp</dimen>
+    <dimen name="budik_radius_m">12dp</dimen>
+    <dimen name="budik_radius_l">20dp</dimen>
+    <!-- hard shadow: 0 x 3 dp offset, no blur -->
+    <dimen name="budik_shadow_offset">3dp</dimen>
+    <!-- same inset groups as Settings: cards 8 dp from the edge, 14 dp inside, 48 dp rows -->
+    <dimen name="budik_screen_margin">8dp</dimen>
+    <dimen name="budik_card_inner">14dp</dimen>
+    <dimen name="budik_row_min_height">48dp</dimen>
+    <dimen name="budik_row_padding">6dp</dimen>
+    <!-- 48 dp face + 3 dp shadow -->
+    <dimen name="budik_keycap_height">51dp</dimen>
+    <dimen name="budik_text_display_l">40sp</dimen>
+    <dimen name="budik_text_body_l">15sp</dimen>
+    <dimen name="budik_text_label">13sp</dimen>
+    <dimen name="budik_text_caption">12sp</dimen>
+</resources>

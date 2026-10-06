@@ -1,0 +1,153 @@
+From 70bcd6ae390422723bd0d3e0824a25577b1d5728 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 05:12:52 +0000
+Subject: [PATCH 08/12] =?UTF-8?q?SystemUI:=20Bud=C3=ADk=20metadata=20in=20?=
+ =?UTF-8?q?Instrument=20Sans=20with=20tabular=20figures?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+No monospace in the UI: times, column heads, versions and captions use
+Instrument Sans with tnum; capital labels get wider tracking.
+---
+ .../systemui/budik/ui/compose/BudikTheme.kt   | 24 ++++++++++++-------
+ .../ui/composable/BudikNotificationReceipt.kt |  8 +++----
+ .../qs/ui/composable/BudikControlCenter.kt    |  8 +++----
+ 3 files changed, 23 insertions(+), 17 deletions(-)
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt b/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt
+index 06b2d4b2608a..1693dd840f9b 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt
+@@ -59,7 +59,8 @@ import androidx.compose.ui.unit.sp
+  * Budík OS design tokens for the SystemUI Compose surfaces (export/README.md, tokens.json):
+  * radii 6/12/20 dp, hard 0x3 dp shadow without blur, mint #21D4BE never as text on light
+  * backgrounds, text on mint is always #0E0F11, navy primary buttons, keycap buttons without key
+- * captions, JetBrains Mono for metadata, Schibsted Grotesk headlines, Instrument Sans body text.
++ * captions, Instrument Sans with tabular figures for metadata, Schibsted Grotesk headlines,
++ * Instrument Sans body text.
+  */
+ object Budik {
+     val Ink = Color(0xFF0E0F11)
+@@ -164,11 +165,6 @@ object Budik {
+ 
+     // Families come from vendor/budikos fonts_customization.xml. Device fonts are optional: if a
+     // family is missing (e.g. a GSI without our fonts) Compose falls back to the platform default.
+-    val Mono =
+-        FontFamily(
+-            Font(DeviceFontFamilyName("jetbrains-mono"), FontWeight.Normal),
+-            Font(DeviceFontFamilyName("jetbrains-mono"), FontWeight.Bold),
+-        )
+     val Headline =
+         FontFamily(
+             Font(DeviceFontFamilyName("schibsted-grotesk"), FontWeight.Normal),
+@@ -184,13 +180,23 @@ object Budik {
+             Font(DeviceFontFamilyName("instrument-sans"), FontWeight.Bold),
+         )
+ 
+-    fun mono(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Normal) =
++    /**
++     * Metadata (times, column heads, versions, captions): Instrument Sans with tabular figures, no
++     * monospace in the UI. [caps] labels are written in capitals and get wider tracking.
++     */
++    fun meta(
++        size: TextUnit,
++        color: Color,
++        weight: FontWeight = FontWeight.Normal,
++        caps: Boolean = false,
++    ) =
+         TextStyle(
+-            fontFamily = Mono,
++            fontFamily = Body,
+             fontSize = size,
+             fontWeight = weight,
+             color = color,
+-            letterSpacing = 0.04.em(size),
++            fontFeatureSettings = "tnum",
++            letterSpacing = (if (caps) 0.08 else 0.01).em(size),
+         )
+ 
+     fun headline(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Bold) =
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+index dbdf3f50fe34..bca1004d51e0 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+@@ -319,7 +319,7 @@ fun ContentScope.BudikNotificationReceipt(
+             val today = remember(locale) { dateFormat(locale, "EEEdMyyyy").format(Date()).capitalized(locale) }
+             Text(
+                 text = today,
+-                style = Budik.mono(12.sp, c.fg3),
++                style = Budik.meta(12.sp, c.fg3),
+                 maxLines = 1,
+                 modifier = Modifier.padding(bottom = 5.dp),
+             )
+@@ -327,7 +327,7 @@ fun ContentScope.BudikNotificationReceipt(
+         Spacer(Modifier.height(12.dp))
+         Rule(thick = true)
+         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp)) {
+-            val head = Budik.mono(10.sp, c.fg3, FontWeight.Bold)
++            val head = Budik.meta(10.sp, c.fg3, FontWeight.Bold, caps = true)
+             Text("ČAS", style = head, modifier = Modifier.width(TimeColumn))
+             Text("OD / CO", style = head, modifier = Modifier.weight(1f))
+             Text("APLIKACE", style = head)
+@@ -462,7 +462,7 @@ private fun ReceiptRow(
+     ) {
+         Text(
+             text = time,
+-            style = Budik.mono(14.sp, c.fg, FontWeight.Bold),
++            style = Budik.meta(14.sp, c.fg, FontWeight.Bold),
+             maxLines = 1,
+             modifier = Modifier.width(TimeColumn),
+         )
+@@ -478,7 +478,7 @@ private fun ReceiptRow(
+                 Spacer(Modifier.width(8.dp))
+                 Text(
+                     text = item.app,
+-                    style = Budik.mono(11.sp, c.fg3),
++                    style = Budik.meta(11.sp, c.fg3),
+                     maxLines = 1,
+                     overflow = TextOverflow.Ellipsis,
+                     modifier = Modifier.padding(top = 2.dp).widthIn(max = 110.dp),
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+index 71f90233171f..e5108d380680 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+@@ -187,7 +187,7 @@ fun ContentScope.BudikControlCenter(
+ @Composable
+ private fun Header(tiles: List<TileViewModel>, batteryLevel: Int?) {
+     val c = Budik.colors
+-    val style = Budik.mono(11.sp, c.ccText)
++    val style = Budik.meta(11.sp, c.ccText, caps = true)
+     val network = rememberNetworkLabel(tiles)
+     Box(Modifier.fillMaxWidth().height(20.dp)) {
+         Text(
+@@ -308,7 +308,7 @@ private fun SmallKey(tile: TileViewModel, details: DetailsViewModel, modifier: M
+         Spacer(Modifier.height(6.dp))
+         Text(
+             text = ui.label,
+-            style = Budik.mono(10.sp, Budik.colors.ccText),
++            style = Budik.meta(10.sp, Budik.colors.ccText),
+             maxLines = 1,
+             overflow = TextOverflow.Ellipsis,
+         )
+@@ -448,7 +448,7 @@ private fun SegmentedBrightness(viewModel: BrightnessSliderViewModel) {
+         Spacer(Modifier.width(12.dp))
+         Text(
+             text = "${(fraction * 100).roundToInt()}",
+-            style = Budik.mono(14.sp, c.ccOnKeyOff),
++            style = Budik.meta(14.sp, c.ccOnKeyOff),
+             textAlign = TextAlign.End,
+             modifier = Modifier.width(30.dp),
+         )
+@@ -482,7 +482,7 @@ private fun Footer(toolbarViewModel: ToolbarViewModel) {
+         Spacer(Modifier.width(10.dp))
+         Text(
+             text = remember { versionLabel() },
+-            style = Budik.mono(11.sp, c.ccText),
++            style = Budik.meta(11.sp, c.ccText),
+             maxLines = 1,
+             overflow = TextOverflow.Ellipsis,
+             modifier = Modifier.weight(1f),
+-- 
+2.53.0
+

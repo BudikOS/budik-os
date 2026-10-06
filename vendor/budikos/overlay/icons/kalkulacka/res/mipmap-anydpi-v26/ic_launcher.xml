@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- copy layers to res/drawable as ic_launcher_kalkulacka_{background,foreground,monochrome}.xml -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_kalkulacka_background" />
+    <foreground android:drawable="@drawable/ic_launcher_kalkulacka_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_kalkulacka_monochrome" />
+</adaptive-icon>

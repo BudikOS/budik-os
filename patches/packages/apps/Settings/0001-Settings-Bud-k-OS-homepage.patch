@@ -1,0 +1,2568 @@
+From d16ced242a285f2fe975c6c3ccf5ad021366ff20 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 08:37:11 +0000
+Subject: [PATCH] =?UTF-8?q?Settings:=20Bud=C3=ADk=20OS=20homepage?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Big Schibsted Grotesk title that scrolls away under an opaque status bar
+strip, pinned keycap search field, compact iOS-like rows (title only,
+chevron) and monochrome export/icons glyphs in keycap frames instead of
+the coloured Pixel circles.
+---
+ res/drawable/budik_glyph_accessibility.xml    | 17 ++++++++
+ res/drawable/budik_glyph_account.xml          | 20 +++++++++
+ res/drawable/budik_glyph_apps.xml             | 32 +++++++++++++++
+ .../budik_glyph_battery_saver_off.xml         | 26 ++++++++++++
+ res/drawable/budik_glyph_bluetooth_on.xml     | 14 +++++++
+ res/drawable/budik_glyph_brightness.xml       | 20 +++++++++
+ res/drawable/budik_glyph_dnd_off.xml          | 20 +++++++++
+ res/drawable/budik_glyph_emergency.xml        | 14 +++++++
+ res/drawable/budik_glyph_hotspot_on.xml       | 35 ++++++++++++++++
+ res/drawable/budik_glyph_info.xml             | 23 +++++++++++
+ res/drawable/budik_glyph_location_on.xml      | 17 ++++++++
+ res/drawable/budik_glyph_lockdown.xml         | 20 +++++++++
+ res/drawable/budik_glyph_media.xml            | 26 ++++++++++++
+ res/drawable/budik_glyph_network.xml          | 14 +++++++
+ res/drawable/budik_glyph_night.xml            | 14 +++++++
+ res/drawable/budik_glyph_notifications.xml    | 20 +++++++++
+ res/drawable/budik_glyph_privacy.xml          | 20 +++++++++
+ res/drawable/budik_glyph_security.xml         | 20 +++++++++
+ res/drawable/budik_glyph_storage.xml          | 26 ++++++++++++
+ res/drawable/budik_glyph_style.xml            | 23 +++++++++++
+ res/drawable/budik_glyph_system.xml           | 20 +++++++++
+ res/drawable/budik_glyph_volume.xml           | 26 ++++++++++++
+ res/drawable/budik_ic_chevron.xml             | 15 +++++++
+ res/drawable/budik_keycap_face.xml            |  8 ++++
+ res/drawable/budik_keycap_shadow.xml          |  6 +++
+ res/drawable/budik_search_bar_background.xml  | 30 ++++++++++++++
+ res/drawable/ic_homepage_about.xml            | 38 ++++-------------
+ res/drawable/ic_homepage_accessibility.xml    | 38 ++++-------------
+ res/drawable/ic_homepage_accounts.xml         | 38 ++++-------------
+ .../ic_homepage_accounts_and_backup.xml       | 38 ++++-------------
+ res/drawable/ic_homepage_apps.xml             | 38 ++++-------------
+ res/drawable/ic_homepage_battery.xml          | 38 ++++-------------
+ res/drawable/ic_homepage_connected_device.xml | 38 ++++-------------
+ res/drawable/ic_homepage_data_usage.xml       | 38 ++++-------------
+ res/drawable/ic_homepage_device.xml           | 40 ++++--------------
+ res/drawable/ic_homepage_display.xml          | 38 ++++-------------
+ res/drawable/ic_homepage_emergency.xml        | 38 ++++-------------
+ res/drawable/ic_homepage_hub_mode.xml         | 38 ++++-------------
+ res/drawable/ic_homepage_location.xml         | 38 ++++-------------
+ res/drawable/ic_homepage_modes.xml            | 38 ++++-------------
+ res/drawable/ic_homepage_network.xml          | 38 ++++-------------
+ res/drawable/ic_homepage_night_display.xml    | 38 ++++-------------
+ res/drawable/ic_homepage_notification.xml     | 38 ++++-------------
+ res/drawable/ic_homepage_privacy.xml          | 38 ++++-------------
+ res/drawable/ic_homepage_safety_center.xml    | 38 ++++-------------
+ res/drawable/ic_homepage_search.xml           | 40 ++++++++----------
+ res/drawable/ic_homepage_security.xml         | 38 ++++-------------
+ res/drawable/ic_homepage_sound.xml            | 38 ++++-------------
+ res/drawable/ic_homepage_storage.xml          | 38 ++++-------------
+ res/drawable/ic_homepage_supervision.xml      | 38 ++++-------------
+ res/drawable/ic_homepage_support.xml          | 38 ++++-------------
+ res/drawable/ic_homepage_system_dashboard.xml | 38 ++++-------------
+ res/drawable/ic_homepage_vpn.xml              | 38 ++++-------------
+ res/drawable/ic_homepage_wallpaper.xml        | 38 ++++-------------
+ res/drawable/ic_homepage_wifi_tethering.xml   | 38 ++++-------------
+ res/layout/homepage_preference_expressive.xml | 25 +++++++----
+ res/layout/search_bar.xml                     | 11 ++---
+ res/layout/settings_homepage_container.xml    | 28 ++++++++++++-
+ res/layout/storage_item.xml                   | 12 ++----
+ res/values-night/budik_material_colors.xml    | 41 +++++++++++++++++++
+ res/values/budik_dimens.xml                   | 17 ++++++++
+ res/values/budik_material_colors.xml          | 41 +++++++++++++++++++
+ res/values/colors.xml                         |  8 ++--
+ res/values/styles.xml                         | 23 ++++++++---
+ .../DashboardFeatureProviderImpl.java         | 28 +++++++++----
+ .../homepage/SettingsHomepageActivity.java    | 12 ++++--
+ .../HomepagePreferenceLayoutHelper.java       |  5 +++
+ 67 files changed, 975 insertions(+), 908 deletions(-)
+ create mode 100644 res/drawable/budik_glyph_accessibility.xml
+ create mode 100644 res/drawable/budik_glyph_account.xml
+ create mode 100644 res/drawable/budik_glyph_apps.xml
+ create mode 100644 res/drawable/budik_glyph_battery_saver_off.xml
+ create mode 100644 res/drawable/budik_glyph_bluetooth_on.xml
+ create mode 100644 res/drawable/budik_glyph_brightness.xml
+ create mode 100644 res/drawable/budik_glyph_dnd_off.xml
+ create mode 100644 res/drawable/budik_glyph_emergency.xml
+ create mode 100644 res/drawable/budik_glyph_hotspot_on.xml
+ create mode 100644 res/drawable/budik_glyph_info.xml
+ create mode 100644 res/drawable/budik_glyph_location_on.xml
+ create mode 100644 res/drawable/budik_glyph_lockdown.xml
+ create mode 100644 res/drawable/budik_glyph_media.xml
+ create mode 100644 res/drawable/budik_glyph_network.xml
+ create mode 100644 res/drawable/budik_glyph_night.xml
+ create mode 100644 res/drawable/budik_glyph_notifications.xml
+ create mode 100644 res/drawable/budik_glyph_privacy.xml
+ create mode 100644 res/drawable/budik_glyph_security.xml
+ create mode 100644 res/drawable/budik_glyph_storage.xml
+ create mode 100644 res/drawable/budik_glyph_style.xml
+ create mode 100644 res/drawable/budik_glyph_system.xml
+ create mode 100644 res/drawable/budik_glyph_volume.xml
+ create mode 100644 res/drawable/budik_ic_chevron.xml
+ create mode 100644 res/drawable/budik_keycap_face.xml
+ create mode 100644 res/drawable/budik_keycap_shadow.xml
+ create mode 100644 res/drawable/budik_search_bar_background.xml
+ create mode 100644 res/values-night/budik_material_colors.xml
+ create mode 100644 res/values/budik_dimens.xml
+ create mode 100644 res/values/budik_material_colors.xml
+
+diff --git a/res/drawable/budik_glyph_accessibility.xml b/res/drawable/budik_glyph_accessibility.xml
+new file mode 100644
+index 0000000..9fd8522
+--- /dev/null
++++ b/res/drawable/budik_glyph_accessibility.xml
+@@ -0,0 +1,17 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_accessibility.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M10.25 4.5A1.75 1.75 0 1 0 13.75 4.5A1.75 1.75 0 1 0 10.25 4.5Z"
++      android:fillColor="@color/settingslib_budik_fg"/>
++  <path
++      android:pathData="M5 8.5l7 1.5 7-1.5M12 10v4.5l-3 6M12 14.5l3 6"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_account.xml b/res/drawable/budik_glyph_account.xml
+new file mode 100644
+index 0000000..6c61e8b
+--- /dev/null
++++ b/res/drawable/budik_glyph_account.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_account.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M8 8.5A4 4 0 1 0 16 8.5A4 4 0 1 0 8 8.5Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M4.5 20.5a7.5 7.5 0 0 1 15 0"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_apps.xml b/res/drawable/budik_glyph_apps.xml
+new file mode 100644
+index 0000000..df1c454
+--- /dev/null
++++ b/res/drawable/budik_glyph_apps.xml
+@@ -0,0 +1,32 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_apps.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M5.5 4H9A1.5 1.5 0 0 1 10.5 5.5V9A1.5 1.5 0 0 1 9 10.5H5.5A1.5 1.5 0 0 1 4 9V5.5A1.5 1.5 0 0 1 5.5 4Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M15 4H18.5A1.5 1.5 0 0 1 20 5.5V9A1.5 1.5 0 0 1 18.5 10.5H15A1.5 1.5 0 0 1 13.5 9V5.5A1.5 1.5 0 0 1 15 4Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M5.5 13.5H9A1.5 1.5 0 0 1 10.5 15V18.5A1.5 1.5 0 0 1 9 20H5.5A1.5 1.5 0 0 1 4 18.5V15A1.5 1.5 0 0 1 5.5 13.5Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M15 13.5H18.5A1.5 1.5 0 0 1 20 15V18.5A1.5 1.5 0 0 1 18.5 20H15A1.5 1.5 0 0 1 13.5 18.5V15A1.5 1.5 0 0 1 15 13.5Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_battery_saver_off.xml b/res/drawable/budik_glyph_battery_saver_off.xml
+new file mode 100644
+index 0000000..ff90ef0
+--- /dev/null
++++ b/res/drawable/budik_glyph_battery_saver_off.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/qs/ic_qs_battery_saver_off.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M4.5 7H16.5A2.5 2.5 0 0 1 19 9.5V14.5A2.5 2.5 0 0 1 16.5 17H4.5A2.5 2.5 0 0 1 2 14.5V9.5A2.5 2.5 0 0 1 4.5 7Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M21.5 10.5v3"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M8.5 12h4M10.5 10v4"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_bluetooth_on.xml b/res/drawable/budik_glyph_bluetooth_on.xml
+new file mode 100644
+index 0000000..8f2d3ff
+--- /dev/null
++++ b/res/drawable/budik_glyph_bluetooth_on.xml
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/qs/ic_qs_bluetooth_on.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M7 7.5l10 9-5 4.5V3l5 4.5-10 9"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_brightness.xml b/res/drawable/budik_glyph_brightness.xml
+new file mode 100644
+index 0000000..f327624
+--- /dev/null
++++ b/res/drawable/budik_glyph_brightness.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_brightness.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M8 12A4 4 0 1 0 16 12A4 4 0 1 0 8 12Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_dnd_off.xml b/res/drawable/budik_glyph_dnd_off.xml
+new file mode 100644
+index 0000000..4eeafc5
+--- /dev/null
++++ b/res/drawable/budik_glyph_dnd_off.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/qs/ic_qs_dnd_off.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M3 12A9 9 0 1 0 21 12A9 9 0 1 0 3 12Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M8 12h8"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_emergency.xml b/res/drawable/budik_glyph_emergency.xml
+new file mode 100644
+index 0000000..388f1b2
+--- /dev/null
++++ b/res/drawable/budik_glyph_emergency.xml
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_emergency.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M12 4v16M5.1 8l13.8 8M18.9 8 5.1 16"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_hotspot_on.xml b/res/drawable/budik_glyph_hotspot_on.xml
+new file mode 100644
+index 0000000..9642a58
+--- /dev/null
++++ b/res/drawable/budik_glyph_hotspot_on.xml
+@@ -0,0 +1,35 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/qs/ic_qs_hotspot_on.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M10 12A2 2 0 1 0 14 12A2 2 0 1 0 10 12Z"
++      android:fillColor="@color/settingslib_budik_fg"/>
++  <path
++      android:pathData="M8.5 15.5a5 5 0 0 1 0-7"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M15.5 8.5a5 5 0 0 1 0 7"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M5.6 18.4a9 9 0 0 1 0-12.8"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M18.4 5.6a9 9 0 0 1 0 12.8"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_info.xml b/res/drawable/budik_glyph_info.xml
+new file mode 100644
+index 0000000..756be1f
+--- /dev/null
++++ b/res/drawable/budik_glyph_info.xml
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_info.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M3 12A9 9 0 1 0 21 12A9 9 0 1 0 3 12Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M12 11v5.5"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M10.9 7.75A1.1 1.1 0 1 0 13.1 7.75A1.1 1.1 0 1 0 10.9 7.75Z"
++      android:fillColor="@color/settingslib_budik_fg"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_location_on.xml b/res/drawable/budik_glyph_location_on.xml
+new file mode 100644
+index 0000000..967e6b8
+--- /dev/null
++++ b/res/drawable/budik_glyph_location_on.xml
+@@ -0,0 +1,17 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/qs/ic_qs_location_on.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M9.75 10A2.25 2.25 0 1 0 14.25 10A2.25 2.25 0 1 0 9.75 10Z"
++      android:fillColor="@color/settingslib_budik_fg"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_lockdown.xml b/res/drawable/budik_glyph_lockdown.xml
+new file mode 100644
+index 0000000..aa76d46
+--- /dev/null
++++ b/res/drawable/budik_glyph_lockdown.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_lockdown.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M7 10.5H17A2 2 0 0 1 19 12.5V18.5A2 2 0 0 1 17 20.5H7A2 2 0 0 1 5 18.5V12.5A2 2 0 0 1 7 10.5Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M8 10.5V8a4 4 0 0 1 8 0v2.5"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_media.xml b/res/drawable/budik_glyph_media.xml
+new file mode 100644
+index 0000000..14eddb7
+--- /dev/null
++++ b/res/drawable/budik_glyph_media.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_media.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M9 18V5.5l10-2V16"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M4 18A2.5 2.5 0 1 0 9 18A2.5 2.5 0 1 0 4 18Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M14 16A2.5 2.5 0 1 0 19 16A2.5 2.5 0 1 0 14 16Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_network.xml b/res/drawable/budik_glyph_network.xml
+new file mode 100644
+index 0000000..699269e
+--- /dev/null
++++ b/res/drawable/budik_glyph_network.xml
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_network.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M3 20.5h3v-3H3zM8 20.5h3v-7H8zM13 20.5h3v-11h-3zM18 20.5h3v-15h-3z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_night.xml b/res/drawable/budik_glyph_night.xml
+new file mode 100644
+index 0000000..05592b3
+--- /dev/null
++++ b/res/drawable/budik_glyph_night.xml
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_night.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_notifications.xml b/res/drawable/budik_glyph_notifications.xml
+new file mode 100644
+index 0000000..d81dea2
+--- /dev/null
++++ b/res/drawable/budik_glyph_notifications.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_notifications.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M10 20.5h4"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_privacy.xml b/res/drawable/budik_glyph_privacy.xml
+new file mode 100644
+index 0000000..2d9c289
+--- /dev/null
++++ b/res/drawable/budik_glyph_privacy.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_privacy.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M9 12A3 3 0 1 0 15 12A3 3 0 1 0 9 12Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_security.xml b/res/drawable/budik_glyph_security.xml
+new file mode 100644
+index 0000000..e49c076
+--- /dev/null
++++ b/res/drawable/budik_glyph_security.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_security.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M7 10.5H17A2 2 0 0 1 19 12.5V18.5A2 2 0 0 1 17 20.5H7A2 2 0 0 1 5 18.5V12.5A2 2 0 0 1 7 10.5Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M8 10.5V8a4 4 0 0 1 8 0v2.5"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_storage.xml b/res/drawable/budik_glyph_storage.xml
+new file mode 100644
+index 0000000..09282e3
+--- /dev/null
++++ b/res/drawable/budik_glyph_storage.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_storage.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M6 4H18A2 2 0 0 1 20 6V9A2 2 0 0 1 18 11H6A2 2 0 0 1 4 9V6A2 2 0 0 1 6 4Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M6 13H18A2 2 0 0 1 20 15V18A2 2 0 0 1 18 20H6A2 2 0 0 1 4 18V15A2 2 0 0 1 6 13Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M6.5 7.5A1 1 0 1 0 8.5 7.5A1 1 0 1 0 6.5 7.5Z"
++      android:fillColor="@color/settingslib_budik_fg"/>
++  <path
++      android:pathData="M6.5 16.5A1 1 0 1 0 8.5 16.5A1 1 0 1 0 6.5 16.5Z"
++      android:fillColor="@color/settingslib_budik_fg"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_style.xml b/res/drawable/budik_glyph_style.xml
+new file mode 100644
+index 0000000..f67f38b
+--- /dev/null
++++ b/res/drawable/budik_glyph_style.xml
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_style.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M6.5 3.5H17.5A3 3 0 0 1 20.5 6.5V17.5A3 3 0 0 1 17.5 20.5H6.5A3 3 0 0 1 3.5 17.5V6.5A3 3 0 0 1 6.5 3.5Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M7 7H10.5V10.5H7Z"
++      android:fillColor="@color/settingslib_budik_fg"/>
++  <path
++      android:pathData="M13.5 13.5H17V17H13.5Z"
++      android:fillColor="@color/settingslib_budik_fg"/>
++  <path
++      android:pathData="M7 13.5H10.5V17H7Z"
++      android:fillColor="@color/settingslib_budik_fg"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_system.xml b/res/drawable/budik_glyph_system.xml
+new file mode 100644
+index 0000000..9a06084
+--- /dev/null
++++ b/res/drawable/budik_glyph_system.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_system.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M9.5 3.5H14.5A2.5 2.5 0 0 1 17 6V18A2.5 2.5 0 0 1 14.5 20.5H9.5A2.5 2.5 0 0 1 7 18V6A2.5 2.5 0 0 1 9.5 3.5Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M10.5 17h3"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_glyph_volume.xml b/res/drawable/budik_glyph_volume.xml
+new file mode 100644
+index 0000000..f09e1fb
+--- /dev/null
++++ b/res/drawable/budik_glyph_volume.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS glyph from export/icons/ui/ic_volume.xml, coloured with the text colour. -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M15.5 9a4 4 0 0 1 0 6"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M18 6.5a7.5 7.5 0 0 1 0 11"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_ic_chevron.xml b/res/drawable/budik_ic_chevron.xml
+new file mode 100644
+index 0000000..4f4cdc3
+--- /dev/null
++++ b/res/drawable/budik_ic_chevron.xml
+@@ -0,0 +1,15 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS chevron from export/icons/ui/ic_chevron_right.xml -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24"
++    android:autoMirrored="true">
++  <path
++      android:pathData="M9.5 6l6 6-6 6"
++      android:strokeColor="@color/settingslib_budik_fg3"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++</vector>
+diff --git a/res/drawable/budik_keycap_face.xml b/res/drawable/budik_keycap_face.xml
+new file mode 100644
+index 0000000..1938922
+--- /dev/null
++++ b/res/drawable/budik_keycap_face.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS keycap face for icons: page background colour, 1dp line, radius 6. -->
++<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
++    <size android:width="36dp" android:height="36dp" />
++    <solid android:color="@color/settingslib_budik_key_face" />
++    <stroke android:width="1dp" android:color="@color/settingslib_budik_line" />
++    <corners android:radius="@dimen/settingslib_budik_radius_s" />
++</shape>
+diff --git a/res/drawable/budik_keycap_shadow.xml b/res/drawable/budik_keycap_shadow.xml
+new file mode 100644
+index 0000000..d6529fb
+--- /dev/null
++++ b/res/drawable/budik_keycap_shadow.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS keycap hard shadow (0 x 3dp, no blur). -->
++<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
++    <solid android:color="@color/settingslib_budik_key_shadow" />
++    <corners android:radius="@dimen/settingslib_budik_radius_s" />
++</shape>
+diff --git a/res/drawable/budik_search_bar_background.xml b/res/drawable/budik_search_bar_background.xml
+new file mode 100644
+index 0000000..1604c03
+--- /dev/null
++++ b/res/drawable/budik_search_bar_background.xml
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS keycap search field (export/mockups/*/06_settings): surface face, 1dp border,
++     radius 12, hard 3dp shadow in the line colour; mint 2dp frame when focused. -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    android:color="?android:attr/colorControlHighlight">
++    <item android:top="3dp">
++        <shape android:shape="rectangle">
++            <solid android:color="@color/settingslib_budik_line" />
++            <corners android:radius="@dimen/settingslib_budik_radius_m" />
++        </shape>
++    </item>
++    <item android:bottom="3dp">
++        <selector>
++            <item android:state_focused="true">
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_budik_surface" />
++                    <stroke android:width="2dp" android:color="@color/settingslib_budik_mint" />
++                    <corners android:radius="@dimen/settingslib_budik_radius_m" />
++                </shape>
++            </item>
++            <item>
++                <shape android:shape="rectangle">
++                    <solid android:color="@color/settingslib_budik_surface" />
++                    <stroke android:width="1dp" android:color="@color/settingslib_budik_border" />
++                    <corners android:radius="@dimen/settingslib_budik_radius_m" />
++                </shape>
++            </item>
++        </selector>
++    </item>
++</ripple>
+diff --git a/res/drawable/ic_homepage_about.xml b/res/drawable/ic_homepage_about.xml
+index 838526a..e26e326 100644
+--- a/res/drawable/ic_homepage_about.xml
++++ b/res/drawable/ic_homepage_about.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_about_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_about_device_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_info" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_accessibility.xml b/res/drawable/ic_homepage_accessibility.xml
+index cad8a65..88c6ea8 100644
+--- a/res/drawable/ic_homepage_accessibility.xml
++++ b/res/drawable/ic_homepage_accessibility.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_accessibility_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_accessibility_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_accessibility" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_accounts.xml b/res/drawable/ic_homepage_accounts.xml
+index 5fa3fc5..8a63192 100644
+--- a/res/drawable/ic_homepage_accounts.xml
++++ b/res/drawable/ic_homepage_accounts.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_accounts_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_passwords_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_account" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_accounts_and_backup.xml b/res/drawable/ic_homepage_accounts_and_backup.xml
+index 990e227..8a63192 100644
+--- a/res/drawable/ic_homepage_accounts_and_backup.xml
++++ b/res/drawable/ic_homepage_accounts_and_backup.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2025 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_accounts_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_accounts_and_backup_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_account" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_apps.xml b/res/drawable/ic_homepage_apps.xml
+index 9ebfdf0..0b6a65c 100644
+--- a/res/drawable/ic_homepage_apps.xml
++++ b/res/drawable/ic_homepage_apps.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_apps_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_apps_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_apps" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_battery.xml b/res/drawable/ic_homepage_battery.xml
+index d9b5658..1517568 100644
+--- a/res/drawable/ic_homepage_battery.xml
++++ b/res/drawable/ic_homepage_battery.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_battery_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_battery_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_battery_saver_off" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_connected_device.xml b/res/drawable/ic_homepage_connected_device.xml
+index 42947ed..e52a2ea 100644
+--- a/res/drawable/ic_homepage_connected_device.xml
++++ b/res/drawable/ic_homepage_connected_device.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_connected_device_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_devices_other_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_bluetooth_on" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_data_usage.xml b/res/drawable/ic_homepage_data_usage.xml
+index 6d1227b..503c257 100644
+--- a/res/drawable/ic_homepage_data_usage.xml
++++ b/res/drawable/ic_homepage_data_usage.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2022 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_network_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_data_usage" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_network" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_device.xml b/res/drawable/ic_homepage_device.xml
+index 5e873cd..0f1973e 100644
+--- a/res/drawable/ic_homepage_device.xml
++++ b/res/drawable/ic_homepage_device.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2025 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-    <!-- TODO: b/448125141 - Update the icon and color. -->
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_device_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_device_expressive" />
+-</layer-list>
+\ No newline at end of file
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_system" />
++</layer-list>
+diff --git a/res/drawable/ic_homepage_display.xml b/res/drawable/ic_homepage_display.xml
+index 175bd4d..bafe965 100644
+--- a/res/drawable/ic_homepage_display.xml
++++ b/res/drawable/ic_homepage_display.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_display_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_display_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_brightness" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_emergency.xml b/res/drawable/ic_homepage_emergency.xml
+index a18b738..3a1331e 100644
+--- a/res/drawable/ic_homepage_emergency.xml
++++ b/res/drawable/ic_homepage_emergency.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2025 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_safety_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_emergency_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_emergency" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_hub_mode.xml b/res/drawable/ic_homepage_hub_mode.xml
+index d887a7a..61a1399 100644
+--- a/res/drawable/ic_homepage_hub_mode.xml
++++ b/res/drawable/ic_homepage_hub_mode.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2025 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_hub_mode_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ia_settings_communal_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_media" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_location.xml b/res/drawable/ic_homepage_location.xml
+index 13cb0e6..8a70f31 100644
+--- a/res/drawable/ic_homepage_location.xml
++++ b/res/drawable/ic_homepage_location.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_location_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_location_expressive"/>
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_location_on" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_modes.xml b/res/drawable/ic_homepage_modes.xml
+index 47f0cdb..5cdcffb 100644
+--- a/res/drawable/ic_homepage_modes.xml
++++ b/res/drawable/ic_homepage_modes.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2025 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_modes_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_zen_priority_modes_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_dnd_off" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_network.xml b/res/drawable/ic_homepage_network.xml
+index adf717f..503c257 100644
+--- a/res/drawable/ic_homepage_network.xml
++++ b/res/drawable/ic_homepage_network.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_network_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_wireless_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_network" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_night_display.xml b/res/drawable/ic_homepage_night_display.xml
+index bfd6269..cc5b811 100644
+--- a/res/drawable/ic_homepage_night_display.xml
++++ b/res/drawable/ic_homepage_night_display.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2020 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_generic_icon_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_night_display_white" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_night" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_notification.xml b/res/drawable/ic_homepage_notification.xml
+index 7723d21..a27c308 100644
+--- a/res/drawable/ic_homepage_notification.xml
++++ b/res/drawable/ic_homepage_notification.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2020 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_sound_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_notifications_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_notifications" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_privacy.xml b/res/drawable/ic_homepage_privacy.xml
+index d0df6d6..daaa56a 100644
+--- a/res/drawable/ic_homepage_privacy.xml
++++ b/res/drawable/ic_homepage_privacy.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2025 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_security_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_privacy_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_privacy" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_safety_center.xml b/res/drawable/ic_homepage_safety_center.xml
+index 8621058..10a7059 100644
+--- a/res/drawable/ic_homepage_safety_center.xml
++++ b/res/drawable/ic_homepage_safety_center.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2025 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_security_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_safety_center_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_security" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_search.xml b/res/drawable/ic_homepage_search.xml
+index 1e8bcdc..0f04326 100644
+--- a/res/drawable/ic_homepage_search.xml
++++ b/res/drawable/ic_homepage_search.xml
+@@ -1,27 +1,19 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2019 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-        android:width="24dp"
+-        android:height="24dp"
+-        android:viewportWidth="24"
+-        android:viewportHeight="24"
+-        android:tint="@color/materialColorOnSurfaceVariant">
+-    <path
+-        android:fillColor="#FF000000"
+-        android:pathData="M20.49,19l-5.73,-5.73C15.53,12.2 16,10.91 16,9.5C16,5.91 13.09,3 9.5,3S3,5.91 3,9.5C3,13.09 5.91,16 9.5,16c1.41,0 2.7,-0.47 3.77,-1.24L19,20.49L20.49,19zM5,9.5C5,7.01 7.01,5 9.5,5S14,7.01 14,9.5S11.99,14 9.5,14S5,11.99 5,9.5z"/>
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M4 10.5A6.5 6.5 0 1 0 17 10.5A6.5 6.5 0 1 0 4 10.5Z"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
++  <path
++      android:pathData="M15.5 15.5l5 5"
++      android:strokeColor="@color/settingslib_budik_fg"
++      android:strokeWidth="2"
++      android:strokeLineCap="round"
++      android:strokeLineJoin="round"/>
+ </vector>
+diff --git a/res/drawable/ic_homepage_security.xml b/res/drawable/ic_homepage_security.xml
+index c9df4ad..10a7059 100644
+--- a/res/drawable/ic_homepage_security.xml
++++ b/res/drawable/ic_homepage_security.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_security_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_security_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_security" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_sound.xml b/res/drawable/ic_homepage_sound.xml
+index f1ee284..03c5500 100644
+--- a/res/drawable/ic_homepage_sound.xml
++++ b/res/drawable/ic_homepage_sound.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_sound_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_volume_up_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_volume" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_storage.xml b/res/drawable/ic_homepage_storage.xml
+index 4182e9f..f9f52b3 100644
+--- a/res/drawable/ic_homepage_storage.xml
++++ b/res/drawable/ic_homepage_storage.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_storage_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_storage_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_storage" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_supervision.xml b/res/drawable/ic_homepage_supervision.xml
+index 4db57c0..8a63192 100644
+--- a/res/drawable/ic_homepage_supervision.xml
++++ b/res/drawable/ic_homepage_supervision.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2025 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_supervision_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_account_child_invert_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_account" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_support.xml b/res/drawable/ic_homepage_support.xml
+index ea4d12b..e26e326 100644
+--- a/res/drawable/ic_homepage_support.xml
++++ b/res/drawable/ic_homepage_support.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_support_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_help_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_info" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_system_dashboard.xml b/res/drawable/ic_homepage_system_dashboard.xml
+index 77038d2..0f1973e 100644
+--- a/res/drawable/ic_homepage_system_dashboard.xml
++++ b/res/drawable/ic_homepage_system_dashboard.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2018 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_system_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_system_dashboard_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_system" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_vpn.xml b/res/drawable/ic_homepage_vpn.xml
+index d1fba0e..c4be300 100644
+--- a/res/drawable/ic_homepage_vpn.xml
++++ b/res/drawable/ic_homepage_vpn.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2022 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_network_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_wireless" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_lockdown" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_wallpaper.xml b/res/drawable/ic_homepage_wallpaper.xml
+index 96280ba..d64dbf4 100644
+--- a/res/drawable/ic_homepage_wallpaper.xml
++++ b/res/drawable/ic_homepage_wallpaper.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2025 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_wallpaper_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_settings_wallpaper_expressive" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_style" />
+ </layer-list>
+diff --git a/res/drawable/ic_homepage_wifi_tethering.xml b/res/drawable/ic_homepage_wifi_tethering.xml
+index fd4c051..388a1ba 100644
+--- a/res/drawable/ic_homepage_wifi_tethering.xml
++++ b/res/drawable/ic_homepage_wifi_tethering.xml
+@@ -1,33 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  Copyright (C) 2022 The Android Open Source Project
+-
+-  Licensed under the Apache License, Version 2.0 (the "License");
+-  you may not use this file except in compliance with the License.
+-  You may obtain a copy of the License at
+-
+-       http://www.apache.org/licenses/LICENSE-2.0
+-
+-  Unless required by applicable law or agreed to in writing, software
+-  distributed under the License is distributed on an "AS IS" BASIS,
+-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  See the License for the specific language governing permissions and
+-  limitations under the License.
+-  -->
+-
++<!-- Budík OS: glyph in a keycap frame (36dp face = bg, 1dp line, radius 6, hard 3dp shadow),
++     no coloured circles (export/mockups/*/06_settings). -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <item>
+-        <com.android.settingslib.widget.AdaptiveIconShapeDrawable
+-            android:width="@dimen/dashboard_tile_image_size"
+-            android:height="@dimen/dashboard_tile_image_size"
+-            android:color="@color/homepage_network_background" />
+-    </item>
+-
+-    <item
+-        android:width="@dimen/dashboard_tile_foreground_image_size"
+-        android:height="@dimen/dashboard_tile_foreground_image_size"
+-        android:start="@dimen/dashboard_tile_foreground_image_inset"
+-        android:top="@dimen/dashboard_tile_foreground_image_inset"
+-        android:drawable="@drawable/ic_wifi_tethering" />
++    <item android:left="2dp" android:right="2dp" android:top="3dp" android:bottom="1dp"
++        android:drawable="@drawable/budik_keycap_shadow" />
++    <item android:left="2dp" android:right="2dp" android:bottom="4dp"
++        android:drawable="@drawable/budik_keycap_face" />
++    <item android:width="20dp" android:height="20dp" android:left="10dp" android:top="8dp"
++        android:drawable="@drawable/budik_glyph_hotspot_on" />
+ </layer-list>
+diff --git a/res/layout/homepage_preference_expressive.xml b/res/layout/homepage_preference_expressive.xml
+index d0798bf..f989fe5 100644
+--- a/res/layout/homepage_preference_expressive.xml
++++ b/res/layout/homepage_preference_expressive.xml
+@@ -21,7 +21,7 @@
+     android:layout_height="wrap_content"
+     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+-    android:minHeight="72dp"
++    android:minHeight="@dimen/budik_homepage_row_min_height"
+     android:gravity="center_vertical"
+     android:background="?android:attr/selectableItemBackground"
+     android:clipToPadding="false"
+@@ -31,16 +31,16 @@
+         android:id="@+id/icon_frame"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:minWidth="40dp"
+-        android:minHeight="40dp"
++        android:minWidth="@dimen/budik_homepage_icon_size"
++        android:minHeight="@dimen/budik_homepage_icon_size"
+         android:gravity="center"
+         android:orientation="horizontal"
+-        android:paddingStart="16dp">
++        android:paddingStart="@dimen/budik_homepage_icon_padding_start">
+ 
+         <androidx.preference.internal.PreferenceImageView
+             android:id="@android:id/icon"
+-            android:layout_width="40dp"
+-            android:layout_height="40dp"
++            android:layout_width="@dimen/budik_homepage_icon_size"
++            android:layout_height="@dimen/budik_homepage_icon_size"
+             android:scaleType="centerInside"/>
+ 
+     </LinearLayout>
+@@ -50,8 +50,8 @@
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+         android:layout_weight="1"
+-        android:paddingTop="16dp"
+-        android:paddingBottom="16dp"
++        android:paddingTop="@dimen/budik_homepage_row_padding"
++        android:paddingBottom="@dimen/budik_homepage_row_padding"
+         android:paddingStart="@dimen/homepage_preference_text_padding_start_expressive"
+         android:paddingEnd="16dp">
+ 
+@@ -128,4 +128,13 @@
+         </FrameLayout>
+ 
+     </FrameLayout>
++
++    <!-- Budík OS: iOS-like disclosure chevron at the row end -->
++    <ImageView
++        android:id="@+id/budik_chevron"
++        android:layout_width="20dp"
++        android:layout_height="20dp"
++        android:layout_marginEnd="@dimen/budik_homepage_icon_padding_start"
++        android:importantForAccessibility="no"
++        android:src="@drawable/budik_ic_chevron" />
+ </LinearLayout>
+diff --git a/res/layout/search_bar.xml b/res/layout/search_bar.xml
+index 45bb582..5353815 100644
+--- a/res/layout/search_bar.xml
++++ b/res/layout/search_bar.xml
+@@ -25,13 +25,14 @@
+         android:id="@+id/search_action_bar"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:minHeight="72dp"
++        android:minHeight="@dimen/budik_search_bar_height"
+         android:gravity="center_vertical"
+         android:orientation="horizontal"
+-        android:paddingStart="24dp"
+-        android:paddingEnd="24dp"
++        android:paddingStart="16dp"
++        android:paddingEnd="16dp"
++        android:paddingBottom="@dimen/settingslib_budik_shadow"
+         android:focusedByDefault="true"
+-        android:background="@drawable/search_bar_selected_background">
++        android:background="@drawable/budik_search_bar_background">
+ 
+         <ImageView
+             android:id="@+id/imageView"
+@@ -44,7 +45,7 @@
+             style="@style/TextAppearance.SearchBar"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:layout_marginStart="8dp"
++            android:layout_marginStart="12dp"
+             android:paddingEnd="8dp"
+             android:text="@string/homepage_search"/>
+     </LinearLayout>
+diff --git a/res/layout/settings_homepage_container.xml b/res/layout/settings_homepage_container.xml
+index 1d9d6fa..e986da5 100644
+--- a/res/layout/settings_homepage_container.xml
++++ b/res/layout/settings_homepage_container.xml
+@@ -63,8 +63,23 @@
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         app:elevation="0dp"
++        android:background="?android:attr/colorBackground"
+         android:touchscreenBlocksFocus="false"
+         android:keyboardNavigationCluster="false">
++        <!-- Budík OS: big "Nastavení" title (export/mockups/*/06_settings); it scrolls away,
++             the search field below stays pinned. -->
++        <TextView
++            android:id="@+id/budik_homepage_title"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:paddingTop="@dimen/budik_homepage_title_padding_top"
++            android:paddingBottom="@dimen/budik_homepage_title_padding_bottom"
++            android:paddingStart="@dimen/budik_homepage_title_padding_start"
++            android:paddingEnd="@dimen/settingslib_budik_card_margin"
++            android:text="@string/settings_label"
++            android:textAppearance="@style/TextAppearance.BudikHomepageTitle"
++            android:accessibilityHeading="true"
++            app:layout_scrollFlags="scroll" />
+         <LinearLayout
+             android:id="@+id/app_bar_container"
+             android:layout_width="match_parent"
+@@ -72,12 +87,21 @@
+             android:orientation="horizontal"
+             android:paddingTop="@dimen/search_bar_container_top_padding"
+             android:paddingBottom="@dimen/settingslib_expressive_space_extrasmall4"
+-            android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+-            android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
++            android:paddingStart="@dimen/settingslib_budik_card_margin"
++            android:paddingEnd="@dimen/settingslib_budik_card_margin"
+             android:background="?android:attr/colorBackground">
+ 
+             <include layout="@layout/search_bar"/>
+ 
+         </LinearLayout>
+     </com.google.android.material.appbar.AppBarLayout>
++
++    <!-- Budík OS: opaque strip behind the status bar; the scrolling title slides under it
++         instead of being drawn next to the clock. Height = status bar inset (set in code). -->
++    <View
++        android:id="@+id/budik_status_bar_scrim"
++        android:layout_width="match_parent"
++        android:layout_height="0dp"
++        android:background="?android:attr/colorBackground"
++        android:importantForAccessibility="no" />
+ </androidx.coordinatorlayout.widget.CoordinatorLayout>
+diff --git a/res/layout/storage_item.xml b/res/layout/storage_item.xml
+index ec78b76..c391960 100644
+--- a/res/layout/storage_item.xml
++++ b/res/layout/storage_item.xml
+@@ -65,19 +65,15 @@
+                 app:layout_constraintBaseline_toBaselineOf="@android:id/title"
+                 app:layout_constraintEnd_toEndOf="parent"/>
+ 
+-            <com.google.android.material.progressindicator.LinearProgressIndicator
+-                android:theme="@style/Theme.Material3.DynamicColors.DayNight"
++            <!-- Budík OS: small segmented bar like the control centre brightness -->
++            <com.android.settingslib.widget.BudikSegmentProgressBar
+                 android:id="@android:id/progress"
+                 android:layout_width="match_parent"
+-                android:layout_height="@dimen/settingslib_expressive_space_extrasmall2"
++                android:layout_height="8dp"
+                 android:layout_marginTop="@dimen/settingslib_expressive_space_extrasmall4"
+                 android:layout_marginBottom="@dimen/settingslib_expressive_space_extrasmall2"
+                 android:max="100"
+-                android:layout_below="@android:id/title"
+-                app:layout_constraintTop_toBottomOf="@android:id/title"
+-                app:trackThickness="@dimen/settingslib_expressive_space_extrasmall2"
+-                app:indicatorTrackGapSize="@dimen/settingslib_expressive_space_extrasmall2"
+-                style="@style/SettingsLibProgressBarStyle.Linear.Expressive" />
++                app:layout_constraintTop_toBottomOf="@android:id/title" />
+         </androidx.constraintlayout.widget.ConstraintLayout>
+     </LinearLayout>
+ </LinearLayout>
+diff --git a/res/values-night/budik_material_colors.xml b/res/values-night/budik_material_colors.xml
+new file mode 100644
+index 0000000..77f68bf
+--- /dev/null
++++ b/res/values-night/budik_material_colors.xml
+@@ -0,0 +1,41 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: Settings-only override of the dynamiccolors library (wallpaper colours) with the
++     fixed Budík palette; SystemUI keeps its own. Same values as SettingsLib budik colours. -->
++<resources>
++    <color name="materialColorPrimary">#21D4BE</color>
++    <color name="materialColorPrimaryDim">#21D4BE</color>
++    <color name="materialColorOnPrimary">#0E0F11</color>
++    <color name="materialColorPrimaryContainer">#21D4BE</color>
++    <color name="materialColorOnPrimaryContainer">#0E0F11</color>
++    <color name="materialColorInversePrimary">#0B1E52</color>
++    <color name="materialColorSecondary">#C4C8CE</color>
++    <color name="materialColorSecondaryDim">#C4C8CE</color>
++    <color name="materialColorOnSecondary">#0E0F11</color>
++    <color name="materialColorSecondaryContainer">#262A2F</color>
++    <color name="materialColorOnSecondaryContainer">#F5F6F7</color>
++    <color name="materialColorTertiary">#21D4BE</color>
++    <color name="materialColorTertiaryDim">#21D4BE</color>
++    <color name="materialColorOnTertiary">#0E0F11</color>
++    <color name="materialColorTertiaryContainer">#05332E</color>
++    <color name="materialColorOnTertiaryContainer">#21D4BE</color>
++    <color name="materialColorOutline">#3A3F46</color>
++    <color name="materialColorOutlineVariant">#262A2F</color>
++    <color name="materialColorBackground">#0E0F11</color>
++    <color name="materialColorOnBackground">#F5F6F7</color>
++    <color name="materialColorSurface">#0E0F11</color>
++    <color name="materialColorOnSurface">#F5F6F7</color>
++    <color name="materialColorSurfaceVariant">#1A1C20</color>
++    <color name="materialColorOnSurfaceVariant">#8D949E</color>
++    <color name="materialColorInverseSurface">#F5F6F7</color>
++    <color name="materialColorInverseOnSurface">#0E0F11</color>
++    <color name="materialColorSurfaceBright">#17191C</color>
++    <color name="materialColorSurfaceDim">#0E0F11</color>
++    <color name="materialColorSurfaceTint">#21D4BE</color>
++    <color name="materialColorSurfaceContainer">#0E0F11</color>
++    <color name="materialColorSurfaceContainerLow">#17191C</color>
++    <color name="materialColorSurfaceContainerLowest">#0A0B0D</color>
++    <color name="materialColorSurfaceContainerHigh">#17191C</color>
++    <color name="materialColorSurfaceContainerHighest">#262A2F</color>
++    <color name="materialColorControlActivated">#21D4BE</color>
++    <color name="materialColorControlNormal">#C4C8CE</color>
++</resources>
+diff --git a/res/values/budik_dimens.xml b/res/values/budik_dimens.xml
+new file mode 100644
+index 0000000..7218276
+--- /dev/null
++++ b/res/values/budik_dimens.xml
+@@ -0,0 +1,17 @@
++﻿<?xml version="1.0" encoding="utf-8"?>
++<!-- BudĂ­k OS homepage geometry (export/mockups/*/06_settings, 360 x 785 dp). -->
++<resources>
++    <dimen name="budik_homepage_title_padding_top">10dp</dimen>
++    <dimen name="budik_homepage_title_padding_bottom">8dp</dimen>
++    <dimen name="budik_homepage_title_padding_start">14dp</dimen>
++    <!-- 44dp face + 3dp hard shadow -->
++    <dimen name="budik_search_bar_height">47dp</dimen>
++    <!-- compact iOS-like rows, title only: 48dp touch height (iOS 44pt, Pixel 72dp) -->
++    <dimen name="budik_homepage_row_min_height">48dp</dimen>
++    <dimen name="budik_homepage_row_padding">6dp</dimen>
++    <!-- 40dp keycap icon drawable scaled to 28dp (iOS 29pt): 25dp face, 14dp glyph -->
++    <dimen name="budik_homepage_icon_size">28dp</dimen>
++    <!-- rows get the adapter normal padding (16dp); +6dp puts icon and chevron at
++         card margin + card inner padding (8 + 14dp) from the screen edge -->
++    <dimen name="budik_homepage_icon_padding_start">6dp</dimen>
++</resources>
+diff --git a/res/values/budik_material_colors.xml b/res/values/budik_material_colors.xml
+new file mode 100644
+index 0000000..18c4fc5
+--- /dev/null
++++ b/res/values/budik_material_colors.xml
+@@ -0,0 +1,41 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Budík OS: Settings-only override of the dynamiccolors library (wallpaper colours) with the
++     fixed Budík palette; SystemUI keeps its own. Same values as SettingsLib budik colours. -->
++<resources>
++    <color name="materialColorPrimary">#0B1E52</color>
++    <color name="materialColorPrimaryDim">#0B1E52</color>
++    <color name="materialColorOnPrimary">#FFFFFF</color>
++    <color name="materialColorPrimaryContainer">#21D4BE</color>
++    <color name="materialColorOnPrimaryContainer">#0E0F11</color>
++    <color name="materialColorInversePrimary">#21D4BE</color>
++    <color name="materialColorSecondary">#3A3E43</color>
++    <color name="materialColorSecondaryDim">#3A3E43</color>
++    <color name="materialColorOnSecondary">#FFFFFF</color>
++    <color name="materialColorSecondaryContainer">#E3E5E8</color>
++    <color name="materialColorOnSecondaryContainer">#0E0F11</color>
++    <color name="materialColorTertiary">#05332E</color>
++    <color name="materialColorTertiaryDim">#05332E</color>
++    <color name="materialColorOnTertiary">#FFFFFF</color>
++    <color name="materialColorTertiaryContainer">#21D4BE</color>
++    <color name="materialColorOnTertiaryContainer">#0E0F11</color>
++    <color name="materialColorOutline">#CFD3D8</color>
++    <color name="materialColorOutlineVariant">#E3E5E8</color>
++    <color name="materialColorBackground">#F5F6F7</color>
++    <color name="materialColorOnBackground">#0E0F11</color>
++    <color name="materialColorSurface">#F5F6F7</color>
++    <color name="materialColorOnSurface">#0E0F11</color>
++    <color name="materialColorSurfaceVariant">#EEF0F2</color>
++    <color name="materialColorOnSurfaceVariant">#5A6370</color>
++    <color name="materialColorInverseSurface">#0E0F11</color>
++    <color name="materialColorInverseOnSurface">#FFFFFF</color>
++    <color name="materialColorSurfaceBright">#FFFFFF</color>
++    <color name="materialColorSurfaceDim">#E3E5E8</color>
++    <color name="materialColorSurfaceTint">#0B1E52</color>
++    <color name="materialColorSurfaceContainer">#F5F6F7</color>
++    <color name="materialColorSurfaceContainerLow">#FFFFFF</color>
++    <color name="materialColorSurfaceContainerLowest">#FFFFFF</color>
++    <color name="materialColorSurfaceContainerHigh">#FFFFFF</color>
++    <color name="materialColorSurfaceContainerHighest">#E3E5E8</color>
++    <color name="materialColorControlActivated">#21D4BE</color>
++    <color name="materialColorControlNormal">#3A3E43</color>
++</resources>
+diff --git a/res/values/colors.xml b/res/values/colors.xml
+index f592c69..4aa7d63 100644
+--- a/res/values/colors.xml
++++ b/res/values/colors.xml
+@@ -186,10 +186,10 @@
+     <!-- Accessibility colors -->
+     <color name="accessibility_text_reading_background">@android:color/white</color>
+     <!-- Accessibility Settings icon background colors -->
+-    <color name="accessibility_feature_background">#5F6368</color> <!-- Google grey 700 -->
+-    <color name="accessibility_magnification_background">#F50D60</color>
+-    <color name="accessibility_daltonizer_background">#00BCD4</color>
+-    <color name="accessibility_color_inversion_background">#546E7A</color>
++    <color name="accessibility_feature_background">@color/settingslib_budik_ink</color> <!-- Budík OS: monochrome ink keys, no pastels -->
++    <color name="accessibility_magnification_background">@color/settingslib_budik_ink</color> <!-- Budík OS: monochrome ink keys, no pastels -->
++    <color name="accessibility_daltonizer_background">@color/settingslib_budik_ink</color> <!-- Budík OS: monochrome ink keys, no pastels -->
++    <color name="accessibility_color_inversion_background">@color/settingslib_budik_ink</color> <!-- Budík OS: monochrome ink keys, no pastels -->
+ 
+     <color name="battery_info_error_color_red">#fce8e6</color> <!-- Material Red 50 -->
+     <!-- Dialog error color. -->
+diff --git a/res/values/styles.xml b/res/values/styles.xml
+index 4f105e9..efb3125 100644
+--- a/res/values/styles.xml
++++ b/res/values/styles.xml
+@@ -339,9 +339,9 @@
+ 
+     <style name="TextAppearance.SearchBar">
+         <item name="android:layout_gravity">center</item>
+-        <item name="android:fontFamily">@*android:string/config_headlineFontFamily</item>
+-        <item name="android:textSize">@dimen/search_bar_text_size</item>
+-        <item name="android:textColor">@color/materialColorOnSurfaceVariant</item>
++        <item name="android:fontFamily">instrument-sans</item>
++        <item name="android:textSize">17sp</item>
++        <item name="android:textColor">@color/settingslib_budik_fg3</item>
+         <item name="android:singleLine">true</item>
+     </style>
+ 
+@@ -589,12 +589,23 @@
+         <item name="cardElevation">0dp</item>
+     </style>
+ 
++    <!-- Budík OS: keycap search field, radius 12; frame and hard shadow are drawn by
++         budik_search_bar_background, so the card itself is transparent. -->
+     <style name="SearchBarStyle_v2">
+         <item name="android:theme">@style/Theme.MaterialComponents.DayNight</item>
+-        <item name="cardCornerRadius">40dp</item>
++        <item name="cardCornerRadius">@dimen/settingslib_budik_radius_m</item>
+         <item name="cardElevation">0dp</item>
+-        <item name="strokeWidth">1dp</item>
+-        <item name="strokeColor">@color/settingslib_materialColorOutlineVariant</item>
++        <item name="strokeWidth">0dp</item>
++        <item name="cardBackgroundColor">@android:color/transparent</item>
++    </style>
++
++    <!-- Budík OS homepage title: Schibsted Grotesk ExtraBold, tight tracking -->
++    <style name="TextAppearance.BudikHomepageTitle" parent="@android:style/TextAppearance.DeviceDefault">
++        <item name="android:fontFamily">schibsted-grotesk</item>
++        <item name="android:textFontWeight">800</item>
++        <item name="android:textSize">40sp</item>
++        <item name="android:letterSpacing">-0.035</item>
++        <item name="android:textColor">@color/settingslib_budik_fg</item>
+     </style>
+ 
+     <style name="ConditionCardBorderlessButton"
+diff --git a/src/com/android/settings/dashboard/DashboardFeatureProviderImpl.java b/src/com/android/settings/dashboard/DashboardFeatureProviderImpl.java
+index 0b24bcb..29ac369 100644
+--- a/src/com/android/settings/dashboard/DashboardFeatureProviderImpl.java
++++ b/src/com/android/settings/dashboard/DashboardFeatureProviderImpl.java
+@@ -564,15 +564,29 @@ public class DashboardFeatureProviderImpl implements DashboardFeatureProvider {
+             return drawable;
+         }
+ 
+-        ColorScheme scheme = getColorScheme(tile);
+-        return getRoundedIcon(drawable, scheme.foregroundColor, scheme.backgroundColor);
++        return getBudikKeycapIcon(iconDrawable);
+     }
+ 
+-    private Drawable getRoundedIcon(Drawable iconDrawable, int fgColorId, int bgColorId) {
+-        iconDrawable.setTint(mContext.getColor(fgColorId));
+-        AdaptiveIcon roundedIcon = new AdaptiveIcon(mContext, iconDrawable);
+-        roundedIcon.setBackgroundColor(mContext.getColor(bgColorId));
+-        return roundedIcon;
++    /**
++     * Budík OS: injected glyphs get the same keycap frame as the built-in homepage icons
++     * (ic_homepage_*: 36dp face, 3dp hard shadow, 20dp glyph in the text colour).
++     */
++    private Drawable getBudikKeycapIcon(Drawable glyph) {
++        glyph.setTint(mContext.getColor(R.color.settingslib_budik_fg));
++        final LayerDrawable icon = new LayerDrawable(new Drawable[] {
++                mContext.getDrawable(R.drawable.budik_keycap_shadow),
++                mContext.getDrawable(R.drawable.budik_keycap_face),
++                glyph});
++        final float density = mContext.getResources().getDisplayMetrics().density;
++        icon.setLayerInsetRelative(0, dp(2, density), dp(3, density), dp(2, density), dp(1, density));
++        icon.setLayerInsetRelative(1, dp(2, density), 0, dp(2, density), dp(4, density));
++        icon.setLayerSize(2, dp(20, density), dp(20, density));
++        icon.setLayerInsetRelative(2, dp(10, density), dp(8, density), 0, 0);
++        return icon;
++    }
++
++    private static int dp(int value, float density) {
++        return Math.round(value * density);
+     }
+ 
+     @VisibleForTesting
+diff --git a/src/com/android/settings/homepage/SettingsHomepageActivity.java b/src/com/android/settings/homepage/SettingsHomepageActivity.java
+index 2da5db5..262e54f 100644
+--- a/src/com/android/settings/homepage/SettingsHomepageActivity.java
++++ b/src/com/android/settings/homepage/SettingsHomepageActivity.java
+@@ -396,12 +396,18 @@ public class SettingsHomepageActivity extends FragmentActivity implements
+                     // Apply the insets paddings to the view.
+                     v.setPadding(insets.left, 0, insets.right, insets.bottom);
+ 
+-                    // reset the top padding of search bar container to original top padding
+-                    // plus insets top.
++                    // Budík OS: the status bar inset goes to the app bar, so the big title
++                    // scrolls away under it while the search field stays pinned below it.
++                    View appBar = findViewById(R.id.app_bar);
++                    appBar.setPadding(appBar.getPaddingLeft(), insets.top,
++                            appBar.getPaddingRight(), appBar.getPaddingBottom());
++                    View scrim = findViewById(R.id.budik_status_bar_scrim);
++                    scrim.getLayoutParams().height = insets.top;
++                    scrim.requestLayout();
+                     View container = findViewById(R.id.app_bar_container);
+                     final int top_padding = getResources().getDimensionPixelSize(
+                             R.dimen.search_bar_container_top_padding);
+-                    container.setPadding(container.getPaddingLeft(), top_padding + insets.top,
++                    container.setPadding(container.getPaddingLeft(), top_padding,
+                             container.getPaddingRight(), container.getPaddingBottom());
+ 
+                     // Return CONSUMED if you don't want the window insets to keep being
+diff --git a/src/com/android/settings/widget/HomepagePreferenceLayoutHelper.java b/src/com/android/settings/widget/HomepagePreferenceLayoutHelper.java
+index b8cd028..ddf635a 100644
+--- a/src/com/android/settings/widget/HomepagePreferenceLayoutHelper.java
++++ b/src/com/android/settings/widget/HomepagePreferenceLayoutHelper.java
+@@ -115,5 +115,10 @@ public class HomepagePreferenceLayoutHelper {
+         setIconPaddingStart(mIconPaddingStart);
+         setTextPaddingStart(mTextPaddingStart);
+         setAlert(mAlertValue);
++        // Budík OS: compact iOS-like homepage rows show the title only.
++        final View summary = holder.findViewById(android.R.id.summary);
++        if (summary != null) {
++            summary.setVisibility(View.GONE);
++        }
+     }
+ }
+-- 
+2.53.0
+

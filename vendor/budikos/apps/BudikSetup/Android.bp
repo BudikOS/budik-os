@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Budik OS first-boot wizard. Replaces AOSP Provision: PackageManagerService
+// expects exactly one MAIN+SETUP_WIZARD activity, so Provision must not be
+// installed next to it (overrides keeps it out of the image).
+android_app {
+    name: "BudikSetup",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    system_ext_specific: true,
+    overrides: ["Provision"],
+    required: ["privapp_whitelist_org.budikos.setup"],
+}
+
+prebuilt_etc {
+    name: "privapp_whitelist_org.budikos.setup",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "org.budikos.setup.xml",
+    filename_from_src: true,
+}

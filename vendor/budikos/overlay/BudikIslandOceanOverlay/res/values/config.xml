@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Vendor (Lineage ocean RRO) cutout = bounding box 260x53 px:
+         "M -130,0 L -130,53 L 130,53 L 130,0 Z". Island = pill covering that box,
+         same height (status bar stays 53 px), 12 dp (24 px) bottom radius;
+         widened to +-154 px so the arcs still cover the box corners (130,53).
+         Units are px (density 2.0). Tested live via fabricated overlay. -->
+    <string name="config_mainBuiltInDisplayCutout" translatable="false">M -154,0 L 154,0 L 154,29 A 24,24 0 0 1 130,53 L -130,53 A 24,24 0 0 1 -154,29 Z</string>
+    <!-- status bar layout keeps using the plain box (icons avoid the island) -->
+    <string name="config_mainBuiltInDisplayCutoutRectApproximation" translatable="false">M -154,0 L -154,53 L 154,53 L 154,0 Z</string>
+    <!-- SystemUI ScreenDecorations paints the cutout path black (static overlay window, drawn once) -->
+    <bool name="config_fillMainBuiltInDisplayCutout">true</bool>
+</resources>

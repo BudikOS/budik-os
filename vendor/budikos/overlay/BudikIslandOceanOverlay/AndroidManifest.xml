@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Budik island, phase A: static black pill around the moto g7 power notch.
+     Device-specific (the GSI is shared with other devices) -> only enabled
+     when ro.product.vendor.device=ocean. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.budikos.overlay.island.ocean">
+    <overlay android:targetPackage="android" android:isStatic="true" android:priority="901"
+        android:requiredSystemPropertyName="ro.product.vendor.device"
+        android:requiredSystemPropertyValue="ocean" />
+    <application android:hasCode="false" />
+</manifest>

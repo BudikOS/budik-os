@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Budík setup</string>
+    <string name="start">Start</string>
+    <string name="next">Continue</string>
+    <string name="skip_step">Skip</string>
+    <string name="finish">Start using Budík OS</string>
+    <string name="skip_setup">Skip setup</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="search_empty">Nothing found.</string>
+
+    <string name="skip_confirm_title">Skip setup?</string>
+    <string name="skip_confirm_body">The phone will be ready right away. Language, Wi-Fi and everything else can be changed any time in Settings.</string>
+    <string name="skip_confirm_action">Skip</string>
+
+    <string name="language_title">Welcome to Budík OS</string>
+    <string name="language_body">Choose the language of your phone.</string>
+    <string name="language_search">Search languages</string>
+    <string name="summary_language">Language</string>
+
+    <string name="wifi_title">Wi-Fi</string>
+    <string name="wifi_body">Connect for the exact time and updates. You can skip this.</string>
+    <string name="wifi_networks">Networks nearby</string>
+    <string name="wifi_off">Off</string>
+    <string name="wifi_off_body">Wi-Fi is off. Turn it on with the switch above.</string>
+    <string name="wifi_none_found">Looking for networks…</string>
+    <string name="wifi_connected_to">Connected to %1$s</string>
+    <string name="wifi_connecting_to">Connecting to %1$s…</string>
+    <string name="wifi_not_connected">Not connected</string>
+    <string name="wifi_state_connected">Connected</string>
+    <string name="wifi_state_connecting">Connecting…</string>
+    <string name="wifi_state_saved">Saved</string>
+    <string name="wifi_state_wrong_password">Wrong password</string>
+    <string name="wifi_state_failed">Could not connect</string>
+    <string name="wifi_secured">Secured</string>
+    <string name="wifi_open">Open network</string>
+    <string name="wifi_unsupported">Not supported here</string>
+    <string name="wifi_password_body">Enter the network password.</string>
+    <string name="wifi_password_hint">Password</string>
+    <string name="show_password">Show password</string>
+    <string name="wifi_connect">Connect</string>
+    <string name="wifi_forget">Forget</string>
+    <string name="wifi_connected_body">The phone is connected to this network.</string>
+    <string name="wifi_unsupported_body">This type of network (company sign-in or old WEP security) cannot be set up here. You can connect later in Settings.</string>
+
+    <string name="time_title">Date and time</string>
+    <string name="time_body">The time is set automatically from the network. Check your time zone.</string>
+    <string name="time_zone_label">Time zone</string>
+    <string name="time_zone_search">Search city or country</string>
+    <string name="summary_time">Time zone</string>
+
+    <string name="theme_title">Appearance</string>
+    <string name="theme_body">Light, dark, or by the time of day.</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_auto">Automatic</string>
+    <string name="theme_note_light">Light all day.</string>
+    <string name="theme_note_dark">Dark all day. Easier on the eyes at night.</string>
+    <string name="theme_note_auto">Dark from %1$s to %2$s, light during the day. It switches the next time the screen turns off.</string>
+
+    <string name="lock_title">Screen lock</string>
+    <string name="lock_body">Protect the phone with a code. Without one, anyone can unlock it.</string>
+    <string name="lock_pin">PIN</string>
+    <string name="lock_pin_sub">At least 4 digits</string>
+    <string name="lock_password">Password</string>
+    <string name="lock_password_sub">At least 4 characters</string>
+    <string name="lock_none">No lock</string>
+    <string name="lock_none_sub">Swipe to unlock</string>
+    <string name="lock_pattern">Pattern</string>
+    <string name="lock_enter_pin">Enter PIN</string>
+    <string name="lock_repeat_pin">Repeat PIN</string>
+    <string name="lock_enter_password">Enter password</string>
+    <string name="lock_repeat_password">Repeat password</string>
+    <string name="lock_mismatch">The codes do not match.</string>
+    <string name="lock_remember">Remember the code. Without it the phone cannot be unlocked.</string>
+    <string name="lock_set">Set screen lock</string>
+    <string name="lock_saving">Saving…</string>
+    <string name="lock_failed">The lock could not be saved. Try again, or continue without a lock.</string>
+    <string name="lock_already">A screen lock is already set. You can change it later in Settings.</string>
+
+    <string name="done_title">All set</string>
+    <string name="done_body">Your phone is ready. Tap a row to change it.</string>
+</resources>

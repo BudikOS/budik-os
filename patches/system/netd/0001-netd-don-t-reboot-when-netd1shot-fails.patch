@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Mon, 5 Oct 2026 15:00:00 +0200
+Subject: [PATCH] netd: don't reboot when netd1shot fails
+
+Old 4.9 kernels without full eBPF fail the netd1shot self test;
+rebooting on that failure makes the device bootloop.
+---
+ server/netd.rc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/server/netd.rc b/server/netd.rc
+--- a/server/netd.rc
++++ b/server/netd.rc
+@@ -10,5 +10,6 @@ service netd1shot /system/bin/netd oneshot
+     updatable
+     # these two only apply to 'netd1shot'
+     oneshot
+-    reboot_on_failure reboot,netd1shot-fail
++    # Budik OS: old kernels fail the BPF self test, do not bootloop on it
++    # reboot_on_failure reboot,netd1shot-fail
+ 
+-- 
+2.43.0
+

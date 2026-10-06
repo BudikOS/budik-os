@@ -1,0 +1,66 @@
+From ab9ece746d9b2d9807f4f0f8f4b369dc69839999 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Mon, 5 Oct 2026 21:51:06 +0200
+Subject: [PATCH 2/2] SystemUI: stop endless carrier label marquee
+
+The keyguard CarrierText switches to marquee whenever it is visible and
+the shade carrier labels use marquee_forever. With no SIM the label
+("Emergency calls only") does not fit next to the display cutout, so it
+scrolls and redraws the whole notification shade window every frame:
+~30-55% of a core (RenderThread + main) on SDM632 after each wake.
+Ellipsize the keyguard label and scroll the shade labels only once.
+---
+ packages/SystemUI/res/layout/shade_carrier.xml           | 2 +-
+ packages/SystemUI/res/layout/shade_carrier_group.xml     | 2 +-
+ .../SystemUI/src/com/android/keyguard/CarrierText.java   | 9 +++------
+ 3 files changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/packages/SystemUI/res/layout/shade_carrier.xml b/packages/SystemUI/res/layout/shade_carrier.xml
+index 6a5df9c..c4085c6 100644
+--- a/packages/SystemUI/res/layout/shade_carrier.xml
++++ b/packages/SystemUI/res/layout/shade_carrier.xml
+@@ -35,7 +35,7 @@
+         android:layout_weight="1"
+         android:textAppearance="@style/TextAppearance.QS.Status"
+         android:textDirection="locale"
+-        android:marqueeRepeatLimit="marquee_forever"
++        android:marqueeRepeatLimit="1"
+         android:singleLine="true"
+         android:maxEms="7"/>
+ 
+diff --git a/packages/SystemUI/res/layout/shade_carrier_group.xml b/packages/SystemUI/res/layout/shade_carrier_group.xml
+index 6551f3b..cc40608 100644
+--- a/packages/SystemUI/res/layout/shade_carrier_group.xml
++++ b/packages/SystemUI/res/layout/shade_carrier_group.xml
+@@ -34,7 +34,7 @@
+         android:gravity="center_vertical"
+         android:textAppearance="@style/TextAppearance.QS.Status"
+         android:textDirection="locale"
+-        android:marqueeRepeatLimit="marquee_forever"
++        android:marqueeRepeatLimit="1"
+         android:singleLine="true"
+         android:visibility="gone"/>
+ 
+diff --git a/packages/SystemUI/src/com/android/keyguard/CarrierText.java b/packages/SystemUI/src/com/android/keyguard/CarrierText.java
+index e2ac6a4..937a88d 100644
+--- a/packages/SystemUI/src/com/android/keyguard/CarrierText.java
++++ b/packages/SystemUI/src/com/android/keyguard/CarrierText.java
+@@ -58,12 +58,9 @@ public class CarrierText extends TextView {
+     @Override
+     protected void onVisibilityChanged(View changedView, int visibility) {
+         super.onVisibilityChanged(changedView, visibility);
+-        // Only show marquee when visible
+-        if (visibility == VISIBLE) {
+-            setEllipsize(TextUtils.TruncateAt.MARQUEE);
+-        } else {
+-            setEllipsize(TextUtils.TruncateAt.END);
+-        }
++        // Budik: no marquee. A scrolling carrier label redraws the whole shade window every
++        // frame while the keyguard is shown (notable CPU/GPU cost on low-end devices).
++        setEllipsize(TextUtils.TruncateAt.END);
+     }
+ 
+     @Override
+-- 
+2.43.0
+

@@ -1,0 +1,404 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Mon, 5 Oct 2026 21:44:01 +0000
+Subject: [PATCH 4/6] =?UTF-8?q?SystemUI:=20Bud=C3=ADk=20design=20tokens=20?=
+ =?UTF-8?q?for=20the=20Compose=20shade=20surfaces?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Adds com.android.systemui.budik.ui.compose.Budik with the Budík OS tokens
+(export/README.md, tokens.json): light/dark colours, radii 6/12/20 dp,
+the hard 0x3 dp keycap shadow (no blur), JetBrains Mono / Schibsted
+Grotesk / Instrument Sans as optional device fonts (from
+fonts_customization.xml, platform default if missing), a pressable keycap
+(BudikKey, the press sinks the key instead of a ripple) and the line icons
+and logo as ImageVectors (no new resources).
+
+Dual Shade panels use the opaque Budík background (#F5F6F7 / #0E0F11)
+instead of the translucent blur colour.
+---
+ .../systemui/budik/ui/compose/BudikTheme.kt   | 345 ++++++++++++++++++
+ .../shade/ui/composable/OverlayShade.kt       |  10 +-
+ 2 files changed, 348 insertions(+), 7 deletions(-)
+ create mode 100644 packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt b/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt
+new file mode 100644
+index 000000000000..06b2d4b2608a
+--- /dev/null
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikTheme.kt
+@@ -0,0 +1,345 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.budik.ui.compose
++
++import androidx.compose.foundation.ExperimentalFoundationApi
++import androidx.compose.foundation.combinedClickable
++import androidx.compose.foundation.interaction.MutableInteractionSource
++import androidx.compose.foundation.interaction.collectIsPressedAsState
++import androidx.compose.foundation.isSystemInDarkTheme
++import androidx.compose.foundation.layout.Box
++import androidx.compose.foundation.layout.BoxScope
++import androidx.compose.foundation.layout.offset
++import androidx.compose.foundation.layout.padding
++import androidx.compose.runtime.Composable
++import androidx.compose.runtime.Immutable
++import androidx.compose.runtime.ReadOnlyComposable
++import androidx.compose.runtime.getValue
++import androidx.compose.runtime.remember
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.draw.drawBehind
++import androidx.compose.ui.geometry.CornerRadius
++import androidx.compose.ui.geometry.Offset
++import androidx.compose.ui.geometry.Size
++import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.graphics.PathFillType
++import androidx.compose.ui.graphics.SolidColor
++import androidx.compose.ui.graphics.StrokeCap
++import androidx.compose.ui.graphics.StrokeJoin
++import androidx.compose.ui.graphics.drawscope.Stroke
++import androidx.compose.ui.graphics.vector.ImageVector
++import androidx.compose.ui.graphics.vector.addPathNodes
++import androidx.compose.ui.semantics.Role
++import androidx.compose.ui.text.TextStyle
++import androidx.compose.ui.text.font.DeviceFontFamilyName
++import androidx.compose.ui.text.font.Font
++import androidx.compose.ui.text.font.FontFamily
++import androidx.compose.ui.text.font.FontWeight
++import androidx.compose.ui.unit.Dp
++import androidx.compose.ui.unit.IntOffset
++import androidx.compose.ui.unit.TextUnit
++import androidx.compose.ui.unit.dp
++import androidx.compose.ui.unit.sp
++
++/**
++ * Budík OS design tokens for the SystemUI Compose surfaces (export/README.md, tokens.json):
++ * radii 6/12/20 dp, hard 0x3 dp shadow without blur, mint #21D4BE never as text on light
++ * backgrounds, text on mint is always #0E0F11, navy primary buttons, keycap buttons without key
++ * captions, JetBrains Mono for metadata, Schibsted Grotesk headlines, Instrument Sans body text.
++ */
++object Budik {
++    val Ink = Color(0xFF0E0F11)
++    val White = Color(0xFFFFFFFF)
++    val Mint = Color(0xFF21D4BE)
++    val MintInk = Color(0xFF05332E)
++    val Navy = Color(0xFF0B1E52)
++    val NavyInk = Color(0xFF050E29)
++
++    val RadiusS = 6.dp
++    val RadiusM = 12.dp
++    val RadiusL = 20.dp
++
++    /** Depth of the hard keycap shadow (offset 0 x 3 dp, no blur). */
++    val KeyDepth = 3.dp
++
++    @Immutable
++    data class Colors(
++        val isDark: Boolean,
++        val bg: Color,
++        val surface: Color,
++        val line: Color,
++        val border: Color,
++        val fg: Color,
++        val fg2: Color,
++        val fg3: Color,
++        val primary: Color,
++        val primaryShadow: Color,
++        /** Secondary keycap (white key on light, raised grey key on dark). */
++        val key: Color,
++        val keyShadow: Color,
++        val keyBorder: Color,
++        /** Control centre: always a dark sheet. */
++        val ccPanel: Color,
++        val ccBorder: Color,
++        val ccText: Color,
++        val ccHandle: Color,
++        val ccKeyOff: Color,
++        val ccKeyOffShadow: Color,
++        val ccOnKeyOff: Color,
++        val ccUnavailable: Color,
++        val ccOnUnavailable: Color,
++        val ccSegmentOff: Color,
++    )
++
++    private val Light =
++        Colors(
++            isDark = false,
++            bg = Color(0xFFF5F6F7),
++            surface = White,
++            line = Color(0xFFE3E5E8),
++            border = Color(0xFFCFD3D8),
++            fg = Ink,
++            fg2 = Color(0xFF3A3E43),
++            fg3 = Color(0xFF5A6370),
++            primary = Navy,
++            primaryShadow = NavyInk,
++            key = White,
++            keyShadow = Color(0xFFE3E5E8),
++            keyBorder = Color(0xFFE3E5E8),
++            ccPanel = Ink,
++            ccBorder = Ink,
++            ccText = Color(0xFFC4C8CE),
++            ccHandle = Color(0xFF3A3F46),
++            ccKeyOff = White,
++            ccKeyOffShadow = Color(0xFFA9AFB7),
++            ccOnKeyOff = Ink,
++            ccUnavailable = Color(0xFF3A3F46),
++            ccOnUnavailable = Color(0xFF8D949E),
++            ccSegmentOff = Color(0xFFE3E5E8),
++        )
++
++    private val Dark =
++        Colors(
++            isDark = true,
++            bg = Ink,
++            surface = Color(0xFF17191C),
++            line = Color(0xFF262A2F),
++            border = Color(0xFF3A3F46),
++            fg = Color(0xFFF5F6F7),
++            fg2 = Color(0xFFC4C8CE),
++            fg3 = Color(0xFF8D949E),
++            primary = Color(0xFF2A4291),
++            primaryShadow = Navy,
++            key = Color(0xFF1E2024),
++            keyShadow = Color(0xFF08090A),
++            keyBorder = Color(0xFF3A3F46),
++            ccPanel = Color(0xFF17191C),
++            ccBorder = Color(0xFF262A2F),
++            ccText = Color(0xFFC4C8CE),
++            ccHandle = Color(0xFF3A3F46),
++            ccKeyOff = Color(0xFF2A2D32),
++            ccKeyOffShadow = Color(0xFF08090A),
++            ccOnKeyOff = Color(0xFFF5F6F7),
++            ccUnavailable = Color(0xFF1E2024),
++            ccOnUnavailable = Color(0xFF5A6370),
++            ccSegmentOff = Color(0xFF33373D),
++        )
++
++    val colors: Colors
++        @Composable @ReadOnlyComposable get() = if (isSystemInDarkTheme()) Dark else Light
++
++    // Families come from vendor/budikos fonts_customization.xml. Device fonts are optional: if a
++    // family is missing (e.g. a GSI without our fonts) Compose falls back to the platform default.
++    val Mono =
++        FontFamily(
++            Font(DeviceFontFamilyName("jetbrains-mono"), FontWeight.Normal),
++            Font(DeviceFontFamilyName("jetbrains-mono"), FontWeight.Bold),
++        )
++    val Headline =
++        FontFamily(
++            Font(DeviceFontFamilyName("schibsted-grotesk"), FontWeight.Normal),
++            Font(DeviceFontFamilyName("schibsted-grotesk"), FontWeight.SemiBold),
++            Font(DeviceFontFamilyName("schibsted-grotesk"), FontWeight.Bold),
++            Font(DeviceFontFamilyName("schibsted-grotesk"), FontWeight.ExtraBold),
++        )
++    val Body =
++        FontFamily(
++            Font(DeviceFontFamilyName("instrument-sans"), FontWeight.Normal),
++            Font(DeviceFontFamilyName("instrument-sans"), FontWeight.Medium),
++            Font(DeviceFontFamilyName("instrument-sans"), FontWeight.SemiBold),
++            Font(DeviceFontFamilyName("instrument-sans"), FontWeight.Bold),
++        )
++
++    fun mono(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Normal) =
++        TextStyle(
++            fontFamily = Mono,
++            fontSize = size,
++            fontWeight = weight,
++            color = color,
++            letterSpacing = 0.04.em(size),
++        )
++
++    fun headline(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Bold) =
++        TextStyle(
++            fontFamily = Headline,
++            fontSize = size,
++            fontWeight = weight,
++            color = color,
++            letterSpacing = (-0.02).em(size),
++        )
++
++    fun body(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Normal) =
++        TextStyle(fontFamily = Body, fontSize = size, fontWeight = weight, color = color)
++
++    private fun Double.em(size: TextUnit): TextUnit = (size.value * this).sp
++}
++
++/**
++ * Draws a keycap: [face] with a hard [shadow] offset [Budik.KeyDepth] below it. The modifier
++ * reserves the shadow depth at the bottom of the element; [pressed] sinks the face into the
++ * shadow.
++ */
++fun Modifier.budikKeycap(
++    face: Color,
++    shadow: Color,
++    radius: Dp = Budik.RadiusS,
++    border: Color = Color.Unspecified,
++    pressed: Boolean = false,
++): Modifier =
++    drawBehind {
++            val depth = Budik.KeyDepth.toPx()
++            val corner = CornerRadius(radius.toPx())
++            val faceSize = Size(size.width, size.height - depth)
++            val sink = if (pressed) depth * 2f / 3f else 0f
++            drawRoundRect(shadow, Offset(0f, depth), faceSize, corner)
++            drawRoundRect(face, Offset(0f, sink), faceSize, corner)
++            if (border != Color.Unspecified) {
++                val w = 1.dp.toPx()
++                drawRoundRect(
++                    border,
++                    Offset(w / 2f, sink + w / 2f),
++                    Size(faceSize.width - w, faceSize.height - w),
++                    CornerRadius(corner.x - w / 2f),
++                    style = Stroke(w),
++                )
++            }
++        }
++        .padding(bottom = Budik.KeyDepth)
++        .offset { IntOffset(0, if (pressed) (Budik.KeyDepth * 2f / 3f).roundToPx() else 0) }
++
++/** A pressable keycap without ripple; the press sinks the key instead. */
++@OptIn(ExperimentalFoundationApi::class)
++@Composable
++fun BudikKey(
++    face: Color,
++    shadow: Color,
++    onClick: () -> Unit,
++    modifier: Modifier = Modifier,
++    radius: Dp = Budik.RadiusS,
++    border: Color = Color.Unspecified,
++    onLongClick: (() -> Unit)? = null,
++    enabled: Boolean = true,
++    content: @Composable BoxScope.() -> Unit,
++) {
++    val interactionSource = remember { MutableInteractionSource() }
++    val pressed by interactionSource.collectIsPressedAsState()
++    Box(
++        modifier =
++            modifier
++                .combinedClickable(
++                    interactionSource = interactionSource,
++                    indication = null,
++                    enabled = enabled,
++                    role = Role.Button,
++                    onLongClick = onLongClick,
++                    onClick = onClick,
++                )
++                .budikKeycap(face, shadow, radius, border, pressed),
++        content = content,
++    )
++}
++
++/** Budík line icons (export/icons/ui, 24 dp grid, stroke 2, round caps and joins). */
++object BudikIcons {
++    val Edit by lazy { stroke("M5 19l1-4L15.5 5.5a2.1 2.1 0 0 1 3 3L9 18z") }
++    val Power by lazy { stroke("M12 3v8", "M6.6 6.6a7.6 7.6 0 1 0 10.8 0") }
++    val Tune by lazy {
++        stroke(
++            "M4 8h7M15 8h5M4 16h3M11 16h9",
++            "M11 8a2 2 0 1 0 4 0a2 2 0 1 0 -4 0",
++            "M7 16a2 2 0 1 0 4 0a2 2 0 1 0 -4 0",
++        )
++    }
++    val Brightness by lazy {
++        stroke(
++            "M8 12A4 4 0 1 0 16 12A4 4 0 1 0 8 12Z",
++            "M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4" +
++                "M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4",
++        )
++    }
++
++    /** brand/logo with inverted colours, for dark surfaces. */
++    val LogoOnDark by lazy { logo(face = Color.White, glyph = Budik.Ink) }
++    /** brand/logo as exported, for light surfaces. */
++    val Logo by lazy { logo(face = Budik.Ink, glyph = Color.White) }
++
++    private fun builder() =
++        ImageVector.Builder(
++            defaultWidth = 24.dp,
++            defaultHeight = 24.dp,
++            viewportWidth = 24f,
++            viewportHeight = 24f,
++        )
++
++    private fun stroke(vararg paths: String): ImageVector =
++        builder()
++            .apply {
++                paths.forEach {
++                    addPath(
++                        pathData = addPathNodes(it),
++                        stroke = SolidColor(Color.White),
++                        strokeLineWidth = 2f,
++                        strokeLineCap = StrokeCap.Round,
++                        strokeLineJoin = StrokeJoin.Round,
++                    )
++                }
++            }
++            .build()
++
++    private fun logo(face: Color, glyph: Color): ImageVector =
++        builder()
++            .addPath(
++                pathData =
++                    addPathNodes(
++                        "M5.8 0H18.2A5.8 5.8 0 0 1 24 5.8V18.2A5.8 5.8 0 0 1 18.2 24H5.8" +
++                            "A5.8 5.8 0 0 1 0 18.2V5.8A5.8 5.8 0 0 1 5.8 0Z"
++                    ),
++                fill = SolidColor(face),
++            )
++            .addPath(
++                pathData =
++                    addPathNodes(
++                        "M8.44 4.03H12.35A3.73 3.73 0 0 1 15.25 10.13A3.75 3.75 0 0 1 12.84 " +
++                            "16.78H8.44V15.56H7.22V5.25H8.44ZM9.66 6.42H12.35A1.36 1.36 0 0 1 " +
++                            "12.35 9.14H9.66ZM9.66 11.6H12.84A1.36 1.36 0 0 1 12.84 14.32H9.66Z"
++                    ),
++                fill = SolidColor(glyph),
++                pathFillType = PathFillType.EvenOdd,
++            )
++            .addPath(pathData = addPathNodes("M7.22 17.91H16.59V19.97H7.22Z"), fill = SolidColor(Budik.Mint))
++            .build()
++}
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
+index d6a576279b2f..2363a7f5a39e 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
+@@ -53,6 +53,7 @@ import com.android.mechanics.behavior.VerticalExpandContainerSpec
+ import com.android.mechanics.behavior.verticalExpandContainerBackground
+ import com.android.mechanics.compose.modifier.motionDriver
+ import com.android.systemui.qs.ui.composable.TileRevealFlag
++import com.android.systemui.budik.ui.compose.Budik
+ import com.android.systemui.res.R
+ import com.android.systemui.scene.ui.composable.LocalSceneContainerPreloadedResources
+ import com.android.systemui.shade.ui.ShadeColors.shadePanel
+@@ -233,13 +234,8 @@ object OverlayShade {
+         @Composable
+         @ReadOnlyComposable
+         fun panelBackground(transparencyEnabled: Boolean): Color {
+-            return Color(
+-                shadePanel(
+-                    context = LocalContext.current,
+-                    blurSupported = transparencyEnabled,
+-                    withScrim = false,
+-                )
+-            )
++            // Budík: opaque bg token (#F5F6F7 / #0E0F11), no translucent blur colour.
++            return Budik.colors.bg
+         }
+     }
+ 

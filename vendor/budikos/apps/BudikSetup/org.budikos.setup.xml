@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Privileged permissions of BudikSetup (same partition as the app: system_ext).
+     Only the ones with the "privileged" flag; NETWORK_SETTINGS,
+     NETWORK_SETUP_WIZARD and ACCESS_KEYGUARD_SECURE_STORAGE are signature
+     (platform cert) and need no entry. -->
+<permissions>
+    <privapp-permissions package="org.budikos.setup">
+        <!-- DEVICE_PROVISIONED / USER_SETUP_COMPLETE / AUTO_TIME_ZONE -->
+        <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
+        <!-- light/dark choice even when night mode is locked -->
+        <permission name="android.permission.MODIFY_DAY_NIGHT_MODE"/>
+        <!-- system language -->
+        <permission name="android.permission.CHANGE_CONFIGURATION"/>
+        <!-- time zone -->
+        <permission name="android.permission.SET_TIME_ZONE"/>
+    </privapp-permissions>
+</permissions>

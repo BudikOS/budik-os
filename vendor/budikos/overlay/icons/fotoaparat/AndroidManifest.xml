@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.budikos.overlay.icon.fotoaparat">
+    <overlay android:targetPackage="app.grapheneos.camera" android:isStatic="true" android:priority="900" />
+    <application android:hasCode="false" />
+</manifest>
