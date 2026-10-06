@@ -1,0 +1,292 @@
+From a523ba77c9f577e18e63524318324e51352350d4 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 05:22:36 +0000
+Subject: [PATCH 11/12] =?UTF-8?q?SystemUI:=20icon-only=20keys=20in=20the?=
+ =?UTF-8?q?=20Bud=C3=ADk=20control=20centre?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Like the iOS control centre the keys carry no cut labels: the six small
+keys show only the icon (state = fill), the large keys show their name
+only when it fits without an ellipsis. The name and state stay available
+to TalkBack, and tapping a network tile (internet, Wi-Fi, Bluetooth,
+mobile data, hotspot, cast) names it with its state in the header for
+three seconds. Small keys are 52 dp tall (touch target >= 48 dp).
+---
+ .../qs/ui/composable/BudikControlCenter.kt    | 159 ++++++++++++------
+ 1 file changed, 107 insertions(+), 52 deletions(-)
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+index a3b20934fb13..c8889f0519de 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+@@ -44,7 +44,9 @@ import androidx.compose.foundation.verticalScroll
+ import androidx.compose.material3.Icon
+ import androidx.compose.material3.Text
+ import androidx.compose.runtime.Composable
++import androidx.compose.runtime.LaunchedEffect
+ import androidx.compose.runtime.getValue
++import androidx.compose.runtime.mutableIntStateOf
+ import androidx.compose.runtime.mutableStateOf
+ import androidx.compose.runtime.produceState
+ import androidx.compose.runtime.remember
+@@ -60,10 +62,16 @@ import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.graphics.vector.ImageVector
+ import androidx.compose.ui.graphics.vector.rememberVectorPainter
+ import androidx.compose.ui.input.pointer.pointerInput
++import androidx.compose.ui.layout.Layout
+ import androidx.compose.ui.platform.LocalResources
++import androidx.compose.ui.semantics.contentDescription
++import androidx.compose.ui.semantics.semantics
++import androidx.compose.ui.semantics.stateDescription
++import androidx.compose.ui.text.TextStyle
+ import androidx.compose.ui.text.font.FontWeight
+ import androidx.compose.ui.text.style.TextAlign
+ import androidx.compose.ui.text.style.TextOverflow
++import androidx.compose.ui.unit.Constraints
+ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.sp
+ import androidx.lifecycle.compose.collectAsStateWithLifecycle
+@@ -96,6 +104,7 @@ import com.android.systemui.qs.ui.viewmodel.QuickSettingsContainerViewModel
+ import com.android.systemui.res.R
+ import com.android.systemui.util.policy.PolicyRestriction
+ import kotlin.math.roundToInt
++import kotlinx.coroutines.delay
+ import kotlinx.coroutines.launch
+ 
+ /** Tiles in the first row: icon-only keys with the label under the key. */
+@@ -123,6 +132,22 @@ fun ContentScope.BudikControlCenter(
+ 
+     TileListener(tiles) { true }
+ 
++    // Tiles carry no text; tapping a network tile names the network in the header for a moment.
++    var hintTile by remember { mutableStateOf<TileViewModel?>(null) }
++    var hintNonce by remember { mutableIntStateOf(0) }
++    LaunchedEffect(hintTile, hintNonce) {
++        if (hintTile != null) {
++            delay(HINT_MILLIS)
++            hintTile = null
++        }
++    }
++    val onTapped: (TileViewModel) -> Unit = { tile ->
++        if (tile.spec.spec in NETWORK_SPECS) {
++            hintTile = tile
++            hintNonce++
++        }
++    }
++
+     val sheetShape = RoundedCornerShape(topStart = Budik.RadiusL, topEnd = Budik.RadiusL)
+     Column(
+         modifier =
+@@ -132,7 +157,7 @@ fun ContentScope.BudikControlCenter(
+                 .then(if (c.isDark) Modifier.border(1.dp, c.ccBorder, sheetShape) else Modifier)
+                 .padding(start = 16.dp, end = 16.dp, top = 14.dp)
+     ) {
+-        Header()
++        Header(hintTile)
+         Spacer(Modifier.height(14.dp))
+ 
+         Column(
+@@ -153,7 +178,7 @@ fun ContentScope.BudikControlCenter(
+             val details = containerViewModel.detailsViewModel
+             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                 tiles.take(SMALL_KEYS).forEach { tile ->
+-                    SmallKey(tile, details, Modifier.weight(1f))
++                    SmallKey(tile, details, onTapped, Modifier.weight(1f))
+                 }
+                 repeat(SMALL_KEYS - tiles.size.coerceAtMost(SMALL_KEYS)) {
+                     Spacer(Modifier.weight(1f))
+@@ -166,7 +191,7 @@ fun ContentScope.BudikControlCenter(
+                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                     row.forEach { tile ->
+                         if (tile != null) {
+-                            LargeKey(tile, details, Modifier.weight(1f))
++                            LargeKey(tile, details, onTapped, Modifier.weight(1f))
+                         } else {
+                             DoneKey(onDone, Modifier.weight(1f))
+                         }
+@@ -188,17 +213,22 @@ fun ContentScope.BudikControlCenter(
+     }
+ }
+ 
+-/** Title and grab bar; network and battery are shown once, in the status icons above. */
++/**
++ * Title and grab bar; network and battery are shown once, in the status icons above. While a
++ * network tile was just tapped, the title names it with its state ("Wi-Fi · Klyvora-5G").
++ */
+ @Composable
+-private fun Header() {
++private fun Header(hintTile: TileViewModel?) {
+     val c = Budik.colors
+     val style = Budik.meta(11.sp, c.ccText, caps = true)
+     Box(Modifier.fillMaxWidth().height(20.dp)) {
++        val hint = hintTile?.let { tileHint(it) }
+         Text(
+-            text = "ŘÍDICÍ CENTRUM",
+-            style = style,
++            text = hint ?: "ŘÍDICÍ CENTRUM",
++            style = if (hint != null) Budik.meta(12.sp, c.ccText, FontWeight.Bold) else style,
+             maxLines = 1,
+-            modifier = Modifier.align(Alignment.CenterStart),
++            overflow = TextOverflow.Ellipsis,
++            modifier = Modifier.align(Alignment.CenterStart).fillMaxWidth(0.42f),
+         )
+         Box(
+             Modifier.align(Alignment.Center)
+@@ -208,24 +238,17 @@ private fun Header() {
+     }
+ }
+ 
+-/** The connected network as shown by the internet (or Wi-Fi) tile, if it is on. */
++/** "Label · state" of a tile, e.g. "Wi-Fi · Klyvora-5G", live while it is shown. */
+ @Composable
+-private fun rememberNetworkLabel(tiles: List<TileViewModel>): String? {
+-    val tile = tiles.firstOrNull { it.spec.spec == "internet" } ?: tiles.firstOrNull {
+-        it.spec.spec == "wifi"
+-    }
+-    val label by
+-        produceState<String?>(null, tile) {
+-            tile?.state?.collect { state ->
+-                value =
+-                    state.secondaryLabel?.toString()?.takeIf {
+-                        state.state == Tile.STATE_ACTIVE && it.isNotBlank()
+-                    }
+-            }
+-        }
+-    return label
++private fun tileHint(tile: TileViewModel): String {
++    val (ui, _) = rememberTileState(tile)
++    return listOf(ui.label, ui.secondaryLabel).filter { it.isNotBlank() }.joinToString(" · ")
+ }
+ 
++/** Tiles whose state names something (a network, a device), worth a hint when tapped. */
++private val NETWORK_SPECS = setOf("internet", "wifi", "bt", "cell", "hotspot", "cast")
++private const val HINT_MILLIS = 3000L
++
+ @Composable
+ private fun rememberTileState(tile: TileViewModel): Pair<TileUiState, IconProvider> {
+     val resources = LocalResources.current
+@@ -281,45 +304,76 @@ private fun Context.tileIcon(icon: IconProvider): Icon =
+         else Icon.Loaded(it.getDrawable(this), null)
+     } ?: Icon.Resource(R.drawable.ic_error_outline, null)
+ 
++/** Icon-only key (like the iOS control centre): the state is the fill, the name is for TalkBack. */
+ @Composable
+-private fun SmallKey(tile: TileViewModel, details: DetailsViewModel, modifier: Modifier) {
++private fun SmallKey(
++    tile: TileViewModel,
++    details: DetailsViewModel,
++    onTapped: (TileViewModel) -> Unit,
++    modifier: Modifier,
++) {
+     val (ui, icon) = rememberTileState(tile)
+     val colors = keyColors(ui)
+-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+-        BudikKey(
+-            face = colors.face,
+-            shadow = colors.shadow,
+-            onClick = { onKeyClick(tile, ui, details) },
+-            onLongClick = { onKeyLongClick(tile, ui, details) },
+-            modifier = Modifier.fillMaxWidth().height(47.dp),
+-        ) {
+-            SmallTileContent(
+-                iconProvider = { tileIcon(icon) },
+-                color = colors.content,
+-                modifier = Modifier.align(Alignment.Center),
+-                size = { 22.dp },
+-            )
+-        }
+-        Spacer(Modifier.height(6.dp))
+-        Text(
+-            text = ui.label,
+-            style = Budik.meta(10.sp, Budik.colors.ccText),
+-            maxLines = 1,
+-            overflow = TextOverflow.Ellipsis,
++    BudikKey(
++        face = colors.face,
++        shadow = colors.shadow,
++        onClick = {
++            onKeyClick(tile, ui, details)
++            onTapped(tile)
++        },
++        onLongClick = { onKeyLongClick(tile, ui, details) },
++        modifier = modifier.height(55.dp).tileSemantics(ui),
++    ) {
++        SmallTileContent(
++            iconProvider = { tileIcon(icon) },
++            color = colors.content,
++            modifier = Modifier.align(Alignment.Center),
++            size = { 24.dp },
+         )
+     }
+ }
+ 
++private fun Modifier.tileSemantics(ui: TileUiState): Modifier =
++    semantics(mergeDescendants = true) {
++        contentDescription = ui.label
++        stateDescription = ui.secondaryLabel
++    }
++
++/** Shows [text] only when it fits in one line without being cut; otherwise nothing. */
++@Composable
++private fun TextIfFits(text: String, style: TextStyle, modifier: Modifier = Modifier) {
++    Layout(
++        content = { Text(text = text, style = style, maxLines = 1, softWrap = false) },
++        modifier = modifier,
++    ) { measurables, constraints ->
++        val line =
++            measurables.first().measure(constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity))
++        if (line.width <= constraints.maxWidth) {
++            layout(line.width, line.height) { line.place(0, 0) }
++        } else {
++            layout(0, 0) {}
++        }
++    }
++}
++
+ @Composable
+-private fun LargeKey(tile: TileViewModel, details: DetailsViewModel, modifier: Modifier) {
++private fun LargeKey(
++    tile: TileViewModel,
++    details: DetailsViewModel,
++    onTapped: (TileViewModel) -> Unit,
++    modifier: Modifier,
++) {
+     val (ui, icon) = rememberTileState(tile)
+     val colors = keyColors(ui)
+     BudikKey(
+         face = colors.face,
+         shadow = colors.shadow,
+-        onClick = { onKeyClick(tile, ui, details) },
++        onClick = {
++            onKeyClick(tile, ui, details)
++            onTapped(tile)
++        },
+         onLongClick = { onKeyLongClick(tile, ui, details) },
+-        modifier = modifier.height(63.dp),
++        modifier = modifier.height(63.dp).tileSemantics(ui),
+     ) {
+         SmallTileContent(
+             iconProvider = { tileIcon(icon) },
+@@ -327,12 +381,13 @@ private fun LargeKey(tile: TileViewModel, details: DetailsViewModel, modifier: M
+             modifier = Modifier.align(Alignment.TopEnd).padding(top = 9.dp, end = 9.dp),
+             size = { 20.dp },
+         )
+-        Text(
++        // The full name when it fits, never a cut "Nahráv…": otherwise the icon alone.
++        TextIfFits(
+             text = ui.label,
+             style = Budik.body(13.sp, colors.content, FontWeight.SemiBold),
+-            maxLines = 1,
+-            overflow = TextOverflow.Ellipsis,
+-            modifier = Modifier.align(Alignment.BottomStart).padding(start = 9.dp, end = 6.dp, bottom = 8.dp),
++            modifier =
++                Modifier.align(Alignment.BottomStart)
++                    .padding(start = 9.dp, end = 6.dp, bottom = 8.dp),
+         )
+     }
+ }
+-- 
+2.53.0
+

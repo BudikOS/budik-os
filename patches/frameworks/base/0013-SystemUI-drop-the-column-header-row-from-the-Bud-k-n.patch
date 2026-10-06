@@ -1,0 +1,35 @@
+From c6135307d49f92da621c76096e2689ed72a57eaa Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 05:30:33 +0000
+Subject: [PATCH 13/14] =?UTF-8?q?SystemUI:=20drop=20the=20column=20header?=
+ =?UTF-8?q?=20row=20from=20the=20Bud=C3=ADk=20notification=20receipt?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Too much text for the user; the rows read fine without ČAS / OD / CO / APLIKACE.
+---
+ .../ui/composable/BudikNotificationReceipt.kt              | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+index a5a8d2ab9731..a57d2731fe76 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+@@ -337,13 +337,6 @@ fun ContentScope.BudikNotificationReceipt(
+         )
+         Spacer(Modifier.height(12.dp))
+         Rule(thick = true)
+-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp)) {
+-            val head = Budik.meta(10.sp, c.fg3, FontWeight.Bold, caps = true)
+-            Text("ČAS", style = head, modifier = Modifier.width(TimeColumn))
+-            Text("OD / CO", style = head, modifier = Modifier.weight(1f))
+-            Text("APLIKACE", style = head)
+-        }
+-        Rule(thick = false)
+ 
+         if (items.isEmpty()) {
+             Text(
+-- 
+2.53.0
+

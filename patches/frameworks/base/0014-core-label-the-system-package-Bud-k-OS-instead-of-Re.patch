@@ -1,0 +1,30 @@
+From da11972d5608f90a736101b1faed0e27e37d914d Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 05:30:33 +0000
+Subject: [PATCH 14/14] =?UTF-8?q?core:=20label=20the=20system=20package=20?=
+ =?UTF-8?q?"Bud=C3=ADk=20OS"=20instead=20of=20RestlessOS?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Shown as the app name of system notifications (shade, Settings > Notifications).
+---
+ core/res/AndroidManifest.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
+index b49a99045247..a24ac1f6a7b6 100644
+--- a/core/res/AndroidManifest.xml
++++ b/core/res/AndroidManifest.xml
+@@ -10692,7 +10692,7 @@
+     <application android:process="system"
+                  android:persistent="true"
+                  android:hasCode="false"
+-                 android:label="RestlessOS"
++                 android:label="Budík OS"
+                  android:allowClearUserData="false"
+                  android:backupAgent="com.android.server.backup.SystemBackupAgent"
+                  android:killAfterRestore="false"
+-- 
+2.53.0
+

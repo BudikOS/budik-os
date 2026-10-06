@@ -1,0 +1,85 @@
+From e81dc67f992838aec0779be81067b0f0e149f4d6 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Mon, 5 Oct 2026 21:38:27 +0200
+Subject: [PATCH] SystemUI: keep shade window theme in sync with lock wallpaper
+
+CentralSurfacesImpl.updateTheme() switches the main SystemUI context
+between Theme_SystemUI and Theme_SystemUI_LightWallpaper, but the shade
+window inflates from its own @ShadeDisplayAware window context, created
+with a fixed Theme_SystemUI. KeyguardStatusBarView reads
+?wallpaperTextColor from that context, so lockscreen status icons stay
+white on a light wallpaper. Apply the theme to the shade context too and
+notify the shade ConfigurationController.
+---
+ .../statusbar/phone/CentralSurfacesImpl.java     | 16 +++++++++++++++-
+ .../statusbar/phone/CentralSurfacesImplTest.java |  4 +++-
+ 2 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfacesImpl.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfacesImpl.java
+index b7876bf..2e7dfd4 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfacesImpl.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfacesImpl.java
+@@ -154,6 +154,7 @@ import com.android.systemui.shade.NotificationShadeWindowView;
+ import com.android.systemui.shade.NotificationShadeWindowViewController;
+ import com.android.systemui.shade.QuickSettingsController;
+ import com.android.systemui.shade.ShadeController;
++import com.android.systemui.shade.ShadeDisplayAware;
+ import com.android.systemui.shade.ShadeExpansionChangeEvent;
+ import com.android.systemui.shade.ShadeExpansionListener;
+ import com.android.systemui.shade.ShadeExpansionStateManager;
+@@ -365,6 +366,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
+     private final FalsingManager mFalsingManager;
+     private final BroadcastDispatcher mBroadcastDispatcher;
+     private final ConfigurationController mConfigurationController;
++    private final Context mShadeContext;
++    private final Lazy<ConfigurationController> mShadeConfigurationControllerLazy;
+     private final Lazy<NotificationShadeWindowViewController>
+             mNotificationShadeWindowViewControllerLazy;
+     private final DozeParameters mDozeParameters;
+@@ -612,9 +615,13 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
+             QuickAccessWalletController walletController,
+             WindowManager windowManager,
+             WindowManagerProvider windowManagerProvider,
+-            SessionTracker sessionTracker
++            SessionTracker sessionTracker,
++            @ShadeDisplayAware Context shadeContext,
++            @ShadeDisplayAware Lazy<ConfigurationController> shadeConfigurationControllerLazy
+     ) {
+         mContext = context;
++        mShadeContext = shadeContext;
++        mShadeConfigurationControllerLazy = shadeConfigurationControllerLazy;
+         mNotificationsController = notificationsController;
+         mFragmentService = fragmentService;
+         mLightBarController = lightBarController;
+@@ -1946,6 +1953,13 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
+             mContext.setTheme(themeResId);
+             mConfigurationController.notifyThemeChanged();
+         }
++        // The shade window (keyguard status bar, indication text...) inflates from its own
++        // @ShadeDisplayAware context, which is created with a fixed Theme_SystemUI. Keep it in
++        // sync, otherwise lockscreen icons stay white on a light wallpaper.
++        if (mShadeContext != mContext && mShadeContext.getThemeResId() != themeResId) {
++            mShadeContext.setTheme(themeResId);
++            mShadeConfigurationControllerLazy.get().notifyThemeChanged();
++        }
+     }
+ 
+     private void updateDozingState() {
+diff --git a/packages/SystemUI/tests/src/com/android/systemui/statusbar/phone/CentralSurfacesImplTest.java b/packages/SystemUI/tests/src/com/android/systemui/statusbar/phone/CentralSurfacesImplTest.java
+index 7e5f995..3d4c847 100644
+--- a/packages/SystemUI/tests/src/com/android/systemui/statusbar/phone/CentralSurfacesImplTest.java
++++ b/packages/SystemUI/tests/src/com/android/systemui/statusbar/phone/CentralSurfacesImplTest.java
+@@ -588,7 +588,9 @@ public class CentralSurfacesImplTest extends SysuiTestCase {
+                 mQuickAccessWalletController,
+                 mWindowManager,
+                 mWindowManagerProvider,
+-                mock(SessionTracker.class)
++                mock(SessionTracker.class),
++                mContext,
++                () -> configurationController
+         );
+         mScreenLifecycle.addObserver(mCentralSurfaces.mScreenObserver);
+         mCentralSurfaces.initShadeVisibilityListener();
+-- 
+2.43.0
+

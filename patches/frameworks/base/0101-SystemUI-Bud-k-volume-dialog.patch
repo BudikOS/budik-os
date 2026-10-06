@@ -1,0 +1,798 @@
+From 6ad8e066213c986de64ef96a8efc6fa25be0e502 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 05:16:37 +0000
+Subject: [PATCH 101/102] =?UTF-8?q?SystemUI:=20Bud=C3=ADk=20volume=20dialo?=
+ =?UTF-8?q?g?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Floating Budík card (export/mockups 08_volume) instead of the AOSP volume
+dialog layouts: ringer mode segment (ring / vibrate / silent, active key in
+mint), three vertical sliders (media or the active call/remote stream,
+ringer, alarm) with labels and percent in JetBrains Mono, and a "Zvuk" key
+opening the sound settings. State, visibility, timeout and outside-touch
+dismissal stay the AOSP volume dialog logic; no blur.
+---
+ .../budik/ui/compose/BudikSoundPowerIcons.kt  | 114 ++++
+ .../systemui/volume/dialog/VolumeDialog.kt    |  21 +-
+ .../dialog/dagger/VolumeDialogComponent.kt    |   4 +
+ .../ui/binder/BudikVolumeDialogViewBinder.kt  | 540 ++++++++++++++++++
+ .../dagger/VolumeDialogComponentKosmos.kt     |  19 +
+ 5 files changed, 689 insertions(+), 9 deletions(-)
+ create mode 100644 packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikSoundPowerIcons.kt
+ create mode 100644 packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikSoundPowerIcons.kt b/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikSoundPowerIcons.kt
+new file mode 100644
+index 000000000000..32193bea147a
+--- /dev/null
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/budik/ui/compose/BudikSoundPowerIcons.kt
+@@ -0,0 +1,114 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.budik.ui.compose
++
++import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.graphics.SolidColor
++import androidx.compose.ui.graphics.StrokeCap
++import androidx.compose.ui.graphics.StrokeJoin
++import androidx.compose.ui.graphics.vector.ImageVector
++import androidx.compose.ui.graphics.vector.addPathNodes
++import androidx.compose.ui.unit.dp
++
++/**
++ * Budík line icons for the volume dialog and the power menu (export/icons/ui, notification), same
++ * geometry rules as [BudikIcons]: 24 dp grid, stroke 2, round caps and joins, tinted by the caller.
++ */
++object BudikSoundPowerIcons {
++    val Ring by lazy { stroke("M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z", "M10 20.5h4") }
++    val Vibrate by lazy {
++        stroke(
++            "M10 4H14A2 2 0 0 1 16 6V18A2 2 0 0 1 14 20H10A2 2 0 0 1 8 18V6A2 2 0 0 1 10 4Z",
++            "M4.5 9v6M19.5 9v6",
++        )
++    }
++    val Mute by lazy { stroke("M4 9.5h3.5L12 5.5v13l-4.5-4H4z", "M16 9.5l5 5M21 9.5l-5 5") }
++    val Volume by lazy {
++        stroke(
++            "M4 9.5h3.5L12 5.5v13l-4.5-4H4z",
++            "M15.5 9a4 4 0 0 1 0 6",
++            "M18 6.5a7.5 7.5 0 0 1 0 11",
++        )
++    }
++    val Media by lazy {
++        stroke(
++            "M9 18V5.5l10-2V16",
++            "M4 18A2.5 2.5 0 1 0 9 18A2.5 2.5 0 1 0 4 18Z",
++            "M14 16A2.5 2.5 0 1 0 19 16A2.5 2.5 0 1 0 14 16Z",
++        )
++    }
++    val Alarm by lazy {
++        stroke(
++            "M4.5 13A7.5 7.5 0 1 0 19.5 13A7.5 7.5 0 1 0 4.5 13Z",
++            "M12 9.5V13l2.5 2",
++            "M4 5.5 6.5 3",
++            "M20 5.5 17.5 3",
++        )
++    }
++    val Call by lazy {
++        stroke(
++            "M8 3.5H5.5A1.5 1.5 0 0 0 4 5c0 8.3 6.7 15 15 15a1.5 1.5 0 0 0 1.5-1.5V16l-4-1.5-2 2" +
++                "a12 12 0 0 1-6.5-6.5l2-2z"
++        )
++    }
++    val Restart by lazy { stroke("M19.5 12a7.5 7.5 0 1 1-2.2-5.3", "M19.5 4v4h-4") }
++    val Screenshot by lazy { stroke("M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5") }
++    val Recovery by lazy {
++        stroke(
++            "M5.5 4.5H18.5A2 2 0 0 1 20.5 6.5V14.5A2 2 0 0 1 18.5 16.5H5.5A2 2 0 0 1 3.5 14.5" +
++                "V6.5A2 2 0 0 1 5.5 4.5Z",
++            "M9 20h6M12 16.5V20",
++            "M7.5 10.5l2 2-2 2",
++        )
++    }
++    val Lock by lazy {
++        stroke(
++            "M7 10.5H17A2 2 0 0 1 19 12.5V18.5A2 2 0 0 1 17 20.5H7A2 2 0 0 1 5 18.5V12.5" +
++                "A2 2 0 0 1 7 10.5Z",
++            "M8 10.5V8a4 4 0 0 1 8 0v2.5",
++        )
++    }
++    val Emergency by lazy { stroke("M12 4v16M5.1 8l13.8 8M18.9 8 5.1 16") }
++    val System by lazy {
++        stroke(
++            "M9.5 3.5H14.5A2.5 2.5 0 0 1 17 6V18A2.5 2.5 0 0 1 14.5 20.5H9.5A2.5 2.5 0 0 1 7 18" +
++                "V6A2.5 2.5 0 0 1 9.5 3.5Z",
++            "M10.5 17h3",
++        )
++    }
++    val Back by lazy { stroke("M19 12H5M11 6l-6 6 6 6") }
++
++    private fun stroke(vararg paths: String): ImageVector =
++        ImageVector.Builder(
++                defaultWidth = 24.dp,
++                defaultHeight = 24.dp,
++                viewportWidth = 24f,
++                viewportHeight = 24f,
++            )
++            .apply {
++                paths.forEach {
++                    addPath(
++                        pathData = addPathNodes(it),
++                        stroke = SolidColor(Color.White),
++                        strokeLineWidth = 2f,
++                        strokeLineCap = StrokeCap.Round,
++                        strokeLineJoin = StrokeJoin.Round,
++                    )
++                }
++            }
++            .build()
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/volume/dialog/VolumeDialog.kt b/packages/SystemUI/src/com/android/systemui/volume/dialog/VolumeDialog.kt
+index debe130e3bf6..2d88957f0dfb 100644
+--- a/packages/SystemUI/src/com/android/systemui/volume/dialog/VolumeDialog.kt
++++ b/packages/SystemUI/src/com/android/systemui/volume/dialog/VolumeDialog.kt
+@@ -24,6 +24,7 @@ import android.view.View
+ import android.view.ViewGroup
+ import android.view.WindowManager
+ import androidx.activity.ComponentDialog
++import androidx.compose.ui.platform.ComposeView
+ import com.android.app.tracing.coroutines.coroutineScopeTraced
+ import com.android.systemui.dagger.qualifiers.Application
+ import com.android.systemui.lifecycle.repeatWhenAttached
+@@ -80,17 +81,19 @@ constructor(
+ 
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+-        if (isVolumeDialogVertical) {
+-            setContentView(R.layout.volume_dialog)
+-        } else {
+-            setContentView(R.layout.volume_dialog_horizontal)
+-        }
+-        requireViewById<View>(R.id.volume_dialog).repeatWhenAttached {
++        // Budík OS: own Compose card (export/mockups 08_volume) instead of the AOSP layouts.
++        val root = ComposeView(context).apply { id = R.id.volume_dialog }
++        setContentView(
++            root,
++            ViewGroup.LayoutParams(
++                ViewGroup.LayoutParams.WRAP_CONTENT,
++                ViewGroup.LayoutParams.MATCH_PARENT,
++            ),
++        )
++        root.repeatWhenAttached {
+             coroutineScopeTraced("[Volume]dialog") {
+                 val component = componentFactory.create(this)
+-                with(component.volumeDialogViewBinder()) {
+-                    bind(this@VolumeDialog, isVolumeDialogVertical)
+-                }
++                with(component.budikVolumeDialogViewBinder()) { bind(this@VolumeDialog, root) }
+ 
+                 awaitCancellation()
+             }
+diff --git a/packages/SystemUI/src/com/android/systemui/volume/dialog/dagger/VolumeDialogComponent.kt b/packages/SystemUI/src/com/android/systemui/volume/dialog/dagger/VolumeDialogComponent.kt
+index 36b2b48ece21..97bc83eb7e77 100644
+--- a/packages/SystemUI/src/com/android/systemui/volume/dialog/dagger/VolumeDialogComponent.kt
++++ b/packages/SystemUI/src/com/android/systemui/volume/dialog/dagger/VolumeDialogComponent.kt
+@@ -21,6 +21,7 @@ import com.android.systemui.volume.dialog.dagger.module.VolumeDialogModule
+ import com.android.systemui.volume.dialog.dagger.scope.VolumeDialog
+ import com.android.systemui.volume.dialog.dagger.scope.VolumeDialogScope
+ import com.android.systemui.volume.dialog.sliders.dagger.VolumeDialogSliderComponent
++import com.android.systemui.volume.dialog.ui.binder.BudikVolumeDialogViewBinder
+ import com.android.systemui.volume.dialog.ui.binder.VolumeDialogViewBinder
+ import dagger.BindsInstance
+ import dagger.Subcomponent
+@@ -36,6 +37,9 @@ interface VolumeDialogComponent {
+ 
+     fun volumeDialogViewBinder(): VolumeDialogViewBinder
+ 
++    /** Budík OS volume dialog content, see [BudikVolumeDialogViewBinder]. */
++    fun budikVolumeDialogViewBinder(): BudikVolumeDialogViewBinder
++
+     fun sliderComponentFactory(): VolumeDialogSliderComponent.Factory
+ 
+     @Subcomponent.Factory
+diff --git a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt
+new file mode 100644
+index 000000000000..0f9cfdd1b763
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt
+@@ -0,0 +1,540 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.volume.dialog.ui.binder
++
++import android.app.Dialog
++import android.content.Context
++import android.content.Intent
++import android.graphics.Rect
++import android.media.AudioManager
++import android.media.AudioManager.RINGER_MODE_NORMAL
++import android.media.AudioManager.RINGER_MODE_SILENT
++import android.media.AudioManager.RINGER_MODE_VIBRATE
++import android.provider.Settings
++import android.view.HapticFeedbackConstants
++import android.view.ViewTreeObserver.InternalInsetsInfo
++import androidx.compose.animation.core.Animatable
++import androidx.compose.animation.core.Spring
++import androidx.compose.animation.core.spring
++import androidx.compose.animation.core.tween
++import androidx.compose.foundation.Image
++import androidx.compose.foundation.background
++import androidx.compose.foundation.border
++import androidx.compose.foundation.clickable
++import androidx.compose.foundation.gestures.awaitEachGesture
++import androidx.compose.foundation.gestures.awaitFirstDown
++import androidx.compose.foundation.gestures.drag
++import androidx.compose.foundation.interaction.MutableInteractionSource
++import androidx.compose.foundation.interaction.collectIsPressedAsState
++import androidx.compose.foundation.layout.Arrangement
++import androidx.compose.foundation.layout.Box
++import androidx.compose.foundation.layout.Column
++import androidx.compose.foundation.layout.Row
++import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.WindowInsets
++import androidx.compose.foundation.layout.WindowInsetsSides
++import androidx.compose.foundation.layout.displayCutout
++import androidx.compose.foundation.layout.fillMaxHeight
++import androidx.compose.foundation.layout.fillMaxWidth
++import androidx.compose.foundation.layout.height
++import androidx.compose.foundation.layout.heightIn
++import androidx.compose.foundation.layout.navigationBars
++import androidx.compose.foundation.layout.only
++import androidx.compose.foundation.layout.padding
++import androidx.compose.foundation.layout.size
++import androidx.compose.foundation.layout.union
++import androidx.compose.foundation.layout.width
++import androidx.compose.foundation.layout.windowInsetsPadding
++import androidx.compose.foundation.shape.RoundedCornerShape
++import androidx.compose.foundation.text.BasicText
++import androidx.compose.runtime.Composable
++import androidx.compose.runtime.LaunchedEffect
++import androidx.compose.runtime.collectAsState
++import androidx.compose.runtime.getValue
++import androidx.compose.runtime.mutableStateOf
++import androidx.compose.runtime.remember
++import androidx.compose.runtime.rememberUpdatedState
++import androidx.compose.runtime.setValue
++import androidx.compose.ui.Alignment
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.draw.clip
++import androidx.compose.ui.draw.drawWithCache
++import androidx.compose.ui.geometry.CornerRadius
++import androidx.compose.ui.geometry.Offset
++import androidx.compose.ui.geometry.RoundRect
++import androidx.compose.ui.geometry.Size
++import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.graphics.ColorFilter
++import androidx.compose.ui.graphics.Path
++import androidx.compose.ui.graphics.drawscope.Stroke
++import androidx.compose.ui.graphics.drawscope.clipPath
++import androidx.compose.ui.graphics.graphicsLayer
++import androidx.compose.ui.graphics.vector.ImageVector
++import androidx.compose.ui.input.pointer.pointerInput
++import androidx.compose.ui.layout.boundsInWindow
++import androidx.compose.ui.layout.layout
++import androidx.compose.ui.layout.onGloballyPositioned
++import androidx.compose.ui.platform.ComposeView
++import androidx.compose.ui.platform.LocalView
++import androidx.compose.ui.semantics.Role
++import androidx.compose.ui.semantics.contentDescription
++import androidx.compose.ui.semantics.role
++import androidx.compose.ui.semantics.selected
++import androidx.compose.ui.semantics.semantics
++import androidx.compose.ui.semantics.setProgress
++import androidx.compose.ui.semantics.stateDescription
++import androidx.compose.ui.text.font.FontWeight
++import androidx.compose.ui.text.style.TextAlign
++import androidx.compose.ui.text.style.TextOverflow
++import androidx.compose.ui.unit.constrainWidth
++import androidx.compose.ui.unit.dp
++import androidx.compose.ui.unit.sp
++import com.android.app.tracing.coroutines.launchInTraced
++import com.android.app.tracing.coroutines.launchTraced
++import com.android.settingslib.volume.shared.model.RingerMode
++import com.android.systemui.budik.ui.compose.Budik
++import com.android.systemui.budik.ui.compose.BudikIcons
++import com.android.systemui.budik.ui.compose.BudikSoundPowerIcons
++import com.android.systemui.budik.ui.compose.budikKeycap
++import com.android.systemui.plugins.ActivityStarter
++import com.android.systemui.plugins.VolumeDialogController
++import com.android.systemui.util.view.listenToComputeInternalInsets
++import com.android.systemui.volume.Events
++import com.android.systemui.volume.dialog.dagger.scope.VolumeDialogScope
++import com.android.systemui.volume.dialog.domain.interactor.VolumeDialogStateInteractor
++import com.android.systemui.volume.dialog.domain.interactor.VolumeDialogVisibilityInteractor
++import com.android.systemui.volume.dialog.ringer.domain.VolumeDialogRingerInteractor
++import com.android.systemui.volume.dialog.ringer.shared.model.VolumeDialogRingerModel
++import com.android.systemui.volume.dialog.settings.domain.VolumeDialogSettingsButtonInteractor
++import com.android.systemui.volume.dialog.shared.model.VolumeDialogStateModel
++import com.android.systemui.volume.dialog.shared.model.VolumeDialogStreamModel
++import com.android.systemui.volume.dialog.shared.model.VolumeDialogVisibilityModel
++import com.android.systemui.volume.dialog.shared.model.streamLabel
++import com.android.systemui.volume.dialog.ui.viewmodel.VolumeDialogViewModel
++import javax.inject.Inject
++import kotlin.math.roundToInt
++import kotlinx.coroutines.CoroutineScope
++import kotlinx.coroutines.flow.conflate
++import kotlinx.coroutines.flow.filter
++import kotlinx.coroutines.flow.onEach
++
++/**
++ * Budík OS volume dialog (export/mockups 08_volume): a floating card with the ringer mode segment,
++ * three vertical sliders (media, ringer, alarm) and a "Zvuk" key opening the sound settings. It
++ * replaces the AOSP view binders but keeps their state, visibility and dismiss logic.
++ */
++@VolumeDialogScope
++class BudikVolumeDialogViewBinder
++@Inject
++constructor(
++    private val viewModel: VolumeDialogViewModel,
++    private val visibilityInteractor: VolumeDialogVisibilityInteractor,
++    private val stateInteractor: VolumeDialogStateInteractor,
++    private val ringerInteractor: VolumeDialogRingerInteractor,
++    private val settingsButtonInteractor: VolumeDialogSettingsButtonInteractor,
++    private val controller: VolumeDialogController,
++    private val activityStarter: ActivityStarter,
++) {
++
++    fun CoroutineScope.bind(dialog: Dialog, root: ComposeView) {
++        val cardBounds = Rect()
++        launchTraced("BVDVB#insets") {
++            root.viewTreeObserver.listenToComputeInternalInsets {
++                setTouchableInsets(InternalInsetsInfo.TOUCHABLE_INSETS_REGION)
++                touchableRegion.set(cardBounds)
++            }
++        }
++        viewModel.dialogTitle
++            .filter { it.isNotEmpty() }
++            .onEach { dialog.window?.setTitle(it) }
++            .launchInTraced("BVDVB#dialogTitle", this)
++
++        root.setContent {
++            val progress = remember { Animatable(0f) }
++            LaunchedEffect(Unit) {
++                viewModel.dialogVisibilityModel.conflate().collect {
++                    when (it) {
++                        is VolumeDialogVisibilityModel.Visible ->
++                            progress.animateTo(
++                                1f,
++                                spring(Spring.DampingRatioNoBouncy, Spring.StiffnessMediumLow),
++                            )
++                        is VolumeDialogVisibilityModel.Dismissed -> {
++                            progress.animateTo(0f, tween(DISMISS_MS))
++                            dialog.dismiss()
++                        }
++                        is VolumeDialogVisibilityModel.Invisible -> {}
++                    }
++                }
++            }
++            val state by stateInteractor.volumeDialogState.collectAsState(null)
++            val ringer by ringerInteractor.ringerModel.collectAsState(null)
++            val showSettings by settingsButtonInteractor.isVisible.collectAsState()
++            BudikVolumeDialog(
++                state = state,
++                ringer = ringer,
++                showSettings = showSettings,
++                onLevel = { stream, level -> controller.setStreamVolume(stream, level, true) },
++                onRinger = { mode ->
++                    ringerInteractor.setRingerMode(RingerMode(mode))
++                    viewModel.resetDialogTimeout()
++                },
++                onSettings = {
++                    activityStarter.postStartActivityDismissingKeyguard(
++                        Intent(Settings.ACTION_SOUND_SETTINGS)
++                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
++                        0,
++                    )
++                    visibilityInteractor.dismissDialog(Events.DISMISS_REASON_SETTINGS_CLICKED)
++                },
++                onInteract = viewModel::resetDialogTimeout,
++                modifier =
++                    Modifier.graphicsLayer {
++                            alpha = progress.value.coerceIn(0f, 1f)
++                            translationX = (1f - progress.value) * size.width
++                        }
++                        .onGloballyPositioned { coordinates ->
++                            val r = coordinates.boundsInWindow()
++                            cardBounds.set(
++                                r.left.toInt(),
++                                r.top.toInt(),
++                                r.right.toInt(),
++                                r.bottom.toInt(),
++                            )
++                        },
++            )
++        }
++    }
++
++    private companion object {
++        const val DISMISS_MS = 150
++    }
++}
++
++private val SliderWidth = 50.dp
++private val SliderGap = 14.dp
++private val SliderHeight = 218.dp
++
++@Composable
++private fun BudikVolumeDialog(
++    state: VolumeDialogStateModel?,
++    ringer: VolumeDialogRingerModel?,
++    showSettings: Boolean,
++    onLevel: (stream: Int, level: Int) -> Unit,
++    onRinger: (mode: Int) -> Unit,
++    onSettings: () -> Unit,
++    onInteract: () -> Unit,
++    modifier: Modifier = Modifier,
++) {
++    val colors = Budik.colors
++    Box(
++        modifier =
++            Modifier.fillMaxHeight()
++                .windowInsetsPadding(
++                    WindowInsets.navigationBars
++                        .union(WindowInsets.displayCutout)
++                        .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Vertical)
++                )
++                .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 12.dp),
++        contentAlignment = Alignment.Center,
++    ) {
++        Column(
++            modifier =
++                modifier
++                    .budikKeycap(
++                        face = colors.surface,
++                        shadow = colors.border,
++                        radius = Budik.RadiusL,
++                        border = colors.line,
++                    )
++                    .padding(12.dp)
++                    .width(SliderWidth * 3 + SliderGap * 2),
++            horizontalAlignment = Alignment.CenterHorizontally,
++        ) {
++            if (ringer != null) {
++                RingerSegment(ringer, onRinger)
++                Spacer(Modifier.height(12.dp))
++            }
++            val sliders = state?.let { budikSliders(it) }.orEmpty()
++            Row(
++                modifier = Modifier.weight(1f, fill = false).heightIn(max = SliderHeight + 56.dp),
++                horizontalArrangement = Arrangement.spacedBy(SliderGap),
++            ) {
++                sliders.forEach { (model, label, icon) ->
++                    VolumeSlider(model, label, icon, onLevel, onInteract)
++                }
++            }
++            if (showSettings) {
++                Spacer(Modifier.height(14.dp))
++                SettingsKey(onSettings)
++            }
++        }
++    }
++}
++
++/** Media (or the active call / remote stream), ringer and alarm, as in 08_volume. */
++@Composable
++private fun budikSliders(
++    state: VolumeDialogStateModel
++): List<Triple<VolumeDialogStreamModel, String, ImageVector>> {
++    val context = LocalView.current.context
++    val first =
++        state.streamModels[state.activeStream]?.takeIf { it.stream !in FixedStreams }
++            ?: state.streamModels[AudioManager.STREAM_MUSIC]
++    return listOfNotNull(
++        first?.let { it to firstLabel(context, it) },
++        state.streamModels[AudioManager.STREAM_RING]?.let { it to "Vyzvánění" },
++        state.streamModels[AudioManager.STREAM_ALARM]?.let { it to "Budík" },
++    )
++        .map { (model, label) -> Triple(model, label, iconFor(model.stream)) }
++}
++
++private val FixedStreams =
++    setOf(
++        AudioManager.STREAM_MUSIC,
++        AudioManager.STREAM_RING,
++        AudioManager.STREAM_ALARM,
++        AudioManager.STREAM_NOTIFICATION,
++        AudioManager.STREAM_SYSTEM,
++    )
++
++private fun firstLabel(context: Context, model: VolumeDialogStreamModel): String =
++    if (model.stream == AudioManager.STREAM_MUSIC && model.remoteLabel == null) "Média"
++    else runCatching { model.streamLabel(context) }.getOrDefault("Média")
++
++private fun iconFor(stream: Int): ImageVector =
++    when (stream) {
++        AudioManager.STREAM_RING,
++        AudioManager.STREAM_NOTIFICATION -> BudikSoundPowerIcons.Ring
++        AudioManager.STREAM_ALARM -> BudikSoundPowerIcons.Alarm
++        AudioManager.STREAM_VOICE_CALL,
++        AudioManager.STREAM_BLUETOOTH_SCO -> BudikSoundPowerIcons.Call
++        AudioManager.STREAM_MUSIC -> BudikSoundPowerIcons.Media
++        else -> BudikSoundPowerIcons.Volume
++    }
++
++@Composable
++private fun RingerSegment(ringer: VolumeDialogRingerModel, onRinger: (Int) -> Unit) {
++    val colors = Budik.colors
++    val view = LocalView.current
++    val available = ringer.availableModes.map { it.value }
++    Row(
++        modifier =
++            Modifier.fillMaxWidth()
++                .background(colors.bg, RoundedCornerShape(Budik.RadiusM))
++                .padding(4.dp)
++    ) {
++        RingerModes.filter { (mode, _, _) -> mode in available }
++            .forEach { (mode, icon, label) ->
++                val active = ringer.currentRingerMode.value == mode
++                Box(
++                    modifier =
++                        Modifier.weight(1f)
++                            .height(36.dp)
++                            .clip(RoundedCornerShape(Budik.RadiusS))
++                            .background(if (active) Budik.Mint else Color.Transparent)
++                            .semantics {
++                                contentDescription = label
++                                selected = active
++                                role = Role.Tab
++                            }
++                            .clickable(
++                                interactionSource = remember { MutableInteractionSource() },
++                                indication = null,
++                            ) {
++                                if (!active) {
++                                    view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
++                                    onRinger(mode)
++                                }
++                            },
++                    contentAlignment = Alignment.Center,
++                ) {
++                    BudikIcon(icon, if (active) Budik.Ink else colors.fg)
++                }
++            }
++    }
++}
++
++private val RingerModes =
++    listOf(
++        Triple(RINGER_MODE_NORMAL, BudikSoundPowerIcons.Ring, "Zvonění"),
++        Triple(RINGER_MODE_VIBRATE, BudikSoundPowerIcons.Vibrate, "Vibrace"),
++        Triple(RINGER_MODE_SILENT, BudikSoundPowerIcons.Mute, "Ticho"),
++    )
++
++@Composable
++private fun VolumeSlider(
++    model: VolumeDialogStreamModel,
++    label: String,
++    icon: ImageVector,
++    onLevel: (stream: Int, level: Int) -> Unit,
++    onInteract: () -> Unit,
++) {
++    val colors = Budik.colors
++    val view = LocalView.current
++    val max = model.levelMax.coerceAtLeast(1)
++    val min = model.levelMin.coerceIn(0, max)
++    val level = if (model.muted) 0 else model.level.coerceIn(0, max)
++    // While the finger is down the fill follows it; afterwards it follows the stream state.
++    var dragFraction by remember { mutableStateOf<Float?>(null) }
++    val fraction = dragFraction ?: (level.toFloat() / max)
++    val shownLevel = dragFraction?.let { (it * max).roundToInt().coerceAtLeast(min) } ?: level
++    val percent = shownLevel * 100 / max
++    val currentOnLevel by rememberUpdatedState(onLevel)
++    val currentOnInteract by rememberUpdatedState(onInteract)
++
++    Column(
++        modifier = Modifier.width(SliderWidth).fillMaxHeight(),
++        horizontalAlignment = Alignment.CenterHorizontally,
++    ) {
++        Box(
++            modifier =
++                Modifier.weight(1f)
++                    .width(SliderWidth)
++                    .semantics {
++                        contentDescription = label
++                        stateDescription = "$percent %"
++                        setProgress { target ->
++                            val l = (target * max).roundToInt().coerceIn(min, max)
++                            currentOnLevel(model.stream, l)
++                            true
++                        }
++                    }
++                    .pointerInput(model.stream, min, max) {
++                        awaitEachGesture {
++                            val down = awaitFirstDown()
++                            var sent = -1
++                            fun follow(y: Float) {
++                                val f = (1f - y / size.height).coerceIn(0f, 1f)
++                                dragFraction = f
++                                val l = (f * max).roundToInt().coerceIn(min, max)
++                                if (l != sent) {
++                                    if (sent != -1) {
++                                        view.performHapticFeedback(
++                                            HapticFeedbackConstants.CLOCK_TICK
++                                        )
++                                    }
++                                    sent = l
++                                    currentOnLevel(model.stream, l)
++                                }
++                                currentOnInteract()
++                            }
++                            follow(down.position.y)
++                            down.consume()
++                            drag(down.id) { change ->
++                                follow(change.position.y)
++                                change.consume()
++                            }
++                            dragFraction = null
++                        }
++                    }
++                    .drawWithCache {
++                        val corner = CornerRadius(Budik.RadiusM.toPx())
++                        val track =
++                            Path().apply {
++                                addRoundRect(RoundRect(0f, 0f, size.width, size.height, corner))
++                            }
++                        val edge = 1.5.dp.toPx()
++                        val w = 1.dp.toPx()
++                        onDrawBehind {
++                            drawPath(track, colors.bg)
++                            val top = size.height * (1f - fraction)
++                            clipPath(track) {
++                                drawRect(Budik.Mint, Offset(0f, top), Size(size.width, size.height - top))
++                                if (fraction > 0f && fraction < 1f) {
++                                    drawRect(Budik.Ink, Offset(0f, top - edge / 2f), Size(size.width, edge))
++                                }
++                            }
++                            drawRoundRect(
++                                colors.line,
++                                Offset(w / 2f, w / 2f),
++                                Size(size.width - w, size.height - w),
++                                CornerRadius(corner.x - w / 2f),
++                                style = Stroke(w),
++                            )
++                        }
++                    },
++            contentAlignment = Alignment.BottomCenter,
++        ) {
++            // The icon sits in the fill (ink on mint) unless the level is too low to cover it.
++            val iconOnFill = fraction * SliderHeight.value >= IconBottom.value + 24f
++            BudikIcon(
++                icon,
++                if (iconOnFill) Budik.Ink else colors.fg,
++                Modifier.padding(bottom = IconBottom),
++            )
++        }
++        Spacer(Modifier.height(8.dp))
++        BasicText(
++            text = label,
++            style = Budik.body(15.sp, colors.fg, FontWeight.Bold).copy(textAlign = TextAlign.Center),
++            maxLines = 1,
++            softWrap = false,
++            overflow = TextOverflow.Visible,
++            modifier = Modifier.overflowCentered(),
++        )
++        Spacer(Modifier.height(4.dp))
++        BasicText(text = "$percent %", style = Budik.mono(13.sp, colors.fg3), maxLines = 1)
++    }
++}
++
++private val IconBottom = 14.dp
++
++/** Lets a label wider than its column overflow symmetrically ("Vyzvánění" under a 50 dp bar). */
++private fun Modifier.overflowCentered(): Modifier = layout { measurable, constraints ->
++    val placeable =
++        measurable.measure(constraints.copy(minWidth = 0, maxWidth = constraints.maxWidth * 2))
++    val width = constraints.constrainWidth(placeable.width)
++    layout(width, placeable.height) { placeable.place((width - placeable.width) / 2, 0) }
++}
++
++@Composable
++private fun SettingsKey(onSettings: () -> Unit) {
++    val colors = Budik.colors
++    val interactionSource = remember { MutableInteractionSource() }
++    val pressed by interactionSource.collectIsPressedAsState()
++    Row(
++        modifier =
++            Modifier.fillMaxWidth()
++                .height(42.dp)
++                .clip(RoundedCornerShape(Budik.RadiusM))
++                .background(if (pressed) colors.bg else colors.surface)
++                .border(1.dp, colors.line, RoundedCornerShape(Budik.RadiusM))
++                .clickable(
++                    interactionSource = interactionSource,
++                    indication = null,
++                    role = Role.Button,
++                    onClick = onSettings,
++                ),
++        horizontalArrangement = Arrangement.Center,
++        verticalAlignment = Alignment.CenterVertically,
++    ) {
++        BudikIcon(BudikIcons.Tune, colors.fg)
++        Spacer(Modifier.width(10.dp))
++        BasicText("Zvuk", style = Budik.body(16.sp, colors.fg, FontWeight.Bold))
++    }
++}
++
++@Composable
++private fun BudikIcon(icon: ImageVector, tint: Color, modifier: Modifier = Modifier) {
++    Image(
++        imageVector = icon,
++        contentDescription = null,
++        colorFilter = ColorFilter.tint(tint),
++        modifier = modifier.size(24.dp),
++    )
++}
+diff --git a/packages/SystemUI/tests/utils/src/com/android/systemui/volume/dialog/dagger/VolumeDialogComponentKosmos.kt b/packages/SystemUI/tests/utils/src/com/android/systemui/volume/dialog/dagger/VolumeDialogComponentKosmos.kt
+index 87c382223939..61e04977187d 100644
+--- a/packages/SystemUI/tests/utils/src/com/android/systemui/volume/dialog/dagger/VolumeDialogComponentKosmos.kt
++++ b/packages/SystemUI/tests/utils/src/com/android/systemui/volume/dialog/dagger/VolumeDialogComponentKosmos.kt
+@@ -17,10 +17,18 @@
+ package com.android.systemui.volume.dialog.dagger
+ 
+ import com.android.systemui.kosmos.Kosmos
++import com.android.systemui.plugins.activityStarter
++import com.android.systemui.plugins.volumeDialogController
++import com.android.systemui.volume.dialog.domain.interactor.volumeDialogStateInteractor
++import com.android.systemui.volume.dialog.domain.interactor.volumeDialogVisibilityInteractor
++import com.android.systemui.volume.dialog.ringer.domain.volumeDialogRingerInteractor
++import com.android.systemui.volume.dialog.settings.domain.volumeDialogSettingsButtonInteractor
+ import com.android.systemui.volume.dialog.sliders.dagger.VolumeDialogSliderComponent
+ import com.android.systemui.volume.dialog.sliders.dagger.volumeDialogSliderComponentFactory
++import com.android.systemui.volume.dialog.ui.binder.BudikVolumeDialogViewBinder
+ import com.android.systemui.volume.dialog.ui.binder.VolumeDialogViewBinder
+ import com.android.systemui.volume.dialog.ui.binder.volumeDialogViewBinder
++import com.android.systemui.volume.dialog.ui.viewmodel.volumeDialogViewModel
+ import kotlinx.coroutines.CoroutineScope
+ 
+ val Kosmos.volumeDialogComponentFactory by
+@@ -31,6 +39,17 @@ val Kosmos.volumeDialogComponentFactory by
+                     override fun volumeDialogViewBinder(): VolumeDialogViewBinder =
+                         volumeDialogViewBinder
+ 
++                    override fun budikVolumeDialogViewBinder(): BudikVolumeDialogViewBinder =
++                        BudikVolumeDialogViewBinder(
++                            viewModel = volumeDialogViewModel,
++                            visibilityInteractor = volumeDialogVisibilityInteractor,
++                            stateInteractor = volumeDialogStateInteractor,
++                            ringerInteractor = volumeDialogRingerInteractor,
++                            settingsButtonInteractor = volumeDialogSettingsButtonInteractor,
++                            controller = volumeDialogController,
++                            activityStarter = activityStarter,
++                        )
++
+                     override fun sliderComponentFactory(): VolumeDialogSliderComponent.Factory =
+                         volumeDialogSliderComponentFactory
+                 }
+-- 
+2.53.0
+

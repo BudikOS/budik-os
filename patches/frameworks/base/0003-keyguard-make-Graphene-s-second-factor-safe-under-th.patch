@@ -1,0 +1,115 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Mon, 5 Oct 2026 21:38:59 +0000
+Subject: [PATCH 3/6] keyguard: make Graphene's second factor safe under the
+ scene container
+
+Dual Shade needs the scene container, which replaces the legacy keyguard
+bouncer views with the Compose bouncer. GrapheneOS's fingerprint second
+factor (fingerprint + extra PIN) only has UI in the legacy bouncer and
+guarded the scene container path with unconditional throws, so SystemUI
+crashed on boot with scene_container + dual_shade enabled.
+
+- KeyguardSecurityContainerController: drop the "Compose bouncer support
+  has not been added to Graphene's MFA!" throw.
+- StatusBarKeyguardViewManager#showPrimaryBouncer: when the bouncer is
+  already showing under the scene container there is nothing to
+  re-request (upstream behaviour), instead of throwing.
+- KeyguardUpdateMonitor: with the scene container, do not listen for
+  keyguard fingerprint when the second factor is enabled. The user unlocks
+  with the primary credential (PIN/password/pattern) in the Compose
+  bouncer; fingerprint alone never unlocks (that path was already ignored
+  by DeviceEntryFingerprintAuthRepository), so this is not a downgrade.
+- KeyguardSecurityModel: never report BiometricSecondFactorPin under the
+  scene container, so the Compose bouncer only sees primary modes.
+
+Without the scene container nothing changes.
+---
+ .../KeyguardSecurityContainerController.java     |  4 ----
+ .../android/keyguard/KeyguardSecurityModel.java  |  5 ++++-
+ .../android/keyguard/KeyguardUpdateMonitor.java  |  5 ++++-
+ .../phone/StatusBarKeyguardViewManager.java      | 16 ++++++++--------
+ 4 files changed, 16 insertions(+), 14 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityContainerController.java b/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityContainerController.java
+index 74faef905c0f..f1a955137a9d 100644
+--- a/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityContainerController.java
++++ b/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityContainerController.java
+@@ -601,10 +601,6 @@ public class KeyguardSecurityContainerController extends ViewController<Keyguard
+         showPrimarySecurityScreen(false);
+ 
+         if (SceneContainerFlag.isEnabled()) {
+-            if (true) {
+-                throw new IllegalStateException(
+-                        "Compose bouncer support has not been added to Graphene's MFA!");
+-            }
+             // When the scene framework says that the lockscreen has been dismissed, dismiss the
+             // keyguard here, revealing the underlying app or launcher:
+             mSceneTransitionCollectionJob = mJavaAdapter.get().alwaysCollectFlow(
+diff --git a/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityModel.java b/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityModel.java
+index b7e2a1b61805..0719b49dbf5d 100644
+--- a/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityModel.java
++++ b/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityModel.java
+@@ -27,6 +27,7 @@ import com.android.internal.widget.LockDomain;
+ import com.android.internal.widget.LockPatternUtils;
+ import com.android.systemui.dagger.SysUISingleton;
+ import com.android.systemui.dagger.qualifiers.Main;
++import com.android.systemui.scene.shared.flag.SceneContainerFlag;
+ import com.android.systemui.securelockdevice.domain.interactor.SecureLockDeviceInteractor;
+ import com.android.systemui.util.kotlin.JavaAdapter;
+ 
+@@ -134,7 +135,9 @@ public class KeyguardSecurityModel {
+             return SecurityMode.SimPin;
+         }
+ 
+-        if (lockDomain == Secondary &&
++        // The Compose bouncer (scene container) has no second factor UI: fingerprint is not
++        // offered for keyguard there when the second factor is enabled, see KeyguardUpdateMonitor.
++        if (lockDomain == Secondary && !SceneContainerFlag.isEnabled() &&
+                 mKeyguardUpdateMonitor.getUserAuthenticatedWithFingerprint(userId) &&
+                 mKeyguardUpdateMonitor.isUnlockingWithFingerprintAllowedSafe() &&
+                 mLockPatternUtils.isBiometricSecondFactorEnabled(userId)) {
+diff --git a/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java b/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
+index 98978028bc19..284cdcab9a49 100644
+--- a/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
++++ b/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
+@@ -3293,7 +3293,10 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, CoreSt
+ 
+         boolean shouldListen = shouldListenKeyguardState && shouldListenUserState
+                 && shouldListenBouncerState && shouldListenUdfpsState && !mBiometricPromptShowing
+-                && shouldListenSecureLockDeviceState;
++                && shouldListenSecureLockDeviceState
++                // Second factor UI exists only in the legacy bouncer. With the scene container the
++                // user unlocks with the primary credential instead of fingerprint + second factor.
++                && !(SceneContainerFlag.isEnabled() && biometricSecondFactorEnabled);
+         logListenerModelData(
+                 new KeyguardFingerprintListenModel(
+                     System.currentTimeMillis(),
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java
+index cdefb9f8ce5a..046fed0aa165 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java
+@@ -877,15 +877,15 @@ public class StatusBarKeyguardViewManager implements RemoteInputController.Callb
+                     mPrimaryBouncerInteractor.show(scrimmed, reason);
+                 }
+             } else {
+-                if (SceneContainerFlag.isEnabled()) {
+-                    throw new IllegalStateException(
+-                            "Handle SceneContainerFlag in SBKVM#showPrimaryBouncer!");
++                // With the scene container the Compose bouncer is already up and re-reads the
++                // security mode itself, nothing to re-request (same as upstream).
++                if (!SceneContainerFlag.isEnabled()) {
++                    // This will either dismiss the Keyguard (if KUM#getUserCanSkipBouncer is
++                    // true) or display the appropriate SecurityMode in KSCC. These are the same
++                    // outcomes that a caller can expect when calling #showPrimaryBouncer while
++                    // the bouncer is not showing.
++                    mPrimaryBouncerInteractor.notifyBouncerRequestedWhenAlreadyShowing();
+                 }
+-                // This will either dismiss the Keyguard (if KUM#getUserCanSkipBouncer is true) or
+-                // display the appropriate SecurityMode in KSCC. These are the same outcomes that
+-                // a caller can expect when calling #showPrimaryBouncer while the bouncer is not
+-                // showing.
+-                mPrimaryBouncerInteractor.notifyBouncerRequestedWhenAlreadyShowing();
+             }
+         }
+         updateStates();

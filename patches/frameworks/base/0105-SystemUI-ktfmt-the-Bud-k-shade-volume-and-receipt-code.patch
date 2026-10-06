@@ -1,0 +1,497 @@
+From 7cc4cd3f723950b41fa11202d3a21a943b3d8c80 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 08:21:42 +0000
+Subject: [PATCH] =?UTF-8?q?SystemUI:=20ktfmt=20the=20Bud=C3=ADk=20shade,?=
+ =?UTF-8?q?=20volume=20and=20receipt=20code?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Formatting only (kotlinlang style, 100 columns): long lines and import
+order left by the Budík control centre, volume dialog and notification
+receipt patches; the unused ShadeColors.shadePanel import goes with it.
+---
+ .../ui/composable/BudikNotificationReceipt.kt | 76 ++++++++++---------
+ .../composable/NotificationsShadeOverlay.kt   |  8 +-
+ .../qs/ui/composable/BudikControlCenter.kt    | 31 +++++---
+ .../ui/composable/BudikControlCenterEditor.kt | 15 ++--
+ .../shade/ui/composable/OverlayShade.kt       | 21 ++---
+ .../ui/binder/BudikVolumeDialogViewBinder.kt  | 39 +++++++---
+ 6 files changed, 110 insertions(+), 80 deletions(-)
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+index df0f18c95dfe..70b817682ac5 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+@@ -132,9 +132,9 @@ data class BudikNotificationItem(
+ 
+ /**
+  * Data and actions of the Budík notification receipt. Reads the same list the notification stack
+- * shows (after all filtering, incl. the lock screen) and acts on the notifications like the
+- * stack rows do: open = content intent (dismissing the keyguard) + click report (auto cancel),
+- * dismiss = user dismissal, clear all = the stack's clear all.
++ * shows (after all filtering, incl. the lock screen) and acts on the notifications like the stack
++ * rows do: open = content intent (dismissing the keyguard) + click report (auto cancel), dismiss =
++ * user dismissal, clear all = the stack's clear all.
+  */
+ class BudikNotificationActions(
+     private val repository: ActiveNotificationListRepository,
+@@ -156,7 +156,9 @@ class BudikNotificationActions(
+      * icon for the system and for apps without one. Decoded off the main thread, [sizePx] square.
+      */
+     suspend fun appIcon(item: BudikNotificationItem, context: Context, sizePx: Int): BudikAppIcon? {
+-        icons[item.iconKey]?.let { return it }
++        icons[item.iconKey]?.let {
++            return it
++        }
+         val sbn = notifPipeline.get().getEntry(item.key)?.sbn ?: return null
+         val smallIcon = sbn.notification.smallIcon
+         val icon =
+@@ -173,7 +175,9 @@ class BudikNotificationActions(
+                             }
+                         }
+                         ?.takeIf { it.icon != 0 }
+-                app?.loadIcon(pm)?.let { BudikAppIcon(it.toBitmap(sizePx, sizePx).asImageBitmap(), false) }
++                app?.loadIcon(pm)?.let {
++                    BudikAppIcon(it.toBitmap(sizePx, sizePx).asImageBitmap(), false)
++                }
+                     ?: smallIcon?.loadDrawable(context)?.let {
+                         BudikAppIcon(it.toBitmap(sizePx, sizePx).asImageBitmap(), true)
+                     }
+@@ -194,10 +198,9 @@ class BudikNotificationActions(
+         val intent = entry.sbn.notification.contentIntent ?: return
+         val key = entry.key
+         activityStarter.get().startPendingIntentDismissingKeyguard(intent) {
+-            clickNotifier.get().onNotificationClick(
+-                key,
+-                NotificationVisibility.obtain(key, rank, count, true),
+-            )
++            clickNotifier
++                .get()
++                .onNotificationClick(key, NotificationVisibility.obtain(key, rank, count, true))
+         }
+     }
+ 
+@@ -286,8 +289,10 @@ class BudikNotificationActions(
+ 
+     private fun lastMessage(n: Notification): Pair<CharSequence?, CharSequence>? {
+         val messages =
+-            n.extras.getParcelableArray(Notification.EXTRA_MESSAGES, android.os.Parcelable::class.java)
+-                ?: return null
++            n.extras.getParcelableArray(
++                Notification.EXTRA_MESSAGES,
++                android.os.Parcelable::class.java,
++            ) ?: return null
+         val last =
+             Notification.MessagingStyle.Message.getMessagesFromBundleArray(messages).lastOrNull()
+                 ?: return null
+@@ -305,8 +310,7 @@ class BudikNotificationActions(
+ }
+ 
+ /** An app icon for a receipt row; a [monochrome] small icon is tinted like text. */
+-@Immutable
+-class BudikAppIcon(val bitmap: ImageBitmap, val monochrome: Boolean)
++@Immutable class BudikAppIcon(val bitmap: ImageBitmap, val monochrome: Boolean)
+ 
+ private const val ICON_CACHE_SIZE = 48
+ private val SYSTEM_PACKAGES = setOf("android", "com.android.systemui")
+@@ -335,14 +339,16 @@ fun BudikShadeClock(modifier: Modifier = Modifier) {
+             }
+         }
+     val is24 = DateFormat.is24HourFormat(context)
+-    val time = remember(now, locale, is24) { dateFormat(locale, if (is24) "Hm" else "hm").format(Date(now)) }
+-    val date = remember(now, locale) { dateFormat(locale, "EEEdMMMM").format(Date(now)).capitalized(locale) }
++    val time =
++        remember(now, locale, is24) {
++            dateFormat(locale, if (is24) "Hm" else "hm").format(Date(now))
++        }
++    val date =
++        remember(now, locale) {
++            dateFormat(locale, "EEEdMMMM").format(Date(now)).capitalized(locale)
++        }
+     Row(modifier, verticalAlignment = Alignment.Bottom) {
+-        Text(
+-            text = time,
+-            style = Budik.headline(46.sp, c.fg, FontWeight.ExtraBold),
+-            maxLines = 1,
+-        )
++        Text(text = time, style = Budik.headline(46.sp, c.fg, FontWeight.ExtraBold), maxLines = 1)
+         Spacer(Modifier.width(10.dp))
+         Text(
+             text = date,
+@@ -406,9 +412,7 @@ fun ContentScope.BudikNotificationReceipt(
+         } else {
+             LazyColumn(
+                 modifier =
+-                    Modifier.fillMaxWidth()
+-                        .weight(1f, fill = false)
+-                        .disableSwipesWhenScrolling()
++                    Modifier.fillMaxWidth().weight(1f, fill = false).disableSwipesWhenScrolling()
+             ) {
+                 items(items, key = { it.key }) { item ->
+                     val index = items.indexOf(item)
+@@ -482,10 +486,10 @@ private val AppIconFrame = 36.dp
+ private val AppIconSize = 26.dp
+ 
+ /**
+- * A row that can be swiped away sideways, like a row of the notification stack: past 40 % of
+- * the width (or flung) it slides out and is dismissed, otherwise it springs back. Rows that
+- * cannot be dismissed (ongoing) only follow the finger a little and spring back. Only the
+- * row's layer moves, nothing is re-measured while dragging.
++ * A row that can be swiped away sideways, like a row of the notification stack: past 40 % of the
++ * width (or flung) it slides out and is dismissed, otherwise it springs back. Rows that cannot be
++ * dismissed (ongoing) only follow the finger a little and spring back. Only the row's layer moves,
++ * nothing is re-measured while dragging.
+  */
+ @Composable
+ private fun SwipeToDismiss(
+@@ -535,7 +539,9 @@ private fun SwipeToDismiss(
+ private fun newWord(count: Int) =
+     when (count) {
+         1 -> "nové"
+-        2, 3, 4 -> "nová"
++        2,
++        3,
++        4 -> "nová"
+         else -> "nových"
+     }
+ 
+@@ -562,9 +568,10 @@ private fun ReceiptRow(
+     val c = Budik.colors
+     val context = LocalContext.current
+     val is24 = DateFormat.is24HourFormat(context)
+-    val time = remember(item.time, locale, is24) {
+-        dateFormat(locale, if (is24) "Hm" else "hm").format(Date(item.time))
+-    }
++    val time =
++        remember(item.time, locale, is24) {
++            dateFormat(locale, if (is24) "Hm" else "hm").format(Date(item.time))
++        }
+     if (showDivider) Rule(thick = false)
+     val outer =
+         if (item.isNew) {
+@@ -672,12 +679,7 @@ private fun ActionKey(label: String, primary: Boolean, onClick: () -> Unit) {
+     ) {
+         Text(
+             text = label,
+-            style =
+-                Budik.body(
+-                    15.sp,
+-                    if (primary) Color.White else c.fg,
+-                    FontWeight.Bold,
+-                ),
++            style = Budik.body(15.sp, if (primary) Color.White else c.fg, FontWeight.Bold),
+             maxLines = 1,
+             modifier = Modifier.align(Alignment.Center).padding(horizontal = 16.dp),
+         )
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
+index df00dd661912..5b17b218a69f 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
+@@ -47,6 +47,7 @@ import com.android.internal.jank.InteractionJankMonitor
+ import com.android.systemui.budik.ui.compose.BudikSheetHandle
+ import com.android.systemui.budik.ui.compose.BudikSheetHandleArea
+ import com.android.systemui.dagger.SysUISingleton
++import com.android.systemui.dagger.qualifiers.Background
+ import com.android.systemui.keyguard.ui.composable.elements.LockscreenElements
+ import com.android.systemui.lifecycle.rememberViewModel
+ import com.android.systemui.media.remedia.ui.compose.Media
+@@ -70,7 +71,6 @@ import com.android.systemui.statusbar.notification.collection.NotifPipeline
+ import com.android.systemui.statusbar.notification.data.repository.ActiveNotificationListRepository
+ import com.android.systemui.statusbar.notification.row.OnUserInteractionCallback
+ import com.android.systemui.statusbar.notification.stack.ui.view.NotificationScrollView
+-import com.android.systemui.dagger.qualifiers.Background
+ import dagger.Lazy
+ import javax.inject.Inject
+ import kotlinx.coroutines.CoroutineDispatcher
+@@ -195,9 +195,9 @@ constructor(
+                             .focusable()
+                             .semantics { paneTitle = accessibilityTitle }
+                 ) {
+-                    // Budík: large clock + date, media, then the receipt card. The notification stack
+-                    // keeps a zero-height placeholder below so its lifecycle (expansion, HUNs, clear
+-                    // all) works as in AOSP while the rows themselves are not shown.
++                    // Budík: large clock + date, media, then the receipt card. The notification
++                    // stack keeps a zero-height placeholder below so its lifecycle (expansion,
++                    // HUNs, clear all) works as in AOSP while the rows themselves are not shown.
+                     BudikShadeClock(
+                         Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp)
+                     )
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+index d8d68ad0689e..e0b42441082b 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+@@ -61,9 +61,9 @@ import androidx.compose.ui.geometry.Size
+ import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.graphics.CompositingStrategy
+ import androidx.compose.ui.graphics.GraphicsLayerScope
+-import androidx.compose.ui.graphics.graphicsLayer
+ import androidx.compose.ui.graphics.Path
+ import androidx.compose.ui.graphics.drawscope.DrawScope
++import androidx.compose.ui.graphics.graphicsLayer
+ import androidx.compose.ui.graphics.vector.ImageVector
+ import androidx.compose.ui.input.pointer.pointerInput
+ import androidx.compose.ui.layout.Layout
+@@ -189,8 +189,7 @@ fun ContentScope.BudikControlCenter(
+     val blocks = rememberCcBlocks()
+     TileListener(tiles) { true }
+ 
+-    val connectivity =
+-        tiles.filter { it.spec.spec in CONNECTIVITY_SPECS }.take(CONNECTIVITY_KEYS)
++    val connectivity = tiles.filter { it.spec.spec in CONNECTIVITY_SPECS }.take(CONNECTIVITY_KEYS)
+     val others = tiles - connectivity.toSet()
+     val modules = buildList {
+         if (connectivity.isNotEmpty()) add(CcModule.Connectivity(connectivity))
+@@ -207,7 +206,9 @@ fun ContentScope.BudikControlCenter(
+ 
+     val shown = { shownFraction() }
+     Box(
+-        modifier.fillMaxSize().clickable(interactionSource = null, indication = null, onClick = onDismiss)
++        modifier
++            .fillMaxSize()
++            .clickable(interactionSource = null, indication = null, onClick = onDismiss)
+     ) {
+         Column(
+             Modifier.fillMaxWidth()
+@@ -250,8 +251,8 @@ private sealed class CcModule(val span: Span) {
+ internal class Span(val columns: Int, val rows: Int)
+ 
+ /**
+- * Lays [content] out in [CC_COLUMNS] square cells, the n-th child sized and placed by [spans],
+- * each in its own layer revealed by [shown].
++ * Lays [content] out in [CC_COLUMNS] square cells, the n-th child sized and placed by [spans], each
++ * in its own layer revealed by [shown].
+  */
+ @Composable
+ private fun ModuleGrid(spans: List<Span>, shown: () -> Float, content: @Composable () -> Unit) {
+@@ -394,7 +395,11 @@ private fun TileKey(tile: TileViewModel, details: DetailsViewModel, modifier: Mo
+             Modifier.align(Alignment.Center).padding(horizontal = 6.dp),
+             horizontalAlignment = Alignment.CenterHorizontally,
+         ) {
+-            SmallTileContent(iconProvider = { tileIcon(icon) }, color = colors.content, size = { 26.dp })
++            SmallTileContent(
++                iconProvider = { tileIcon(icon) },
++                color = colors.content,
++                size = { 26.dp },
++            )
+             TextIfFits(
+                 text = ui.label,
+                 style = Budik.body(11.sp, colors.content, FontWeight.Medium),
+@@ -412,7 +417,9 @@ internal fun TextIfFits(text: String, style: TextStyle, modifier: Modifier = Mod
+         modifier = modifier,
+     ) { measurables, constraints ->
+         val line =
+-            measurables.first().measure(constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity))
++            measurables
++                .first()
++                .measure(constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity))
+         if (line.width <= constraints.maxWidth) {
+             layout(line.width, line.height) { line.place(0, 0) }
+         } else {
+@@ -488,7 +495,9 @@ private fun MediaModule(containerViewModel: QuickSettingsContainerViewModel) {
+     LaunchedEffect(viewModel) { viewModel.setVisibility { true } }
+     val card = viewModel.cards.getOrNull(viewModel.currentIndex) ?: viewModel.cards.firstOrNull()
+ 
+-    Box(Modifier.drawBehind { drawModuleShadow(cc.moduleShadow) }.padding(bottom = Budik.KeyDepth)) {
++    Box(
++        Modifier.drawBehind { drawModuleShadow(cc.moduleShadow) }.padding(bottom = Budik.KeyDepth)
++    ) {
+         Expandable(
+             color = cc.module,
+             shape = RoundedCornerShape(Budik.RadiusL),
+@@ -524,7 +533,9 @@ private fun DrawScope.drawModuleShadow(color: Color) {
+ private fun NowPlaying(card: MediaCardViewModel) {
+     val cc = ccColors
+     Column(
+-        Modifier.fillMaxSize().padding(14.dp).semantics { contentDescription = card.contentDescription }
++        Modifier.fillMaxSize().padding(14.dp).semantics {
++            contentDescription = card.contentDescription
++        }
+     ) {
+         Text(
+             text = card.title,
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenterEditor.kt b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenterEditor.kt
+index 009745967028..9ef3e0a20927 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenterEditor.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenterEditor.kt
+@@ -187,10 +187,10 @@ private class TileDrag(
+ 
+ /**
+  * Budík editor of the control centre (replaces the Pixel tile editor): the panel's tiles in the
+- * control centre's grid (the first network tiles form the connectivity module), the offer of
+- * other tiles below and the media, brightness and volume modules to switch on or off. Tap removes
+- * or adds a tile, a long press picks it up to move it, to drop it into the panel or out of it.
+- * Tiles are stored as before (sysui_qs_tiles), hidden modules in [CcBlocks.SETTING].
++ * control centre's grid (the first network tiles form the connectivity module), the offer of other
++ * tiles below and the media, brightness and volume modules to switch on or off. Tap removes or adds
++ * a tile, a long press picks it up to move it, to drop it into the panel or out of it. Tiles are
++ * stored as before (sysui_qs_tiles), hidden modules in [CcBlocks.SETTING].
+  */
+ @Composable
+ fun BudikControlCenterEditor(viewModel: EditModeViewModel, modifier: Modifier = Modifier) {
+@@ -465,8 +465,8 @@ private enum class Badge {
+ }
+ 
+ /**
+- * A key of the editor, drawn like a tile of the control centre. [ghost] is the empty slot a
+- * picked up key leaves behind.
++ * A key of the editor, drawn like a tile of the control centre. [ghost] is the empty slot a picked
++ * up key leaves behind.
+  */
+ @Composable
+ private fun EditKey(
+@@ -488,8 +488,7 @@ private fun EditKey(
+                         drawRoundRect(
+                             cc.textDim,
+                             topLeft = Offset(w / 2f, w / 2f),
+-                            size =
+-                                Size(size.width - w, size.height - Budik.KeyDepth.toPx() - w),
++                            size = Size(size.width - w, size.height - Budik.KeyDepth.toPx() - w),
+                             cornerRadius = CornerRadius(Budik.RadiusL.toPx()),
+                             style = Stroke(w),
+                         )
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
+index a68d65be349c..47b1ffb3abb7 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
+@@ -59,11 +59,10 @@ import com.android.compose.modifiers.thenIf
+ import com.android.mechanics.behavior.VerticalExpandContainerSpec
+ import com.android.mechanics.behavior.verticalExpandContainerBackground
+ import com.android.mechanics.compose.modifier.motionDriver
+-import com.android.systemui.qs.ui.composable.TileRevealFlag
+ import com.android.systemui.budik.ui.compose.Budik
++import com.android.systemui.qs.ui.composable.TileRevealFlag
+ import com.android.systemui.res.R
+ import com.android.systemui.scene.ui.composable.LocalSceneContainerPreloadedResources
+-import com.android.systemui.shade.ui.ShadeColors.shadePanel
+ import com.android.systemui.shade.ui.ShadeColors.shadePanelScrimBehind
+ import com.android.systemui.shade.ui.composable.OverlayShade.Colors
+ import com.android.systemui.shade.ui.composable.OverlayShade.Dimensions
+@@ -211,13 +210,17 @@ private fun ContentScope.Panel(
+     val edge = Budik.colors.border
+     Box(
+         modifier =
+-            modifier.disableSwipesWhenScrolling().then(
+-                if (dimBehind) {
+-                    Modifier.drawBehind { drawRect(background, alpha = DimAlpha * shownFraction()) }
+-                } else {
+-                    Modifier.drawBehind { drawSheet(background, edge) }.clipToBounds()
+-                }
+-            )
++            modifier
++                .disableSwipesWhenScrolling()
++                .then(
++                    if (dimBehind) {
++                        Modifier.drawBehind {
++                            drawRect(background, alpha = DimAlpha * shownFraction())
++                        }
++                    } else {
++                        Modifier.drawBehind { drawSheet(background, edge) }.clipToBounds()
++                    }
++                )
+     ) {
+         Column(Modifier.fillMaxSize()) {
+             header?.invoke()
+diff --git a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt
+index 73617e1a7d3e..086b75fdb21c 100644
+--- a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt
++++ b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/BudikVolumeDialogViewBinder.kt
+@@ -32,6 +32,7 @@ import androidx.compose.animation.core.Animatable
+ import androidx.compose.animation.core.Spring
+ import androidx.compose.animation.core.spring
+ import androidx.compose.animation.core.tween
++import androidx.compose.foundation.Canvas
+ import androidx.compose.foundation.Image
+ import androidx.compose.foundation.background
+ import androidx.compose.foundation.border
+@@ -42,7 +43,6 @@ import androidx.compose.foundation.gestures.drag
+ import androidx.compose.foundation.interaction.MutableInteractionSource
+ import androidx.compose.foundation.interaction.collectIsPressedAsState
+ import androidx.compose.foundation.layout.Arrangement
+-import androidx.compose.foundation.Canvas
+ import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.Row
+@@ -137,8 +137,8 @@ import kotlinx.coroutines.flow.onEach
+ 
+ /**
+  * Budík OS volume dialog (export/mockups 08_volume). Like on iOS and Pixel a volume key first shows
+- * one slider of the active stream at the edge, with a key that expands the card to the ringer
+- * mode segment, three vertical sliders (media, ringer, alarm) and a "Zvuk" key opening the sound
++ * one slider of the active stream at the edge, with a key that expands the card to the ringer mode
++ * segment, three vertical sliders (media, ringer, alarm) and a "Zvuk" key opening the sound
+  * settings. It replaces the AOSP view binders but keeps their state, visibility and dismiss logic.
+  */
+ @VolumeDialogScope
+@@ -274,7 +274,9 @@ private fun BudikVolumeDialog(
+                         radius = Budik.RadiusL,
+                         border = colors.line,
+                     )
+-                    .animateContentSize(spring(Spring.DampingRatioNoBouncy, Spring.StiffnessMediumLow))
++                    .animateContentSize(
++                        spring(Spring.DampingRatioNoBouncy, Spring.StiffnessMediumLow)
++                    )
+                     .padding(12.dp)
+                     .width(if (expanded) SliderWidth * 3 + SliderGap * 2 else SliderWidth),
+             horizontalAlignment = Alignment.CenterHorizontally,
+@@ -323,10 +325,10 @@ private fun budikSliders(
+         state.streamModels[state.activeStream]?.takeIf { it.stream !in FixedStreams }
+             ?: state.streamModels[AudioManager.STREAM_MUSIC]
+     return listOfNotNull(
+-        first?.let { it to firstLabel(context, it) },
+-        state.streamModels[AudioManager.STREAM_RING]?.let { it to "Vyzvánění" },
+-        state.streamModels[AudioManager.STREAM_ALARM]?.let { it to "Budík" },
+-    )
++            first?.let { it to firstLabel(context, it) },
++            state.streamModels[AudioManager.STREAM_RING]?.let { it to "Vyzvánění" },
++            state.streamModels[AudioManager.STREAM_ALARM]?.let { it to "Budík" },
++        )
+         .map { (model, label) -> Triple(model, label, iconFor(model.stream)) }
+ }
+ 
+@@ -482,9 +484,17 @@ private fun VolumeSlider(
+                             drawPath(track, colors.bg)
+                             val top = size.height * (1f - fraction)
+                             clipPath(track) {
+-                                drawRect(Budik.Mint, Offset(0f, top), Size(size.width, size.height - top))
++                                drawRect(
++                                    Budik.Mint,
++                                    Offset(0f, top),
++                                    Size(size.width, size.height - top),
++                                )
+                                 if (fraction > 0f && fraction < 1f) {
+-                                    drawRect(Budik.Ink, Offset(0f, top - edge / 2f), Size(size.width, edge))
++                                    drawRect(
++                                        Budik.Ink,
++                                        Offset(0f, top - edge / 2f),
++                                        Size(size.width, edge),
++                                    )
+                                 }
+                             }
+                             drawRoundRect(
+@@ -510,7 +520,8 @@ private fun VolumeSlider(
+         Spacer(Modifier.height(8.dp))
+         BasicText(
+             text = label,
+-            style = Budik.body(15.sp, colors.fg, FontWeight.Bold).copy(textAlign = TextAlign.Center),
++            style =
++                Budik.body(15.sp, colors.fg, FontWeight.Bold).copy(textAlign = TextAlign.Center),
+             maxLines = 1,
+             softWrap = false,
+             overflow = TextOverflow.Visible,
+@@ -548,7 +559,11 @@ private fun ExpandKey(onExpand: () -> Unit) {
+         Canvas(Modifier.align(Alignment.Center).size(24.dp, 6.dp)) {
+             val radius = size.height / 2f
+             for (i in 0..2) {
+-                drawCircle(colors.fg, radius, Offset(radius + i * (size.width - 2 * radius) / 2f, radius))
++                drawCircle(
++                    colors.fg,
++                    radius,
++                    Offset(radius + i * (size.width - 2 * radius) / 2f, radius),
++                )
+             }
+         }
+     }
+-- 
+2.53.0
+

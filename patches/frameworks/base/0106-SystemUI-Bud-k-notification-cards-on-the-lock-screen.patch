@@ -1,0 +1,456 @@
+From 151d6d64c02fb4412801185e0327d9e5c0922a67 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 08:37:55 +0000
+Subject: [PATCH] =?UTF-8?q?SystemUI:=20Bud=C3=ADk=20notification=20cards?=
+ =?UTF-8?q?=20on=20the=20lock=20screen?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+On phones the lock screen shows the newest notifications as cards in
+the language of the receipt (export/mockups 01_lock): the app icon in a
+keycap frame, "App · time", the title and two lines of text, as many
+cards as fit (at most three) and "+ N další oznámení" for the rest. The
+cards read the same list as the notification stack (after the lock
+screen filters) and redact sensitive notifications like the receipt; a
+tap opens the notification through the bouncer when the device is
+locked. They hide while dozing (AOD keeps its icon shelf) and move with
+the burn-in offset. The notification stack stays with no height for
+its lifecycle (heads-up, clear all, shelf), like in the notification
+shade.
+
+BudikNotificationActions becomes a SysUI singleton shared by the shade
+and the lock screen (one icon cache).
+---
+ .../LockscreenUpperRegionElementProvider.kt   |  23 ++-
+ .../ui/composable/BudikLockNotifications.kt   | 182 ++++++++++++++++++
+ .../ui/composable/BudikNotificationReceipt.kt |  14 +-
+ .../composable/NotificationsShadeOverlay.kt   |  24 +--
+ ...kscreenUpperRegionElementProviderKosmos.kt |   2 +
+ .../BudikNotificationActionsKosmos.kt         |  39 ++++
+ 6 files changed, 256 insertions(+), 28 deletions(-)
+ create mode 100644 packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikLockNotifications.kt
+ create mode 100644 packages/SystemUI/tests/utils/src/com/android/systemui/notifications/ui/composable/BudikNotificationActionsKosmos.kt
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/keyguard/ui/composable/elements/LockscreenUpperRegionElementProvider.kt b/packages/SystemUI/compose/features/src/com/android/systemui/keyguard/ui/composable/elements/LockscreenUpperRegionElementProvider.kt
+index 187b9c13af9f..e1e6267c9725 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/keyguard/ui/composable/elements/LockscreenUpperRegionElementProvider.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/keyguard/ui/composable/elements/LockscreenUpperRegionElementProvider.kt
+@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
+ import androidx.compose.foundation.layout.fillMaxHeight
+ import androidx.compose.foundation.layout.fillMaxSize
+ import androidx.compose.foundation.layout.fillMaxWidth
++import androidx.compose.foundation.layout.height
+ import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.layout.safeContent
+ import androidx.compose.foundation.layout.width
+@@ -66,6 +67,8 @@ import com.android.systemui.lifecycle.rememberViewModel
+ import com.android.systemui.log.LogBuffer
+ import com.android.systemui.log.core.Logger
+ import com.android.systemui.log.dagger.KeyguardBlueprintLog
++import com.android.systemui.notifications.ui.composable.BudikLockNotifications
++import com.android.systemui.notifications.ui.composable.BudikNotificationActions
+ import com.android.systemui.plugins.keyguard.ui.composable.elements.BaseLockscreenElement.ElementSource
+ import com.android.systemui.plugins.keyguard.ui.composable.elements.LockscreenElement
+ import com.android.systemui.plugins.keyguard.ui.composable.elements.LockscreenElementKeys.Clock
+@@ -101,6 +104,7 @@ constructor(
+     broadcastDispatcher: BroadcastDispatcher,
+     nextAlarmController: NextAlarmController,
+     private val lightRevealScrimRepository: LightRevealScrimRepository,
++    private val notificationActions: BudikNotificationActions,
+ ) : LockscreenElementProvider {
+     private val now: Flow<Long> =
+         broadcastDispatcher
+@@ -262,7 +266,24 @@ constructor(
+                             .burnInAware(isClock = true),
+                 )
+                 MediaCarousel(Modifier.align(Alignment.Start))
+-                Notifications(aodAlignment = Alignment.TopStart)
++                NotificationCards(darkText)
++            }
++        }
++
++        @Composable
++        private fun LockscreenScope<ContentScope>.NotificationCards(darkText: Boolean) {
++            Box(Modifier.fillMaxSize()) {
++                AODNotifications(Modifier.align(Alignment.TopStart))
++                AnimatedVisibility(viewModel.isNotificationStackActive && !viewModel.isDozing) {
++                    BudikLockNotifications(
++                        actions = notificationActions,
++                        darkText = darkText,
++                        modifier = Modifier.burnInAware(isClock = false),
++                    )
++                }
++                // The cards show the notifications; the stack stays, without height, for its
++                // lifecycle (heads-up, clear all, shelf) like in the notification shade.
++                LockscreenElement(Notifications.Stack, Modifier.fillMaxWidth().height(0.dp))
+             }
+         }
+     }
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikLockNotifications.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikLockNotifications.kt
+new file mode 100644
+index 000000000000..06e1777e79b9
+--- /dev/null
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikLockNotifications.kt
+@@ -0,0 +1,182 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.notifications.ui.composable
++
++import android.text.format.DateFormat
++import androidx.compose.foundation.background
++import androidx.compose.foundation.border
++import androidx.compose.foundation.clickable
++import androidx.compose.foundation.layout.Column
++import androidx.compose.foundation.layout.Row
++import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.fillMaxWidth
++import androidx.compose.foundation.layout.height
++import androidx.compose.foundation.layout.padding
++import androidx.compose.foundation.layout.width
++import androidx.compose.foundation.shape.RoundedCornerShape
++import androidx.compose.material3.Text
++import androidx.compose.runtime.Composable
++import androidx.compose.runtime.getValue
++import androidx.compose.runtime.remember
++import androidx.compose.ui.Alignment
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.layout.Placeable
++import androidx.compose.ui.layout.SubcomposeLayout
++import androidx.compose.ui.platform.LocalConfiguration
++import androidx.compose.ui.platform.LocalContext
++import androidx.compose.ui.semantics.Role
++import androidx.compose.ui.text.font.FontWeight
++import androidx.compose.ui.text.style.TextAlign
++import androidx.compose.ui.text.style.TextOverflow
++import androidx.compose.ui.unit.Constraints
++import androidx.compose.ui.unit.dp
++import androidx.compose.ui.unit.sp
++import androidx.lifecycle.compose.collectAsStateWithLifecycle
++import com.android.systemui.budik.ui.compose.Budik
++import java.util.Date
++import java.util.Locale
++
++/**
++ * Budík notification cards on the lock screen (export/mockups 01_lock): the newest notifications as
++ * cards in the language of the receipt (app icon, "App · time", title, text), as many as fit, then
++ * "+ N další oznámení". A tap opens the notification, through the bouncer when the device is
++ * locked. Sensitive notifications are redacted like in the receipt.
++ */
++@Composable
++fun BudikLockNotifications(
++    actions: BudikNotificationActions,
++    darkText: Boolean,
++    modifier: Modifier = Modifier,
++) {
++    val store by actions.activeNotifications.collectAsStateWithLifecycle()
++    val items = remember(store) { actions.items(store, emptySet()) }
++    if (items.isEmpty()) return
++    val locale = LocalConfiguration.current.locales[0]
++
++    SubcomposeLayout(modifier.fillMaxWidth()) { constraints ->
++        val loose = constraints.copy(minHeight = 0)
++        val gap = CardGap.roundToPx()
++        val footerHeight = FooterHeight.roundToPx()
++        val room = constraints.maxHeight - if (items.size > 1) footerHeight else 0
++        val cards = mutableListOf<Placeable>()
++        var height = 0
++        for ((index, item) in items.withIndex()) {
++            if (cards.size == MAX_CARDS) break
++            val card =
++                subcompose(item.key) {
++                        LockCard(item, actions, locale) { actions.open(item, index, items.size) }
++                    }
++                    .single()
++                    .measure(loose)
++            val next = height + (if (cards.isEmpty()) 0 else gap) + card.height
++            if (next > room) break
++            cards += card
++            height = next
++        }
++        val hidden = items.size - cards.size
++        val footer =
++            if (hidden > 0) {
++                subcompose(FooterSlot) { MoreLine(hidden, darkText) }
++                    .single()
++                    .measure(Constraints.fixed(constraints.maxWidth, footerHeight))
++            } else {
++                null
++            }
++        layout(constraints.maxWidth, height + (footer?.height ?: 0)) {
++            var y = 0
++            cards.forEach { card ->
++                card.place(0, y)
++                y += card.height + gap
++            }
++            footer?.place(0, height)
++        }
++    }
++}
++
++private const val MAX_CARDS = 3
++private const val FooterSlot = "more"
++private val CardGap = 10.dp
++private val FooterHeight = 40.dp
++
++@Composable
++private fun LockCard(
++    item: BudikNotificationItem,
++    actions: BudikNotificationActions,
++    locale: Locale,
++    onOpen: () -> Unit,
++) {
++    val c = Budik.colors
++    val is24 = DateFormat.is24HourFormat(LocalContext.current)
++    val time =
++        remember(item.time, locale, is24) {
++            dateFormat(locale, if (is24) "Hm" else "hm").format(Date(item.time))
++        }
++    val shape = RoundedCornerShape(Budik.RadiusL)
++    Row(
++        Modifier.fillMaxWidth()
++            .background(c.surface, shape)
++            .border(1.dp, c.line, shape)
++            .clickable(
++                enabled = item.canOpen,
++                interactionSource = null,
++                indication = null,
++                role = Role.Button,
++                onClick = onOpen,
++            )
++            .padding(16.dp)
++    ) {
++        AppIcon(item, actions)
++        Spacer(Modifier.width(14.dp))
++        Column(Modifier.weight(1f)) {
++            Text(
++                text = "${item.app} · $time",
++                style = Budik.meta(13.sp, c.fg3),
++                maxLines = 1,
++                overflow = TextOverflow.Ellipsis,
++            )
++            Text(
++                text = item.title,
++                style = Budik.body(17.sp, c.fg, FontWeight.Bold),
++                maxLines = 1,
++                overflow = TextOverflow.Ellipsis,
++            )
++            if (item.text.isNotEmpty()) {
++                Text(
++                    text = item.text,
++                    style = Budik.body(15.sp, c.fg2),
++                    maxLines = 2,
++                    overflow = TextOverflow.Ellipsis,
++                )
++            }
++        }
++    }
++}
++
++/** "+ 2 další oznámení" under the cards, readable on the wallpaper. */
++@Composable
++private fun MoreLine(hidden: Int, darkText: Boolean) {
++    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(FooterHeight)) {
++        Text(
++            text = "+ $hidden ${if (hidden < 5) "další" else "dalších"} oznámení",
++            style =
++                Budik.body(15.sp, if (darkText) Budik.Ink else Budik.White, FontWeight.SemiBold)
++                    .copy(textAlign = TextAlign.Center),
++            maxLines = 1,
++            modifier = Modifier.weight(1f),
++        )
++    }
++}
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+index 70b817682ac5..83d5cd7fcfa8 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/BudikNotificationReceipt.kt
+@@ -88,6 +88,8 @@ import com.android.internal.statusbar.NotificationVisibility
+ import com.android.systemui.budik.ui.compose.Budik
+ import com.android.systemui.budik.ui.compose.BudikKey
+ import com.android.systemui.budik.ui.compose.budikKeycap
++import com.android.systemui.dagger.SysUISingleton
++import com.android.systemui.dagger.qualifiers.Background
+ import com.android.systemui.plugins.ActivityStarter
+ import com.android.systemui.statusbar.NotificationClickNotifier
+ import com.android.systemui.statusbar.notification.collection.NotifPipeline
+@@ -104,6 +106,7 @@ import dagger.Lazy
+ import java.text.SimpleDateFormat
+ import java.util.Date
+ import java.util.Locale
++import javax.inject.Inject
+ import kotlin.math.abs
+ import kotlin.math.sign
+ import kotlinx.coroutines.CoroutineDispatcher
+@@ -136,14 +139,17 @@ data class BudikNotificationItem(
+  * rows do: open = content intent (dismissing the keyguard) + click report (auto cancel), dismiss =
+  * user dismissal, clear all = the stack's clear all.
+  */
+-class BudikNotificationActions(
++@SysUISingleton
++class BudikNotificationActions
++@Inject
++constructor(
+     private val repository: ActiveNotificationListRepository,
+     private val notifPipeline: Lazy<NotifPipeline>,
+     private val onUserInteractionCallback: Lazy<OnUserInteractionCallback>,
+     private val activityStarter: Lazy<ActivityStarter>,
+     private val clickNotifier: Lazy<NotificationClickNotifier>,
+     private val stackScrollView: Lazy<NotificationScrollView>,
+-    private val bgDispatcher: CoroutineDispatcher,
++    @Background private val bgDispatcher: CoroutineDispatcher,
+ ) {
+     val activeNotifications = repository.activeNotifications
+ 
+@@ -320,7 +326,7 @@ private object SeenNotifications {
+     val keys = mutableSetOf<String>()
+ }
+ 
+-private fun dateFormat(locale: Locale, skeleton: String) =
++internal fun dateFormat(locale: Locale, skeleton: String) =
+     SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, skeleton), locale)
+ 
+ private fun String.capitalized(locale: Locale) = replaceFirstChar { it.titlecase(locale) }
+@@ -642,7 +648,7 @@ private fun ReceiptRow(
+ 
+ /** The app's icon in a keycap frame, named for TalkBack; loads off the main thread, once. */
+ @Composable
+-private fun AppIcon(item: BudikNotificationItem, actions: BudikNotificationActions) {
++internal fun AppIcon(item: BudikNotificationItem, actions: BudikNotificationActions) {
+     val c = Budik.colors
+     val context = LocalContext.current
+     val sizePx = with(LocalDensity.current) { AppIconSize.roundToPx() }
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
+index 5b17b218a69f..1cdea6631146 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/notifications/ui/composable/NotificationsShadeOverlay.kt
+@@ -47,7 +47,6 @@ import com.android.internal.jank.InteractionJankMonitor
+ import com.android.systemui.budik.ui.compose.BudikSheetHandle
+ import com.android.systemui.budik.ui.compose.BudikSheetHandleArea
+ import com.android.systemui.dagger.SysUISingleton
+-import com.android.systemui.dagger.qualifiers.Background
+ import com.android.systemui.keyguard.ui.composable.elements.LockscreenElements
+ import com.android.systemui.lifecycle.rememberViewModel
+ import com.android.systemui.media.remedia.ui.compose.Media
+@@ -65,15 +64,9 @@ import com.android.systemui.scene.ui.composable.Overlay
+ import com.android.systemui.shade.ui.composable.ChipHighlightModel
+ import com.android.systemui.shade.ui.composable.OverlayShade
+ import com.android.systemui.shade.ui.composable.OverlayShadeHeader
+-import com.android.systemui.plugins.ActivityStarter
+-import com.android.systemui.statusbar.NotificationClickNotifier
+-import com.android.systemui.statusbar.notification.collection.NotifPipeline
+-import com.android.systemui.statusbar.notification.data.repository.ActiveNotificationListRepository
+-import com.android.systemui.statusbar.notification.row.OnUserInteractionCallback
+ import com.android.systemui.statusbar.notification.stack.ui.view.NotificationScrollView
+ import dagger.Lazy
+ import javax.inject.Inject
+-import kotlinx.coroutines.CoroutineDispatcher
+ import kotlinx.coroutines.flow.Flow
+ 
+ @SysUISingleton
+@@ -87,23 +80,8 @@ constructor(
+     private val shadeSession: SaveableSession,
+     private val stackScrollView: Lazy<NotificationScrollView>,
+     private val jankMonitor: InteractionJankMonitor,
+-    activeNotificationListRepository: ActiveNotificationListRepository,
+-    notifPipeline: Lazy<NotifPipeline>,
+-    onUserInteractionCallback: Lazy<OnUserInteractionCallback>,
+-    activityStarter: Lazy<ActivityStarter>,
+-    notificationClickNotifier: Lazy<NotificationClickNotifier>,
+-    @Background bgDispatcher: CoroutineDispatcher,
++    private val budikActions: BudikNotificationActions,
+ ) : Overlay {
+-    private val budikActions =
+-        BudikNotificationActions(
+-            repository = activeNotificationListRepository,
+-            notifPipeline = notifPipeline,
+-            onUserInteractionCallback = onUserInteractionCallback,
+-            activityStarter = activityStarter,
+-            clickNotifier = notificationClickNotifier,
+-            stackScrollView = stackScrollView,
+-            bgDispatcher = bgDispatcher,
+-        )
+ 
+     override val key = Overlays.NotificationsShade
+ 
+diff --git a/packages/SystemUI/tests/utils/src/com/android/systemui/keyguard/ui/lockscreen/elementproviders/LockscreenUpperRegionElementProviderKosmos.kt b/packages/SystemUI/tests/utils/src/com/android/systemui/keyguard/ui/lockscreen/elementproviders/LockscreenUpperRegionElementProviderKosmos.kt
+index bc0d26440309..bd3a8d0e3d1e 100644
+--- a/packages/SystemUI/tests/utils/src/com/android/systemui/keyguard/ui/lockscreen/elementproviders/LockscreenUpperRegionElementProviderKosmos.kt
++++ b/packages/SystemUI/tests/utils/src/com/android/systemui/keyguard/ui/lockscreen/elementproviders/LockscreenUpperRegionElementProviderKosmos.kt
+@@ -23,6 +23,7 @@ import com.android.systemui.keyguard.ui.composable.elements.LockscreenUpperRegio
+ import com.android.systemui.keyguard.ui.viewmodel.lockscreenUpperRegionViewModelFactory
+ import com.android.systemui.kosmos.Kosmos
+ import com.android.systemui.log.logcatLogBuffer
++import com.android.systemui.notifications.ui.composable.budikNotificationActions
+ import com.android.systemui.statusbar.policy.nextAlarmController
+ 
+ val Kosmos.lockscreenUpperRegionElementProvider by
+@@ -34,5 +35,6 @@ val Kosmos.lockscreenUpperRegionElementProvider by
+             broadcastDispatcher = broadcastDispatcher,
+             nextAlarmController = nextAlarmController,
+             lightRevealScrimRepository = lightRevealScrimRepository,
++            notificationActions = budikNotificationActions,
+         )
+     }
+diff --git a/packages/SystemUI/tests/utils/src/com/android/systemui/notifications/ui/composable/BudikNotificationActionsKosmos.kt b/packages/SystemUI/tests/utils/src/com/android/systemui/notifications/ui/composable/BudikNotificationActionsKosmos.kt
+new file mode 100644
+index 000000000000..8c8de60b6abf
+--- /dev/null
++++ b/packages/SystemUI/tests/utils/src/com/android/systemui/notifications/ui/composable/BudikNotificationActionsKosmos.kt
+@@ -0,0 +1,39 @@
++/*
++ * Copyright (C) 2026 Budík OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.notifications.ui.composable
++
++import com.android.systemui.kosmos.Kosmos
++import com.android.systemui.kosmos.testDispatcher
++import com.android.systemui.plugins.activityStarter
++import com.android.systemui.statusbar.notification.collection.notifPipeline
++import com.android.systemui.statusbar.notification.data.repository.activeNotificationListRepository
++import com.android.systemui.statusbar.notification.row.onUserInteractionCallback
++import com.android.systemui.statusbar.notification.stack.ui.view.notificationScrollView
++import com.android.systemui.statusbar.notificationClickNotifier
++
++val Kosmos.budikNotificationActions by
++    Kosmos.Fixture {
++        BudikNotificationActions(
++            repository = activeNotificationListRepository,
++            notifPipeline = { notifPipeline },
++            onUserInteractionCallback = { onUserInteractionCallback },
++            activityStarter = { activityStarter },
++            clickNotifier = { notificationClickNotifier },
++            stackScrollView = { notificationScrollView },
++            bgDispatcher = testDispatcher,
++        )
++    }
+-- 
+2.53.0
+

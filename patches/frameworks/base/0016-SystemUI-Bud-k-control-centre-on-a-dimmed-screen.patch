@@ -1,0 +1,312 @@
+From ab96e4c354271bc905d12b5c94c9c2ffa68d4df7 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 07:59:20 +0000
+Subject: [PATCH] =?UTF-8?q?SystemUI:=20Bud=C3=ADk=20control=20centre=20on?=
+ =?UTF-8?q?=20a=20dimmed=20screen=20instead=20of=20a=20sheet?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The control centre still came down as an opaque full screen sheet (a
+"garage door") with a grab handle. Like the iOS and Pixel control
+centres it now floats on the current screen, which dims with the
+finger (one full screen fill, 94 % of the background colour at the
+end); the modules fade in and settle from slightly above and smaller
+row by row as the finger moves, each in its own layer with the alpha
+applied per draw, so no frame re-measures, re-records or uses an
+offscreen layer. The transition no longer moves the panel and uses a
+fixed swipe distance. No grab handle in the control centre and its
+editor; it closes by swiping up or tapping empty space.
+
+The notification shade keeps its sheet (OverlayShade dimBehind = false).
+---
+ .../qs/ui/composable/BudikControlCenter.kt    | 56 ++++++++++++++-----
+ .../ui/composable/BudikControlCenterEditor.kt |  2 -
+ .../composable/QuickSettingsShadeOverlay.kt   |  1 +
+ .../ToQuickSettingsShadeTransition.kt         |  7 ++-
+ .../shade/ui/composable/OverlayShade.kt       | 35 +++++++++---
+ 5 files changed, 76 insertions(+), 25 deletions(-)
+
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+index 605f70764088..d8d68ad0689e 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenter.kt
+@@ -59,6 +59,9 @@ import androidx.compose.ui.geometry.Offset
+ import androidx.compose.ui.geometry.RoundRect
+ import androidx.compose.ui.geometry.Size
+ import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.graphics.CompositingStrategy
++import androidx.compose.ui.graphics.GraphicsLayerScope
++import androidx.compose.ui.graphics.graphicsLayer
+ import androidx.compose.ui.graphics.Path
+ import androidx.compose.ui.graphics.drawscope.DrawScope
+ import androidx.compose.ui.graphics.vector.ImageVector
+@@ -89,8 +92,6 @@ import com.android.systemui.brightness.ui.viewmodel.Drag
+ import com.android.systemui.budik.ui.compose.Budik
+ import com.android.systemui.budik.ui.compose.BudikIcons
+ import com.android.systemui.budik.ui.compose.BudikKey
+-import com.android.systemui.budik.ui.compose.BudikSheetHandle
+-import com.android.systemui.budik.ui.compose.BudikSheetHandleArea
+ import com.android.systemui.budik.ui.compose.BudikSoundPowerIcons
+ import com.android.systemui.common.shared.model.Icon
+ import com.android.systemui.lifecycle.rememberViewModel
+@@ -111,6 +112,7 @@ import com.android.systemui.qs.panels.ui.viewmodel.toolbar.ToolbarViewModel
+ import com.android.systemui.qs.tileimpl.QSTileImpl
+ import com.android.systemui.qs.ui.viewmodel.QuickSettingsContainerViewModel
+ import com.android.systemui.res.R
++import com.android.systemui.shade.ui.composable.shownFraction
+ import com.android.systemui.util.policy.PolicyRestriction
+ import com.android.systemui.volume.panel.component.volume.slider.ui.viewmodel.AudioStreamSliderViewModel
+ import kotlinx.coroutines.launch
+@@ -169,10 +171,10 @@ internal val ccColors: CcColors
+ 
+ /**
+  * Budík "Řídicí centrum", laid out like the iOS / HyperOS control centre from the top of the
+- * sheet: a connectivity module and the media module side by side, a row of tiles, the brightness
++ * screen: a connectivity module and the media module side by side, a row of tiles, the brightness
+  * and volume sliders next to more tiles, the remaining tiles, then edit / settings / power. Every
+- * module sits in a grid of square cells, the content is measured once and only moves while the
+- * sheet slides. A tap on empty space closes the sheet.
++ * module sits in a grid of square cells and is measured once; while the panel opens or closes the
++ * modules only fade and settle with the finger, row by row. A tap on empty space closes it.
+  */
+ @Composable
+ fun ContentScope.BudikControlCenter(
+@@ -203,15 +205,16 @@ fun ContentScope.BudikControlCenter(
+         others.drop(TILES_BEFORE_SLIDERS).forEach { add(CcModule.Key(it)) }
+     }
+ 
++    val shown = { shownFraction() }
+     Box(
+         modifier.fillMaxSize().clickable(interactionSource = null, indication = null, onClick = onDismiss)
+     ) {
+         Column(
+             Modifier.fillMaxWidth()
+                 .verticalScroll(rememberScrollState(), overscrollEffect = null)
+-                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = BudikSheetHandleArea)
++                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
+         ) {
+-            ModuleGrid(modules.map { it.span }) {
++            ModuleGrid(modules.map { it.span }, shown) {
+                 modules.forEach { module ->
+                     when (module) {
+                         is CcModule.Connectivity -> ConnectivityModule(module.tiles, details)
+@@ -224,9 +227,11 @@ fun ContentScope.BudikControlCenter(
+                 }
+             }
+             Spacer(Modifier.height(16.dp))
+-            Footer(toolbarViewModelFactory)
++            Footer(
++                toolbarViewModelFactory,
++                Modifier.graphicsLayer { reveal(shown(), MaxRevealDelay) },
++            )
+         }
+-        BudikSheetHandle(Modifier.align(Alignment.BottomCenter))
+     }
+ }
+ 
+@@ -244,9 +249,12 @@ private sealed class CcModule(val span: Span) {
+ 
+ internal class Span(val columns: Int, val rows: Int)
+ 
+-/** Lays [content] out in [CC_COLUMNS] square cells, the n-th child sized and placed by [spans]. */
++/**
++ * Lays [content] out in [CC_COLUMNS] square cells, the n-th child sized and placed by [spans],
++ * each in its own layer revealed by [shown].
++ */
+ @Composable
+-private fun ModuleGrid(spans: List<Span>, content: @Composable () -> Unit) {
++private fun ModuleGrid(spans: List<Span>, shown: () -> Float, content: @Composable () -> Unit) {
+     Layout(content) { measurables, constraints ->
+         val gap = CcGap.roundToPx()
+         val cell = (constraints.maxWidth - gap * (CC_COLUMNS - 1)) / CC_COLUMNS
+@@ -261,12 +269,32 @@ private fun ModuleGrid(spans: List<Span>, content: @Composable () -> Unit) {
+         val rows = origins.indices.maxOfOrNull { origins[it].y + spans[it].rows } ?: 0
+         layout(constraints.maxWidth, if (rows > 0) extent(rows) else 0) {
+             placeables.forEachIndexed { i, placeable ->
+-                placeable.place(origins[i].x * (cell + gap), origins[i].y * (cell + gap))
++                val origin = origins[i]
++                placeable.placeWithLayer(origin.x * (cell + gap), origin.y * (cell + gap)) {
++                    reveal(shown(), (origin.y * RowRevealDelay).coerceAtMost(MaxRevealDelay))
++                }
+             }
+         }
+     }
+ }
+ 
++private const val RowRevealDelay = 0.06f
++private const val MaxRevealDelay = 0.3f
++private val RevealOffset = 24.dp
++
++/**
++ * A module fades in and settles from slightly above and smaller as [shown] goes past [delay]. The
++ * alpha is applied to each draw, so no offscreen layer is needed.
++ */
++private fun GraphicsLayerScope.reveal(shown: Float, delay: Float) {
++    val fraction = ((shown - delay) / (1f - MaxRevealDelay)).coerceIn(0f, 1f)
++    alpha = fraction
++    compositingStrategy = CompositingStrategy.ModulateAlpha
++    translationY = -(1f - fraction) * RevealOffset.toPx()
++    scaleX = 0.92f + 0.08f * fraction
++    scaleY = scaleX
++}
++
+ /** Puts every module at the first free cell in reading order where it fits (dense packing). */
+ internal fun placeModules(spans: List<Span>, columns: Int = CC_COLUMNS): List<IntOffset> {
+     val taken = ArrayList<BooleanArray>()
+@@ -707,7 +735,7 @@ private fun VerticalSlider(
+ private const val IconFillThreshold = 0.18f
+ 
+ @Composable
+-private fun Footer(toolbarViewModelFactory: ToolbarViewModel.Factory) {
++private fun Footer(toolbarViewModelFactory: ToolbarViewModel.Factory, modifier: Modifier) {
+     val cc = ccColors
+     val toolbarViewModel =
+         rememberViewModel("BudikControlCenter.Toolbar") { toolbarViewModelFactory.create() }
+@@ -715,7 +743,7 @@ private fun Footer(toolbarViewModelFactory: ToolbarViewModel.Factory) {
+         rememberViewModel("BudikControlCenter.Edit") {
+             toolbarViewModel.editModeButtonViewModelFactory.create()
+         }
+-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
++    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+         if (editViewModel.isEditButtonVisible) {
+             BudikKey(
+                 face = cc.module,
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenterEditor.kt b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenterEditor.kt
+index a8a5806c2677..009745967028 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenterEditor.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/BudikControlCenterEditor.kt
+@@ -83,7 +83,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
+ import com.android.systemui.budik.ui.compose.Budik
+ import com.android.systemui.budik.ui.compose.BudikIcons
+ import com.android.systemui.budik.ui.compose.BudikKey
+-import com.android.systemui.budik.ui.compose.BudikSheetHandle
+ import com.android.systemui.budik.ui.compose.budikKeycap
+ import com.android.systemui.qs.panels.ui.compose.infinitegrid.SmallTileContent
+ import com.android.systemui.qs.panels.ui.viewmodel.AvailableEditActions
+@@ -441,7 +440,6 @@ fun BudikControlCenterEditor(viewModel: EditModeViewModel, modifier: Modifier =
+             }
+             Spacer(Modifier.height(16.dp))
+         }
+-        BudikSheetHandle(Modifier.align(Alignment.CenterHorizontally))
+     }
+ }
+ 
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlay.kt b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlay.kt
+index 54a65d298011..efb3083d7469 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlay.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/qs/ui/composable/QuickSettingsShadeOverlay.kt
+@@ -207,6 +207,7 @@ constructor(
+                         )
+                     )
+                 },
++                dimBehind = true,
+                 header = {
+                     if (contentViewModel.showHeader) {
+                         val headerViewModel = quickSettingsContainerViewModel.shadeHeaderViewModel
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToQuickSettingsShadeTransition.kt b/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToQuickSettingsShadeTransition.kt
+index 81e94f10afb3..dddf8b5ec763 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToQuickSettingsShadeTransition.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/scene/ui/composable/transitions/ToQuickSettingsShadeTransition.kt
+@@ -17,6 +17,8 @@
+ package com.android.systemui.scene.ui.composable.transitions
+ 
+ import androidx.compose.animation.core.tween
++import androidx.compose.ui.unit.dp
++import com.android.compose.animation.scene.FixedDistance
+ import com.android.compose.animation.scene.TransitionBuilder
+ import com.android.compose.animation.scene.reveal.ContainerRevealHaptics
+ import com.android.mechanics.behavior.VerticalExpandContainerSpec
+@@ -31,8 +33,9 @@ fun TransitionBuilder.toQuickSettingsShadeTransition(
+ ) {
+     spec = tween(durationMillis = (DefaultDuration * durationScale).inWholeMilliseconds.toInt())
+ 
+-    // Budík: full screen sheet sliding with the finger instead of the container reveal.
+-    budikSheetSlide(QuickSettingsShade.Elements.Panel)
++    // Budík: instead of the container reveal the screen dims with the finger and the control
++    // centre modules appear on it (BudikControlCenter); nothing is moved by the transition.
++    distance = FixedDistance(320.dp)
+ 
+     fractionRange(end = .5f) { fade(OverlayShade.Elements.Scrim) }
+     fractionRange(start = .5f) {
+diff --git a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
+index 14a4e3589868..a68d65be349c 100644
+--- a/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
++++ b/packages/SystemUI/compose/features/src/com/android/systemui/shade/ui/composable/OverlayShade.kt
+@@ -82,6 +82,7 @@ fun ContentScope.OverlayShade(
+     onBackgroundPlaced: (bounds: Rect, topCornerRadius: Float, bottomCornerRadius: Float) -> Unit =
+         { _, _, _ ->
+         },
++    dimBehind: Boolean = false,
+     header: @Composable () -> Unit,
+     content: @Composable () -> Unit,
+ ) {
+@@ -109,6 +110,7 @@ fun ContentScope.OverlayShade(
+                 enableTransparency = enableTransparency,
+                 spec = panelSpec,
+                 isFullScreen = isFullWidth,
++                dimBehind = dimBehind,
+                 modifier =
+                     Modifier.overscroll(verticalOverscrollEffect)
+                         .element(panelElement)
+@@ -179,6 +181,7 @@ private fun ContentScope.Panel(
+     enableTransparency: Boolean,
+     spec: VerticalExpandContainerSpec,
+     isFullScreen: Boolean,
++    dimBehind: Boolean,
+     modifier: Modifier = Modifier,
+     header: (@Composable () -> Unit)?,
+     content: @Composable () -> Unit,
+@@ -201,17 +204,20 @@ private fun ContentScope.Panel(
+         return
+     }
+ 
+-    // Budík: an opaque full screen sheet with rounded bottom corners and a hard 0 x 3 dp edge
+-    // below it (no gradient, no blur). It is drawn directly, without an offscreen layer or a
+-    // shaped clip, so a frame of the slide costs one full screen fill plus the content.
++    // Budík: either an opaque full screen sheet with rounded bottom corners and a hard 0 x 3 dp
++    // edge below it, or ([dimBehind]) the screen dimming with the finger under content that
++    // floats on it. No gradient, no blur, no offscreen layer: a frame costs one full screen fill.
+     val background = Colors.panelBackground(enableTransparency)
+     val edge = Budik.colors.border
+     Box(
+         modifier =
+-            modifier
+-                .disableSwipesWhenScrolling()
+-                .drawBehind { drawSheet(background, edge) }
+-                .clipToBounds()
++            modifier.disableSwipesWhenScrolling().then(
++                if (dimBehind) {
++                    Modifier.drawBehind { drawRect(background, alpha = DimAlpha * shownFraction()) }
++                } else {
++                    Modifier.drawBehind { drawSheet(background, edge) }.clipToBounds()
++                }
++            )
+     ) {
+         Column(Modifier.fillMaxSize()) {
+             header?.invoke()
+@@ -220,6 +226,21 @@ private fun ContentScope.Panel(
+     }
+ }
+ 
++/** Opacity of the dimmed screen behind a [dimBehind] panel when it is fully shown. */
++private const val DimAlpha = 0.94f
++
++/**
++ * How much of this content is shown, from 0 (hidden) to 1 (shown); follows the finger while a
++ * transition to or from it runs. Read it in the draw or layer phase only.
++ */
++fun ContentScope.shownFraction(): Float {
++    val transition =
++        layoutState.currentTransitions.lastOrNull { it.isTransitioningFromOrTo(contentKey) }
++            ?: return 1f
++    val progress = transition.progress.coerceIn(0f, 1f)
++    return if (transition.toContent == contentKey) progress else 1f - progress
++}
++
+ /** The sheet's background with rounded bottom corners, the hard edge only where it shows. */
+ private fun DrawScope.drawSheet(background: Color, edge: Color) {
+     val corner = CornerRadius(Budik.RadiusL.toPx())
+-- 
+2.53.0
+
