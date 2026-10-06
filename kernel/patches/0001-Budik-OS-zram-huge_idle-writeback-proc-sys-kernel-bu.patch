@@ -1,0 +1,391 @@
+From 206f41deb2e3aaf6ae640d4d4638501f2f176467 Mon Sep 17 00:00:00 2001
+From: Budik OS <info@budikstore.org>
+Date: Tue, 6 Oct 2026 08:16:19 +0200
+Subject: [PATCH] Budik OS: zram huge_idle writeback + /proc/sys/kernel/budik
+ profile tunables
+
+---
+ drivers/block/zram/zram_drv.c    |   8 +-
+ drivers/cpufreq/Kconfig          |   7 +
+ drivers/cpufreq/Makefile         |   1 +
+ drivers/cpufreq/budik_tune.c     | 218 +++++++++++++++++++++++++++++++
+ drivers/cpufreq/cpu-boost.c      |   2 +-
+ kernel/sched/cpufreq_schedutil.c |  55 ++++++++
+ 6 files changed, 287 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/cpufreq/budik_tune.c
+
+diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
+index d11775a04..f4f40e15f 100644
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -637,7 +637,7 @@ static ssize_t writeback_store(struct device *dev,
+ 	struct bio bio;
+ 	struct page *page;
+ 	ssize_t ret, sz;
+-	char mode_buf[8];
++	char mode_buf[16];
+ 	int mode = -1;
+ 	unsigned long blk_idx = 0;
+ 
+@@ -653,6 +653,8 @@ static ssize_t writeback_store(struct device *dev,
+ 		mode = IDLE_WRITEBACK;
+ 	else if (!strcmp(mode_buf, "huge"))
+ 		mode = HUGE_WRITEBACK;
++	else if (!strcmp(mode_buf, "huge_idle"))
++		mode = IDLE_WRITEBACK | HUGE_WRITEBACK;
+ 
+ 	if (mode == -1)
+ 		return -EINVAL;
+@@ -706,10 +708,10 @@ static ssize_t writeback_store(struct device *dev,
+ 				zram_test_flag(zram, index, ZRAM_UNDER_WB))
+ 			goto next;
+ 
+-		if (mode == IDLE_WRITEBACK &&
++		if ((mode & IDLE_WRITEBACK) &&
+ 			  !zram_test_flag(zram, index, ZRAM_IDLE))
+ 			goto next;
+-		if (mode == HUGE_WRITEBACK &&
++		if ((mode & HUGE_WRITEBACK) &&
+ 			  !zram_test_flag(zram, index, ZRAM_HUGE))
+ 			goto next;
+ 		/*
+diff --git a/drivers/cpufreq/Kconfig b/drivers/cpufreq/Kconfig
+index 379080c63..759f798d4 100644
+--- a/drivers/cpufreq/Kconfig
++++ b/drivers/cpufreq/Kconfig
+@@ -228,6 +228,13 @@ config CPU_FREQ_GOV_CONSERVATIVE
+ 
+ 	  If in doubt, say N.
+ 
++config BUDIK_TUNE
++	bool "Budik OS performance profile tunables (/proc/sys/kernel/budik)"
++	depends on CPU_FREQ
++	help
++	  Init-writable sysctls for CPU/GPU caps, input boost and schedutil
++	  tunables, used by Budik OS performance profiles.
++
+ config CPU_BOOST
+ 	tristate "Event base short term CPU freq boost"
+ 	depends on CPU_FREQ
+diff --git a/drivers/cpufreq/Makefile b/drivers/cpufreq/Makefile
+index ba9f94052..87c013a4d 100644
+--- a/drivers/cpufreq/Makefile
++++ b/drivers/cpufreq/Makefile
+@@ -112,3 +112,4 @@ obj-$(CONFIG_SH_CPU_FREQ)		+= sh-cpufreq.o
+ obj-$(CONFIG_SPARC_US2E_CPUFREQ)	+= sparc-us2e-cpufreq.o
+ obj-$(CONFIG_SPARC_US3_CPUFREQ)		+= sparc-us3-cpufreq.o
+ obj-$(CONFIG_UNICORE32)			+= unicore2-cpufreq.o
++obj-$(CONFIG_BUDIK_TUNE)		+= budik_tune.o
+diff --git a/drivers/cpufreq/budik_tune.c b/drivers/cpufreq/budik_tune.c
+new file mode 100644
+index 000000000..c2f508de1
+--- /dev/null
++++ b/drivers/cpufreq/budik_tune.c
+@@ -0,0 +1,218 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Budik OS: performance profiles without a daemon.
++ *
++ * /proc/sys/kernel/budik/<node>: nodes with the SELinux type `proc`, which the
++ * system init may write (unlike the cpufreq/kgsl sysfs nodes, which have
++ * vendor types). A profile (battery/balanced/performance) is switched by init .rc
++ * with one `write` per node. 0 / -1 = keep the default behaviour.
++ *
++ *   cpu_max_khz_c0..c2  frequency cap per cluster (topology cluster_id)
++ *   gpu_max_hz          GPU cap (Adreno via kgsl_pwr_limits), an exact OPP
++ *   input_boost_ms      touch boost duration (cpu-boost), -1 = unchanged
++ *   sugov_*             schedutil tunables of all policies, -1 = unchanged
++ */
++
++#include <linux/cpu.h>
++#include <linux/cpufreq.h>
++#include <linux/init.h>
++#include <linux/mutex.h>
++#include <linux/sysctl.h>
++#include <linux/topology.h>
++#ifdef CONFIG_QCOM_KGSL
++#include <linux/msm_kgsl.h>
++#endif
++
++#define BUDIK_CLUSTERS 3
++
++static int cpu_max_khz[BUDIK_CLUSTERS];
++static DEFINE_MUTEX(budik_lock);
++
++static int budik_cpufreq_notify(struct notifier_block *nb, unsigned long val,
++				void *data)
++{
++	struct cpufreq_policy *policy = data;
++	int cl = topology_physical_package_id(policy->cpu);
++	unsigned int cap;
++
++	if (val != CPUFREQ_ADJUST || cl < 0 || cl >= BUDIK_CLUSTERS)
++		return NOTIFY_OK;
++
++	cap = cpu_max_khz[cl];
++	if (cap)
++		cpufreq_verify_within_limits(policy, 0, cap);
++
++	return NOTIFY_OK;
++}
++
++/* low priority: runs after cpu-boost raises the minimum, so the cap wins */
++static struct notifier_block budik_cpufreq_nb = {
++	.notifier_call = budik_cpufreq_notify,
++	.priority = -100,
++};
++
++static int budik_cpu_max_handler(struct ctl_table *table, int write,
++				 void __user *buffer, size_t *lenp,
++				 loff_t *ppos)
++{
++	int ret, cpu;
++
++	mutex_lock(&budik_lock);
++	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
++	if (!ret && write) {
++		get_online_cpus();
++		for_each_online_cpu(cpu)
++			cpufreq_update_policy(cpu);
++		put_online_cpus();
++	}
++	mutex_unlock(&budik_lock);
++	return ret;
++}
++
++#ifdef CONFIG_QCOM_KGSL
++static int gpu_max_hz;
++static void *gpu_limit;
++
++static int budik_gpu_max_handler(struct ctl_table *table, int write,
++				 void __user *buffer, size_t *lenp,
++				 loff_t *ppos)
++{
++	int ret;
++
++	mutex_lock(&budik_lock);
++	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
++	if (!ret && write) {
++		if (IS_ERR_OR_NULL(gpu_limit))
++			gpu_limit = kgsl_pwr_limits_add(KGSL_DEVICE_3D0);
++		if (IS_ERR_OR_NULL(gpu_limit))
++			ret = -ENODEV;
++		else if (gpu_max_hz)
++			ret = kgsl_pwr_limits_set_freq(gpu_limit, gpu_max_hz);
++		else
++			kgsl_pwr_limits_set_default(gpu_limit);
++	}
++	mutex_unlock(&budik_lock);
++	return ret;
++}
++#endif
++
++#ifdef CONFIG_CPU_BOOST
++extern unsigned int input_boost_ms;
++static int budik_input_boost_ms = -1;
++
++static int budik_input_boost_handler(struct ctl_table *table, int write,
++				     void __user *buffer, size_t *lenp,
++				     loff_t *ppos)
++{
++	int ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
++
++	if (!ret && write && budik_input_boost_ms >= 0)
++		WRITE_ONCE(input_boost_ms, budik_input_boost_ms);
++	return ret;
++}
++#endif
++
++#ifdef CONFIG_CPU_FREQ_GOV_SCHEDUTIL
++/* defined in kernel/sched/cpufreq_schedutil.c */
++extern int budik_sugov_up_rate_us, budik_sugov_down_rate_us;
++extern int budik_sugov_hispeed_load;
++void sugov_budik_apply_all(void);
++
++static int budik_sugov_handler(struct ctl_table *table, int write,
++			       void __user *buffer, size_t *lenp, loff_t *ppos)
++{
++	int ret;
++
++	mutex_lock(&budik_lock);
++	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
++	if (!ret && write)
++		sugov_budik_apply_all();
++	mutex_unlock(&budik_lock);
++	return ret;
++}
++#endif
++
++static int __maybe_unused zero;
++static int __maybe_unused minus_one = -1;
++static int __maybe_unused khz_max = 10000000;
++static int __maybe_unused hz_max = 2000000000;
++static int __maybe_unused ms_max = 5000;
++static int __maybe_unused us_max = 1000000;
++static int __maybe_unused hundred = 100;
++
++#define CPU_MAX_ENTRY(n) {						\
++	.procname	= "cpu_max_khz_c" #n,				\
++	.data		= &cpu_max_khz[n],				\
++	.maxlen		= sizeof(int),					\
++	.mode		= 0644,						\
++	.proc_handler	= budik_cpu_max_handler,			\
++	.extra1		= &zero,					\
++	.extra2		= &khz_max,					\
++}
++
++static struct ctl_table budik_table[] = {
++	CPU_MAX_ENTRY(0),
++	CPU_MAX_ENTRY(1),
++	CPU_MAX_ENTRY(2),
++#ifdef CONFIG_QCOM_KGSL
++	{
++		.procname	= "gpu_max_hz",
++		.data		= &gpu_max_hz,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= budik_gpu_max_handler,
++		.extra1		= &zero,
++		.extra2		= &hz_max,
++	},
++#endif
++#ifdef CONFIG_CPU_BOOST
++	{
++		.procname	= "input_boost_ms",
++		.data		= &budik_input_boost_ms,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= budik_input_boost_handler,
++		.extra1		= &minus_one,
++		.extra2		= &ms_max,
++	},
++#endif
++#ifdef CONFIG_CPU_FREQ_GOV_SCHEDUTIL
++	{
++		.procname	= "sugov_up_rate_us",
++		.data		= &budik_sugov_up_rate_us,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= budik_sugov_handler,
++		.extra1		= &minus_one,
++		.extra2		= &us_max,
++	},
++	{
++		.procname	= "sugov_down_rate_us",
++		.data		= &budik_sugov_down_rate_us,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= budik_sugov_handler,
++		.extra1		= &minus_one,
++		.extra2		= &us_max,
++	},
++	{
++		.procname	= "sugov_hispeed_load",
++		.data		= &budik_sugov_hispeed_load,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= budik_sugov_handler,
++		.extra1		= &minus_one,
++		.extra2		= &hundred,
++	},
++#endif
++	{ }
++};
++
++static int __init budik_tune_init(void)
++{
++	if (!register_sysctl("kernel/budik", budik_table))
++		return -ENOMEM;
++	return cpufreq_register_notifier(&budik_cpufreq_nb,
++					 CPUFREQ_POLICY_NOTIFIER);
++}
++late_initcall(budik_tune_init);
+diff --git a/drivers/cpufreq/cpu-boost.c b/drivers/cpufreq/cpu-boost.c
+index 7c21c1f1f..4c6baa479 100644
+--- a/drivers/cpufreq/cpu-boost.c
++++ b/drivers/cpufreq/cpu-boost.c
+@@ -40,7 +40,7 @@ static struct kthread_work input_boost_work;
+ 
+ static bool input_boost_enabled;
+ 
+-static unsigned int input_boost_ms = 40;
++unsigned int input_boost_ms = 40;
+ module_param(input_boost_ms, uint, 0644);
+ 
+ static unsigned int sched_boost_on_input;
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index 375914bfe..34c379e7c 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -732,6 +732,60 @@ static struct kobj_type sugov_tunables_ktype = {
+ 
+ static struct cpufreq_governor schedutil_gov;
+ 
++/* Budik OS profiles (drivers/cpufreq/budik_tune.c), -1 = default */
++int budik_sugov_up_rate_us = -1;
++int budik_sugov_down_rate_us = -1;
++int budik_sugov_hispeed_load = -1;
++
++static void sugov_budik_apply(struct sugov_tunables *tunables)
++{
++	struct gov_attr_set *attr_set = &tunables->attr_set;
++	struct sugov_policy *sg_policy;
++	int up = READ_ONCE(budik_sugov_up_rate_us);
++	int down = READ_ONCE(budik_sugov_down_rate_us);
++	int hs = READ_ONCE(budik_sugov_hispeed_load);
++
++	if (up >= 0)
++		tunables->up_rate_limit_us = up;
++	if (down >= 0)
++		tunables->down_rate_limit_us = down;
++	if (hs >= 0)
++		tunables->hispeed_load = min(100, hs);
++
++	list_for_each_entry(sg_policy, &attr_set->policy_list, tunables_hook) {
++		sg_policy->up_rate_delay_ns =
++			tunables->up_rate_limit_us * NSEC_PER_USEC;
++		sg_policy->down_rate_delay_ns =
++			tunables->down_rate_limit_us * NSEC_PER_USEC;
++		update_min_rate_limit_ns(sg_policy);
++	}
++}
++
++void sugov_budik_apply_all(void)
++{
++	struct cpufreq_policy *policy;
++	struct sugov_policy *sg_policy;
++	int cpu;
++
++	get_online_cpus();
++	for_each_online_cpu(cpu) {
++		policy = cpufreq_cpu_get(cpu);
++		if (!policy)
++			continue;
++		down_read(&policy->rwsem);
++		sg_policy = policy->governor_data;
++		if (policy->cpu == cpu && policy->governor == &schedutil_gov &&
++		    sg_policy && sg_policy->tunables) {
++			mutex_lock(&sg_policy->tunables->attr_set.update_lock);
++			sugov_budik_apply(sg_policy->tunables);
++			mutex_unlock(&sg_policy->tunables->attr_set.update_lock);
++		}
++		up_read(&policy->rwsem);
++		cpufreq_cpu_put(policy);
++	}
++	put_online_cpus();
++}
++
+ static struct sugov_policy *sugov_policy_alloc(struct cpufreq_policy *policy)
+ {
+ 	struct sugov_policy *sg_policy;
+@@ -919,6 +973,7 @@ static int sugov_init(struct cpufreq_policy *policy)
+ 	stale_ns = sched_ravg_window + (sched_ravg_window >> 3);
+ 
+ 	sugov_tunables_restore(policy);
++	sugov_budik_apply(tunables);
+ 
+ 	ret = kobject_init_and_add(&tunables->attr_set.kobj, &sugov_tunables_ktype,
+ 				   get_governor_parent_kobj(policy), "%s",
+-- 
+2.43.0
+
