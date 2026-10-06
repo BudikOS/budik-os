@@ -12,6 +12,13 @@ The system is built from the GrapheneOS source tree as a Generic System Image, w
   <img alt="Screenshots" src="docs/images/screens-light.png">
 </picture>
 
+Settings on a moto g7 power running a current development build:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/phone-dark.png">
+  <img alt="Settings and Display settings on a moto g7 power" src="docs/images/phone-light.png" width="480">
+</picture>
+
 ## Status
 
 Early development. Builds boot and run, but expect rough edges and breaking changes between builds. Do not install it on a phone you cannot afford to wipe.
