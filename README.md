@@ -120,7 +120,17 @@ budik-os/kernel/build.sh budik-os/kernel/budik_perf.config
 BASE_BOOT=lineage-boot.img budik-os/kernel/pack.sh boot-budik.img
 ```
 
-`BASE_BOOT` is the `boot.img` of the LineageOS 22.2 build for ocean; `pack.sh` keeps its ramdisk and command line and replaces the kernel. Try a new kernel with `fastboot boot boot-budik.img` before flashing it.
+`BASE_BOOT` is the `boot.img` of the LineageOS 22.2 build for ocean; `pack.sh` keeps its ramdisk and command line and replaces the kernel.
+
+Motorola's bootloader does not support `fastboot boot`, so a new kernel has to be flashed. Back up the boot partition first, either by keeping the `boot.img` you started from or from a running `userdebug` build:
+
+```
+adb root
+adb shell dd if=/dev/block/bootdevice/by-name/boot_b of=/data/local/tmp/boot_b.img
+adb pull /data/local/tmp/boot_b.img
+```
+
+If the new kernel does not boot, restore the backup with `fastboot flash boot_b boot_b.img`.
 
 ### Installing on ocean
 
