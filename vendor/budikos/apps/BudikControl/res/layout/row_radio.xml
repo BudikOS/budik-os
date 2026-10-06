@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/budik_row_min_height"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingStart="@dimen/budik_card_inner"
+    android:paddingEnd="@dimen/budik_card_inner"
+    android:background="@drawable/row_bg">
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/budik_row_padding"
+        android:paddingBottom="@dimen/budik_row_padding">
+        <TextView android:id="@+id/title" style="@style/Budik.RowTitle"
+            android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <TextView android:id="@+id/subtitle" style="@style/Budik.RowSubtitle"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+    <ImageView android:id="@+id/radio"
+        android:layout_width="24dp" android:layout_height="24dp"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/radio"
+        android:importantForAccessibility="no" />
+</LinearLayout>

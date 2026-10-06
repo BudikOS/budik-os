@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Budik OS performance profiles, moto g7 power (ocean, SDM632).
+# CPU: cluster 0 = 4x Silver (614-1804 MHz), cluster 1 = 4x Gold (633-1804 MHz)
+# GPU: Adreno 506, OPP 133-725 MHz (gpu_max_hz must be an exact OPP)
+# 0 = no cap. Other devices get their own budik_perf_<device>.rc with the same triggers.
+
+on property:sys.budik.perf_apply=battery && property:ro.product.vendor.device=ocean
+    write /proc/sys/kernel/budik/cpu_max_khz_c0 1363200
+    write /proc/sys/kernel/budik/cpu_max_khz_c1 1401600
+    write /proc/sys/kernel/budik/gpu_max_hz 510000000
+
+on property:sys.budik.perf_apply=balanced && property:ro.product.vendor.device=ocean
+    write /proc/sys/kernel/budik/cpu_max_khz_c0 0
+    write /proc/sys/kernel/budik/cpu_max_khz_c1 0
+    write /proc/sys/kernel/budik/gpu_max_hz 0
+
+on property:sys.budik.perf_apply=performance && property:ro.product.vendor.device=ocean
+    write /proc/sys/kernel/budik/cpu_max_khz_c0 0
+    write /proc/sys/kernel/budik/cpu_max_khz_c1 0
+    write /proc/sys/kernel/budik/gpu_max_hz 0

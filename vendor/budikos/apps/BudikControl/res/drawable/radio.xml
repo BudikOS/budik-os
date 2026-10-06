@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Radio (mockup 10_components): on = mint with ink ring and dot, off = border ring. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true">
+        <layer-list>
+            <item><shape android:shape="oval"><solid android:color="@color/budik_accent" /><stroke android:width="2dp" android:color="@color/budik_fg" /></shape></item>
+            <item android:left="8dp" android:top="8dp" android:right="8dp" android:bottom="8dp"><shape android:shape="oval"><solid android:color="@color/budik_on_accent" /></shape></item>
+        </layer-list>
+    </item>
+    <item><shape android:shape="oval"><stroke android:width="2dp" android:color="@color/budik_border" /></shape></item>
+</selector>

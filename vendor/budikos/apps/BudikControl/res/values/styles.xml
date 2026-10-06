@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same tokens/styles as BudikSetup. No monospace (export/README: JetBrains Mono banned). -->
+<resources>
+    <style name="Theme.BudikControl" parent="@android:style/Theme.DeviceDefault.DayNight">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/budik_bg</item>
+        <item name="android:colorBackground">@color/budik_bg</item>
+        <item name="android:colorAccent">@color/budik_accent</item>
+        <item name="android:colorControlNormal">@color/budik_fg3</item>
+        <item name="android:colorControlHighlight">@color/budik_line</item>
+        <item name="android:textColorPrimary">@color/budik_fg</item>
+        <item name="android:textColorSecondary">@color/budik_fg3</item>
+        <item name="android:fontFamily">instrument-sans</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:windowLightStatusBar">@bool/budik_light_bars</item>
+        <item name="android:windowLightNavigationBar">@bool/budik_light_bars</item>
+    </style>
+
+    <style name="Budik.Title" parent="">
+        <item name="android:fontFamily">schibsted-grotesk</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:letterSpacing">-0.035</item>
+        <item name="android:textColor">@color/budik_fg</item>
+    </style>
+
+    <!-- section label: Instrument Sans caps, spaced (mockup 07 "JAS", "VZHLED") -->
+    <style name="Budik.Section" parent="">
+        <item name="android:fontFamily">instrument-sans</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textSize">@dimen/budik_text_label</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.12</item>
+        <item name="android:textColor">@color/budik_fg3</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <style name="Budik.Card" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/card</item>
+        <item name="android:showDividers">middle</item>
+        <item name="android:divider">@drawable/list_divider</item>
+    </style>
+
+    <style name="Budik.RowTitle" parent="">
+        <item name="android:fontFamily">instrument-sans</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/budik_fg</item>
+    </style>
+
+    <style name="Budik.RowSubtitle" parent="">
+        <item name="android:fontFamily">instrument-sans</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/budik_fg3</item>
+    </style>
+
+    <!-- tabular figures for live values -->
+    <style name="Budik.Value" parent="">
+        <item name="android:fontFamily">instrument-sans</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFeatureSettings">"tnum"</item>
+        <item name="android:textColor">@color/budik_fg2</item>
+    </style>
+
+    <style name="Budik.Note" parent="Budik.RowSubtitle">
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">10dp</item>
+    </style>
+
+    <!-- keycap: face + hard 3 dp shadow, only the action label -->
+    <style name="Budik.Keycap" parent="@android:style/Widget.DeviceDefault.Button.Borderless">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/budik_keycap_height</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:paddingBottom">@dimen/budik_shadow_offset</item>
+        <item name="android:background">@drawable/keycap_primary</item>
+        <item name="android:textColor">@color/budik_on_primary</item>
+        <item name="android:fontFamily">schibsted-grotesk</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:stateListAnimator">@animator/keycap_press</item>
+    </style>
+</resources>

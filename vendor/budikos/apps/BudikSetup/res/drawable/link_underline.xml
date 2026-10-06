@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 2 dp mint underline under a text link. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="bottom|fill_horizontal" android:height="2dp" android:bottom="6dp">
+        <shape><solid android:color="@color/budik_accent" /></shape>
+    </item>
+</layer-list>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Signal 0-4 (export/icons/statusbar/stat_sys_wifi_*). -->
+<level-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:maxLevel="0" android:drawable="@drawable/ic_wifi_0" />
+    <item android:maxLevel="1" android:drawable="@drawable/ic_wifi_1" />
+    <item android:maxLevel="2" android:drawable="@drawable/ic_wifi_2" />
+    <item android:maxLevel="3" android:drawable="@drawable/ic_wifi_3" />
+    <item android:maxLevel="4" android:drawable="@drawable/ic_wifi_4" />
+</level-list>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark tokens (export/res/values-night/colors.xml). -->
+<resources>
+    <color name="budik_bg">#0E0F11</color>
+    <color name="budik_surface">#17191C</color>
+    <color name="budik_line">#262A2F</color>
+    <color name="budik_border">#3A3F46</color>
+    <color name="budik_fg">#F5F6F7</color>
+    <color name="budik_fg2">#C4C8CE</color>
+    <color name="budik_fg3">#8D949E</color>
+    <color name="budik_primary">#2A4291</color>
+    <color name="budik_primary_ink">#0B1E52</color>
+</resources>

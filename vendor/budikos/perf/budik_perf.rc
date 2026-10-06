@@ -1,0 +1,92 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Budik OS performance profiles and RAM Plus, generic part (GSI).
+# Set by BudikControl (platform app, system_prop context):
+#   persist.sys.budik.perf_profile = battery | balanced | performance  (immediately)
+#   persist.sys.budik.ram_plus_gb  = 0 | 2 | 4                         (after reboot)
+# Device-specific values (CPU/GPU caps) live in budik_perf_<device>.rc.
+# /proc/sys/kernel/budik/* comes from the Budik OS kernel (type proc, so init may
+# write it); on other kernels the writes fail silently.
+
+# --- schedtune: the Android 17 GSI no longer creates the groups that the vendor
+# task_profiles (EAS, 4.9) move processes into; without them everything stays in
+# the root group and the foreground loses prefer_idle. Without schedtune
+# /dev/stune does not exist and the mkdirs fail harmlessly.
+on early-init
+    mkdir /dev/stune/foreground 0755 system system
+    mkdir /dev/stune/background 0755 system system
+    mkdir /dev/stune/top-app 0755 system system
+    mkdir /dev/stune/rt 0755 system system
+    chown system system /dev/stune/foreground/tasks
+    chown system system /dev/stune/background/tasks
+    chown system system /dev/stune/top-app/tasks
+    chown system system /dev/stune/rt/tasks
+    chown system system /dev/stune/foreground/cgroup.procs
+    chown system system /dev/stune/background/cgroup.procs
+    chown system system /dev/stune/top-app/cgroup.procs
+    chown system system /dev/stune/rt/cgroup.procs
+    chmod 0664 /dev/stune/foreground/tasks
+    chmod 0664 /dev/stune/background/tasks
+    chmod 0664 /dev/stune/top-app/tasks
+    chmod 0664 /dev/stune/rt/tasks
+    chmod 0664 /dev/stune/foreground/cgroup.procs
+    chmod 0664 /dev/stune/background/cgroup.procs
+    chmod 0664 /dev/stune/top-app/cgroup.procs
+    chmod 0664 /dev/stune/rt/cgroup.procs
+    write /dev/stune/top-app/schedtune.prefer_idle 1
+    write /dev/stune/foreground/schedtune.prefer_idle 1
+
+# --- profile: at boot and on every change after boot_completed
+on property:sys.boot_completed=1 && property:persist.sys.budik.perf_profile=*
+    setprop sys.budik.perf_apply ${persist.sys.budik.perf_profile}
+
+on property:sys.budik.perf_apply=battery
+    write /proc/sys/kernel/budik/input_boost_ms 0
+    write /proc/sys/kernel/budik/sugov_up_rate_us 2000
+    write /proc/sys/kernel/budik/sugov_down_rate_us 0
+    write /proc/sys/kernel/budik/sugov_hispeed_load 95
+    write /dev/stune/top-app/schedtune.boost 0
+
+on property:sys.budik.perf_apply=balanced
+    write /proc/sys/kernel/budik/input_boost_ms 120
+    write /proc/sys/kernel/budik/sugov_up_rate_us 0
+    write /proc/sys/kernel/budik/sugov_down_rate_us 0
+    write /proc/sys/kernel/budik/sugov_hispeed_load 85
+    write /dev/stune/top-app/schedtune.boost 0
+
+on property:sys.budik.perf_apply=performance
+    write /proc/sys/kernel/budik/input_boost_ms 250
+    write /proc/sys/kernel/budik/sugov_up_rate_us 0
+    write /proc/sys/kernel/budik/sugov_down_rate_us 20000
+    write /proc/sys/kernel/budik/sugov_hispeed_load 70
+    write /dev/stune/top-app/schedtune.boost 10
+
+# --- RAM Plus: zram writeback through the AOSP mmd daemon (Android 17).
+# Read once per boot (sys.budik.ram_plus never changes afterwards): a change in
+# Settings applies after a reboot, a full zram is never swapped off at runtime.
+on property:ro.persistent_properties.ready=true
+    setprop sys.budik.ram_plus ${persist.sys.budik.ram_plus_gb}
+
+# The vendor fstab already enabled zram without a backing device, which can only
+# be set before disksize: swap off, reset and hand it over to mmd. This file is
+# parsed before mmd.rc, so this runs before mmd.rc starts mmd_setup.
+# zram = 100 % / 150 % of RAM (logical size), writeback file 2 / 4 GiB in
+# /data/per_boot/zram; mmd limits writeback to 1 GiB a day (eMMC wear).
+on property:sys.boot_completed=1 && property:sys.budik.ram_plus=2
+    setprop sys.budik.zram_size 100%
+    setprop sys.budik.zram_wb 2147483648
+
+on property:sys.boot_completed=1 && property:sys.budik.ram_plus=4
+    setprop sys.budik.zram_size 150%
+    setprop sys.budik.zram_wb 4294967296
+
+on property:sys.budik.zram_wb=*
+    swapoff /dev/block/zram0
+    write /sys/block/zram0/reset 1
+    setprop mmd.zram.size ${sys.budik.zram_size}
+    setprop mmd.zram.comp_algorithm lz4
+    setprop mmd.zram.writeback.enabled true
+    setprop mmd.zram.writeback.device_size ${sys.budik.zram_wb}
+    # write back pages idle for 2-6 h (the 20-25 h default writes almost nothing on 3-4 GB)
+    setprop mmd.zram.writeback.min_idle_seconds 7200
+    setprop mmd.zram.writeback.max_idle_seconds 21600
+    setprop mmd.zram.enabled true

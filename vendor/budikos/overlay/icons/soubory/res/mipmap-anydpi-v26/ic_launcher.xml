@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- copy layers to res/drawable as ic_launcher_soubory_{background,foreground,monochrome}.xml -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_soubory_background" />
+    <foreground android:drawable="@drawable/ic_launcher_soubory_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_soubory_monochrome" />
+</adaptive-icon>

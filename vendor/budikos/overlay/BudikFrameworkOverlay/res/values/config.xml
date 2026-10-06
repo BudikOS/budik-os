@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- families come from vendor/budikos/fonts_customization.xml -->
+    <string name="config_headlineFontFamily" translatable="false">schibsted-grotesk</string>
+    <string name="config_headlineFontFamilyMedium" translatable="false">schibsted-grotesk-medium</string>
+    <string name="config_headlineFontFeatureSettings" translatable="false"></string>
+    <string name="config_bodyFontFamily" translatable="false">instrument-sans</string>
+    <string name="config_bodyFontFamilyMedium" translatable="false">instrument-sans-medium</string>
+    <string name="config_clockFontFamily" translatable="false">schibsted-grotesk</string>
+
+    <!-- Monet default (until the user picks a style): VIBRANT keeps the mint seed
+         saturated; TONAL_SPOT (AOSP default) washes it out. Read by SystemUI
+         ThemeOverlayController.getHardwareColorSetting() -->
+    <string-array name="theming_defaults" translatable="false">
+        <item>*|VIBRANT|home_wallpaper</item>
+    </string-array>
+
+    <!-- adaptive icon mask: rounded square, corner radius 21 % (export/README.md) -->
+    <string name="config_icon_mask" translatable="false">"M21,0 H79 A21,21 0 0 1 100,21 V79 A21,21 0 0 1 79,100 H21 A21,21 0 0 1 0,79 V21 A21,21 0 0 1 21,0 Z"</string>
+</resources>

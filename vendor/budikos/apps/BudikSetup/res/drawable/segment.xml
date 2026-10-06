@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Step indicator segment (mockup progress blocks): done = mint, todo = line. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true"><shape><solid android:color="@color/budik_accent" /></shape></item>
+    <item><shape><solid android:color="@color/budik_line" /></shape></item>
+</selector>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Budík OS</string>
+    <string name="perf_title">Performance</string>
+    <string name="perf_summary">Profiles, RAM Plus</string>
+    <string name="tile_label">Performance</string>
+    <string name="back">Back</string>
+    <string name="section_profile">Profile</string>
+    <string name="section_ram_plus">RAM Plus</string>
+    <string name="section_status">Status</string>
+    <string name="profile_battery">Battery saver</string>
+    <string name="profile_balanced">Balanced</string>
+    <string name="profile_performance">Performance</string>
+    <string name="profile_battery_summary">Lower CPU and GPU clocks, no touch boost</string>
+    <string name="profile_balanced_summary">Smooth and efficient (default)</string>
+    <string name="profile_performance_summary">Faster response, higher drain</string>
+    <string name="ram_plus_off">Off</string>
+    <string name="ram_plus_off_summary">Compressed RAM only</string>
+    <string name="ram_plus_gb">%1$d GB</string>
+    <string name="ram_plus_2_summary">More apps stay in the background</string>
+    <string name="ram_plus_4_summary">Most apps in the background, more storage writes</string>
+    <string name="ram_plus_note">Takes effect after restart. Uses storage space and writes at most 1 GB a day.</string>
+    <string name="reboot">Restart</string>
+    <string name="status_cpu">Processor</string>
+    <string name="status_temp">Battery temperature</string>
+    <string name="status_memory">Memory</string>
+    <string name="status_ghz">%1$s GHz</string>
+    <string name="status_cpu_off">idle</string>
+    <string name="status_celsius">%1$s °C</string>
+    <string name="status_mem">%1$s of %2$s GB used</string>
+    <string name="status_swap">Swap %1$s of %2$s GB</string>
+</resources>

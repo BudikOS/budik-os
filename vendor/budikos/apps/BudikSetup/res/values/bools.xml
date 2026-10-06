@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- dark system bar icons on the light background -->
+    <bool name="budik_light_bars">true</bool>
+</resources>

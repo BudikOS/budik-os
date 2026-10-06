@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Budik dialog (mockup 11): card, title, text, optional password field,
+     plain text action + keycap action. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/dialog_card"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="23dp">
+
+        <TextView
+            android:id="@+id/dialog_title"
+            style="@style/BudikSetup.DialogTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityHeading="true" />
+
+        <TextView
+            android:id="@+id/dialog_body"
+            style="@style/BudikSetup.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" />
+
+        <EditText
+            android:id="@+id/dialog_field"
+            style="@style/BudikSetup.Field"
+            android:layout_marginTop="16dp"
+            android:inputType="textPassword"
+            android:visibility="gone" />
+
+        <CheckBox
+            android:id="@+id/dialog_show"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:textSize="15sp"
+            android:textColor="@color/budik_fg2"
+            android:text="@string/show_password"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="end|center_vertical">
+
+            <TextView
+                android:id="@+id/dialog_negative"
+                style="@style/BudikSetup.TextAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/dialog_positive"
+                style="@style/BudikSetup.Keycap.Compact" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

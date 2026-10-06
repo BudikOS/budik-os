@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="perf_title">Výkon</string>
+    <string name="perf_summary">Profily, RAM Plus</string>
+    <string name="tile_label">Výkon</string>
+    <string name="back">Zpět</string>
+    <string name="section_profile">Profil</string>
+    <string name="section_ram_plus">RAM Plus</string>
+    <string name="section_status">Stav</string>
+    <string name="profile_battery">Úspora</string>
+    <string name="profile_balanced">Vyvážený</string>
+    <string name="profile_performance">Výkon</string>
+    <string name="profile_battery_summary">Nižší takt procesoru a grafiky, bez zrychlení dotyku</string>
+    <string name="profile_balanced_summary">Plynulý a úsporný (výchozí)</string>
+    <string name="profile_performance_summary">Rychlejší odezva, vyšší spotřeba</string>
+    <string name="ram_plus_off">Vypnuto</string>
+    <string name="ram_plus_off_summary">Jen komprimovaná RAM</string>
+    <string name="ram_plus_gb">%1$d GB</string>
+    <string name="ram_plus_2_summary">Víc aplikací zůstane v pozadí</string>
+    <string name="ram_plus_4_summary">Nejvíc aplikací v pozadí, víc zápisů do úložiště</string>
+    <string name="ram_plus_note">Projeví se po restartu. Zabere místo v úložišti a zapíše nejvýš 1 GB denně.</string>
+    <string name="reboot">Restartovat</string>
+    <string name="status_cpu">Procesor</string>
+    <string name="status_temp">Teplota baterie</string>
+    <string name="status_memory">Paměť</string>
+    <string name="status_ghz">%1$s GHz</string>
+    <string name="status_cpu_off">nečinný</string>
+    <string name="status_celsius">%1$s °C</string>
+    <string name="status_mem">využito %1$s z %2$s GB</string>
+    <string name="status_swap">Swap %1$s z %2$s GB</string>
+</resources>
