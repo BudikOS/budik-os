@@ -105,6 +105,17 @@ Each script re-runs itself inside the `budikos-build:24.04` container. `build/pi
 
 `apply.sh` is incremental: after the first full run it only refreshes the Budík OS layer and re-applies projects whose patches changed. `build/check-patches.sh` checks that the whole patch set applies on a clean base without touching the tree.
 
+### Source tree with repo
+
+The tree used by our builds is also published as forks in the [BudikOS](https://github.com/BudikOS) organisation, on top of GrapheneOS in the same way LineageOS forks AOSP. Every project we change has a fork with the branch `budik-17`; the manifest pulls them in together with the RestlessOS (TrebleDroid) GSI projects and `vendor/budikos` from this repository:
+
+```
+repo init -u https://github.com/BudikOS/platform_manifest -b budik-17 --git-lfs
+repo sync -c -j8
+```
+
+The forks are the place to read the code and to send changes to Android projects (see [CONTRIBUTING.md](CONTRIBUTING.md)). The list of forks is in [`budikos.xml`](https://github.com/BudikOS/platform_manifest/blob/budik-17/budikos.xml).
+
 ### Signing keys
 
 `build/keys.sh` generates a release key set in `$BUDIK_ROOT/keys` (mode 700, never inside the source tree) and installs it as `vendor/budikos-priv` for the signing step. Existing keys are never replaced. Back the directory up: an image signed with different keys cannot be installed over an existing installation without a data wipe. Never commit or publish these keys.
